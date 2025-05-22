@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -65,65 +66,83 @@ export default function ProductDetailsPage() {
         <title>Sendy | בקשה להצעת מחיר</title>
       </Head>
 
-      <div className="absolute top-6 left-6 text-3xl text-blue-700 cursor-pointer z-50" onClick={goBack}>←</div>
-      <div className="absolute top-6 right-6 text-3xl text-blue-700 cursor-pointer z-50" onClick={goNext}>→</div>
-
-      <div className="text-center max-w-[700px] mx-auto mb-10">
-        <h1 className="text-[28px] font-bold text-black leading-tight mb-4">בקשה להצעת מחיר</h1>
-        <p className="text-[17px] text-gray-700 leading-relaxed">
-          העוזרת האוטומטית שלנו עושה כמיטב יכולתה למצוא עבורכם את פרטי המוצר.<br />
-          עברו על הפרטים ואמתו אותם - השלימו את הפרטים החסרים - במידה של חוסרים פנו לאתר או ליצרן המוצר.
+      {/* טקסט SENDY ברקע */}
+      <div className="fixed inset-x-0 bottom-0 z-0 pointer-events-none select-none leading-none h-[1px]">
+        <p className="text-[700px] text-white font-lalezar absolute bottom-[-250px] left-1/2 -translate-x-1/2 opacity-60 whitespace-nowrap">
+          SENDY
         </p>
       </div>
 
-      <form className="max-w-[800px] mx-auto space-y-6 mb-10">
-        <div className="grid grid-cols-2 gap-4">
-          <input className="w-full h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="שם המוצר" defaultValue={data.name} />
-          <input className="w-full h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="שם היצרן" defaultValue={data.manufacturer} />
+      {/* תוכן ראשי של הדף */}
+      <div className="relative z-10">
+        <div className="absolute top-4 right-6 text-3xl text-blue-700 cursor-pointer z-50" onClick={goBack}>→</div>
+        <div className="absolute top-4 left-6 text-3xl text-blue-700 cursor-pointer z-50" onClick={goNext}>←</div>
+
+        <div className="text-center max-w-[700px] mx-auto mb-10">
+          <h1 className="text-[28px] font-bold text-black leading-tight mb-4">בקשה להצעת מחיר</h1>
+          <p className="text-[17px] text-gray-700 leading-relaxed">
+            העוזרת האוטומטית שלנו עושה כמיטב יכולתה למצוא עבורכם את פרטי המוצר.<br />
+            עברו על הפרטים ואמתו אותם - השלימו את הפרטים החסרים - במידה של חוסרים פנו לאתר או ליצרן המוצר.
+          </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="משקל בקילוגרם" defaultValue={data.weight} />
-          <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="מספר קטלוגי" />
-          <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="נפח למשלוח CBM" defaultValue={data.cbm} />
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <input className="col-span-2 h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="קישור לדף המוצר" defaultValue={link || ''} />
-          <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="מחיר נקוב באתר" />
-        </div>
-
-        <div className="grid grid-cols-5 gap-4">
-          <input className="col-span-4 h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="כתובת יעד המשלוח – מספר בית - רחוב - עיר - מדינה" />
-          <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="נקודת מוצא" defaultValue={data.origin} />
-        </div>
-
-        <textarea className="w-full px-4 py-2 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500 h-24 resize-none" placeholder="פרטים והערות למשלוח" />
-
-        <div className="flex justify-between items-end gap-6">
-          <fieldset className="border border-black rounded-xl p-3 space-y-2 w-full max-w-[400px]">
-            <legend className="text-sm font-medium text-gray-700">סוג הבקשה:</legend>
-            <label className="flex items-center space-x-2 space-x-reverse">
-              <input type="radio" name="type" className="accent-blue-600" />
-              <span>בדיקת דרישות תקן בארץ היעד</span>
-            </label>
-            <label className="flex items-center space-x-2 space-x-reverse">
-              <input type="radio" name="type" className="accent-blue-600" />
-              <span>טיפול במכס ואגרות</span>
-            </label>
-          </fieldset>
-
-          <div className="flex flex-col items-end justify-end h-full">
-            <p className="text-sm text-black mb-2">הצעת המחיר תנתן כנגד הפרטים המופיעים בדף זה.</p>
-            <button type="submit" className="bg-[#0084FF] hover:bg-blue-700 text-white font-bold text-[16px] px-8 py-2 rounded-xl shadow-md transition">
-              הגשת בקשה להצעת מחיר
-            </button>
+        <form className="max-w-[800px] mx-auto space-y-6 mb-10">
+          <div className="grid grid-cols-2 gap-4">
+            <input className="w-full h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="שם המוצר" defaultValue={data.name} />
+            <input className="w-full h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="שם היצרן" defaultValue={data.manufacturer} />
           </div>
-        </div>
-      </form>
 
-      <div className="fixed bottom-0 left-0 w-full text-[280px] text-white font-[Laiezar] text-center opacity-100 pointer-events-none select-none leading-none z-0 whitespace-nowrap">
-        SENDY
+          <div className="grid grid-cols-3 gap-4">
+            <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="משקל בקילוגרם" defaultValue={data.weight} />
+            <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="מספר קטלוגי" />
+            <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="נפח למשלוח CBM" defaultValue={data.cbm} />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <input className="col-span-2 h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="קישור לדף המוצר" defaultValue={link || ''} />
+            <input className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500" placeholder="מחיר נקוב באתר" />
+          </div>
+
+<div className="grid grid-cols-3 gap-4">
+  <input
+    className="h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500"
+    placeholder="נקודת מוצא"
+    defaultValue={data.origin}
+  />
+  <input
+    className="col-span-2 h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500"
+    placeholder="כתובת יעד המשלוח – מספר בית - רחוב - עיר - מדינה"
+    defaultValue=""
+  />
+</div>
+
+
+
+
+
+          <textarea className="w-full px-4 py-2 border border-black rounded-xl shadow-sm text-sm bg-white placeholder-gray-500 h-24 resize-none" placeholder="פרטים והערות למשלוח" />
+
+          <div className="flex justify-between items-end gap-6">
+            <fieldset className="border border-black rounded-xl p-3 space-y-2 w-full max-w-[400px]">
+              <legend className="text-sm font-medium text-gray-700">סוג הבקשה:</legend>
+              <label className="flex items-center space-x-2 space-x-reverse">
+                <input type="radio" name="type" className="accent-blue-600" />
+                <span>בדיקת דרישות תקן בארץ היעד</span>
+              </label>
+              <label className="flex items-center space-x-2 space-x-reverse">
+                <input type="radio" name="type" className="accent-blue-600" />
+                <span>טיפול במכס ואגרות</span>
+              </label>
+            </fieldset>
+
+            <div className="flex flex-col items-end justify-end h-full">
+              <p className="text-sm text-black mb-2">הצעת המחיר תנתן כנגד הפרטים המופיעים בדף זה.</p>
+              <button type="submit" className="bg-[#0084FF] hover:bg-blue-700 text-white font-bold text-[16px] px-8 py-2 rounded-xl shadow-md transition">
+                הגשת בקשה להצעת מחיר
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
 
       {visible && (
