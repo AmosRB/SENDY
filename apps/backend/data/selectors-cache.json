@@ -1,0 +1,16 @@
+{
+  "aliexpress.com": {
+    "name": "h1.product-title-text",
+    "weight": ".product-specs-list li:contains('Weight')",
+    "dimensions": ".product-specs-list li:contains('Size')",
+    "manufacturer": ".product-specs-list li:contains('Brand')",
+    "origin": ".product-specs-list li:contains('Ship From')"
+  },
+  "amazon.com": {
+    "name": "#productTitle",
+    "weight": "#detailBullets_feature_div li:contains('Weight')",
+    "dimensions": "#detailBullets_feature_div li:contains('Dimensions')",
+    "manufacturer": "#bylineInfo",
+    "origin": "#productDetails_techSpec_section_1 tr:contains('Origin') td"
+  }
+}

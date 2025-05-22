@@ -1,0 +1,87 @@
+// selectorDetector.js
+const fs = require('fs');
+const path = require('path');
+const puppeteer = require('puppeteer');
+const urlLib = require('url');
+
+const SELECTOR_CACHE_PATH = path.join(__dirname, '../data/selectors-cache.json');
+
+function loadCache() {
+  if (!fs.existsSync(SELECTOR_CACHE_PATH)) return {};
+  return JSON.parse(fs.readFileSync(SELECTOR_CACHE_PATH));
+}
+
+function saveCache(cache) {
+  fs.writeFileSync(SELECTOR_CACHE_PATH, JSON.stringify(cache, null, 2));
+}
+
+function extractDomain(url) {
+  const parsed = urlLib.parse(url);
+  return parsed.hostname.replace('www.', '');
+}
+
+function generateSelector(el) {
+  if (el.id) return `#${el.id}`;
+  if (el.className) {
+    const classes = el.className.trim().split(/\s+/).join('.');
+    return `${el.tagName.toLowerCase()}.${classes}`;
+  }
+  return el.tagName.toLowerCase();
+}
+
+async function detectSelectorsFromPage(url) {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+
+  const elements = await page.$$eval('*', nodes => {
+    return nodes
+      .filter(n => n.innerText && n.innerText.length < 100)
+      .map(n => ({
+        tag: n.tagName,
+        id: n.id,
+        className: n.className,
+        text: n.innerText.trim(),
+      }));
+  });
+
+  const fields = {
+    name: null,
+    weight: null,
+    dimensions: null,
+    manufacturer: null,
+    origin: null,
+  };
+
+  for (const el of elements) {
+    const text = el.text.toLowerCase();
+    if (!text) continue;
+
+    if (!fields.name && text.length > 8 && text.length < 80 && /^[a-z0-9]/.test(text)) {
+      fields.name = generateSelector(el);
+    }
+    if (!fields.weight && text.includes('weight')) {
+      fields.weight = generateSelector(el);
+    }
+    if (!fields.dimensions && (text.includes('dimension') || text.includes('size'))) {
+      fields.dimensions = generateSelector(el);
+    }
+    if (!fields.manufacturer && text.includes('manufacturer')) {
+      fields.manufacturer = generateSelector(el);
+    }
+    if (!fields.origin && text.includes('ship from')) {
+      fields.origin = generateSelector(el);
+    }
+  }
+
+  await browser.close();
+
+  const domain = extractDomain(url);
+  const cache = loadCache();
+  cache[domain] = fields;
+  saveCache(cache);
+
+  return { domain, selectors: fields };
+}
+
+module.exports = detectSelectorsFromPage;
