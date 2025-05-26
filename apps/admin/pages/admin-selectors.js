@@ -1,5 +1,4 @@
 // apps/admin/pages/admin-selectors.js
-
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 
@@ -8,22 +7,42 @@ export default function AdminSelectorsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-useEffect(() => {
-  fetch('http://localhost:4135/api/selectors') // ✅
-    .then(res => res.json())
-    .then(setSelectors)
-    .catch(err => setError(err.message))
-    .finally(() => setLoading(false));
-}, []);
+  const fetchSelectors = () => {
+    setLoading(true);
+    fetch('http://localhost:4135/api/selectors')
+      .then(res => res.json())
+      .then((data) => {
+        console.log('✅ Selectors loaded:', data);
+        setSelectors(data);
+      })
+      .catch(err => {
+        console.error('❌ Error loading selectors:', err.message);
+        setError(err.message);
+      })
+      .finally(() => setLoading(false));
+  };
 
-const handleSave = async () => {
-  try {
-    const res = await fetch('http://localhost:4135/api/selectors', { // ✅
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(selectors),
-    });
+  useEffect(() => {
+    fetchSelectors();
+  }, []);
 
+  const handleChange = (domain, field, value) => {
+    setSelectors(prev => ({
+      ...prev,
+      [domain]: {
+        ...prev[domain],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch('http://localhost:4135/api/selectors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(selectors),
+      });
       if (!res.ok) throw new Error('Failed to save');
       alert('✅ Selectors saved successfully');
     } catch (err) {
@@ -39,7 +58,15 @@ const handleSave = async () => {
       <Head>
         <title>ניהול סלקטורים</title>
       </Head>
-      <h1 className="text-2xl font-bold mb-6">🔧 ניהול סלקטורים לפי דומיין</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">🔧 ניהול סלקטורים לפי דומיין</h1>
+        <button
+          onClick={fetchSelectors}
+          className="bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300"
+        >
+          🔄 רענן
+        </button>
+      </div>
 
       {Object.entries(selectors).map(([domain, fields]) => (
         <div key={domain} className="mb-8 border rounded-lg p-4 shadow">
@@ -51,7 +78,7 @@ const handleSave = async () => {
                 <input
                   type="text"
                   className="w-full border px-3 py-2 rounded text-sm"
-                  value={fields[field] || ''}
+                  value={fields?.[field] || ''}
                   onChange={(e) => handleChange(domain, field, e.target.value)}
                 />
               </div>

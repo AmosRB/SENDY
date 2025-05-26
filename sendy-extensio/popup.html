@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>Sendy Selector</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: transparent;
+    }
+
+    #floating-window {
+      position: fixed;
+      top: 100px;
+      left: 100px;
+      width: 360px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 99999;
+    }
+
+    #top-bar {
+      background-color: #0084FF;
+      color: white;
+      padding: 10px;
+      cursor: move;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #top-bar span {
+      font-weight: bold;
+    }
+
+    #top-bar button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #main-content {
+      padding: 15px;
+    }
+
+    select, button {
+      margin: 5px 0;
+      padding: 8px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #selection-info {
+      text-align: left;
+      background-color: #e9e9e9;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="floating-window">
+    <div id="top-bar">
+      <span>📦 למידת סלקטורים</span>
+      <div>
+        <button id="minimize">−</button>
+        <button id="close">✕</button>
+      </div>
+    </div>
+    <div id="main-content">
+      <p id="main-message">בחר שדה ולחץ על אלמנט בדף</p>
+
+      <div id="initial-state">
+        <select id="field-select">
+          <option value="">בחר שדה...</option>
+          <option value="name">שם המוצר</option>
+          <option value="manufacturer">יצרן</option>
+          <option value="weight">משקל</option>
+          <option value="dimensions">מידות</option>
+          <option value="origin">ארץ מקור</option>
+        </select>
+        <button id="start-btn">🎯 התחל בחירה</button>
+      </div>
+
+      <div id="selecting-state" class="hidden">
+        <p id="selecting-message" style="color: blue;">אנא בחר אלמנט בדף עבור שדה: <strong id="current-field-display"></strong></p>
+        <button id="cancel-selection-btn">❌ ביטול בחירה</button>
+      </div>
+
+      <div id="selected-state" class="hidden">
+        <p id="selected-message" style="color: green;">האלמנט נבחר בהצלחה!</p>
+        <div id="selection-info">
+          <strong>שדה:</strong> <span id="display-field"></span><br>
+          <strong>סלקטור:</strong> <span id="display-selector"></span><br>
+          <strong>תוכן:</strong> <span id="display-content"></span>
+        </div>
+      <button id="save-selector-btn" class="btn">💾 שמור סלקטור</button>
+
+        <button id="clear-selection-btn">🗑️ בחר מחדש</button>
+      </div>
+
+      <p id="status" style="margin-top: 12px; font-weight: bold;"></p>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!-- apps/admin/public/popup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Train Mode Popup</title>
+  <style>
+    * { font-family: sans-serif; }
+    body { margin: 0; padding: 0; }
+    iframe { width: 100vw; height: 100vh; border: none; }
+  </style>
+</head>
+<body>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get('target');
+
+    const iframe = document.createElement('iframe');
+    iframe.src = target;
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.body.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const path = getSelectorPath(e.target);
+        window.opener.postMessage({ type: 'selector-selected', selector: path }, '*');
+        alert('הסלקטור נשלח: ' + path);
+      }, true);
+    };
+
+    function getSelectorPath(el) {
+      if (!el) return '';
+      const path = [];
+      while (el && el.nodeType === 1 && el.tagName.toLowerCase() !== 'html') {
+        let selector = el.tagName.toLowerCase();
+        if (el.id) {
+          selector += `#${el.id}`;
+          path.unshift(selector);
+          break;
+        }
+        if (el.className) {
+          const classes = el.className.trim().split(/\s+/).join('.');
+          if (classes) selector += '.' + classes;
+        }
+        path.unshift(selector);
+        el = el.parentNode;
+      }
+      return path.join(' > ');
+    }
+  </script>
+</body>
+</html>

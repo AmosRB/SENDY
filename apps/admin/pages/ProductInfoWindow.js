@@ -41,7 +41,7 @@ export default function ProductInfoWindow({ data, link, onRetry }) {
   useEffect(() => {
     const requiredFields = ['name', 'manufacturer', 'weight', 'dimensions', 'cbm', 'origin'];
     if (!data || requiredFields.every(key => !data[key] || data[key] === 'N/A' || data[key].trim?.() === '')) {
-      setStatus('error');
+      setStatus('loading');
     } else if (requiredFields.every(key => data[key] && data[key] !== 'N/A' && data[key].trim?.() !== '')) {
       setStatus('success');
     } else {

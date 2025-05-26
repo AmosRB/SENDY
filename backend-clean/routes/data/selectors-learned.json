@@ -1,0 +1,292 @@
+{
+  "alibaba.com": {
+    "origin": [
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item:nth-child(2) > div.right > span",
+        "score": 1
+      },
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item:nth-child(12) > div.right > span",
+        "score": 1
+      },
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list > div.attribute-item:nth-child(5) > div.right > span",
+        "score": 1
+      }
+    ],
+    "manufacturer": [
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator > a",
+        "score": 13
+      }
+    ],
+    "weight": [
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(3) > div.attribute-item:nth-child(4) > div.right > span",
+        "score": 1
+      },
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(3) > div.attribute-item:nth-child(3) > div.right",
+        "score": 1
+      },
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item:nth-child(4) > div.right",
+        "score": 1
+      }
+    ],
+    "dimensions": [
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(3) > div.attribute-item:nth-child(3) > div.right > span",
+        "score": 1
+      },
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(3) > div.attribute-item:nth-child(2) > div.right > span",
+        "score": 1
+      },
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item:nth-child(3) > div.right > span",
+        "score": 1
+      }
+    ],
+    "name": [
+      {
+        "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_title > div.product-title-container > h1",
+        "score": 13
+      }
+    ]
+  },
+  "amazon.com": {
+    "name": [
+      {
+        "selector": "span#productTitle",
+        "score": 6
+      },
+      {
+        "selector": "div#aplus > div.aplus-v2.desktop.celwidget > div.celwidget.aplus-module.module-2.aplus-standard > div.aplus-module-wrapper.apm-floatnone.apm-fixed-width > div.apm-sidemodule.apm-spacing > div.apm-sidemodule-textright > h3.a-spacing-mini",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      }
+    ],
+    "manufacturer": [
+      {
+        "selector": "a#bylineInfo",
+        "score": 4
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
+        "score": 2
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(29) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      }
+    ],
+    "dimensions": [
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(4) > td.a-size-base.prodDetAttrValue",
+        "score": 3
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr > td.a-size-base.prodDetAttrValue",
+        "score": 2
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(21) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(38) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      }
+    ],
+    "weight": [
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
+        "score": 2
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(2) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(22) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(31) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(30) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(2) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      }
+    ],
+    "origin": [
+      {
+        "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(23) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      },
+      {
+        "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(5) > td.a-size-base.prodDetAttrValue",
+        "score": 1
+      }
+    ]
+  },
+  "he.aliexpress.com": {
+    "dimensions": [
+      {
+        "selector": "div#nav-specification > ul.specification--list--GZuXzRX > li.specification--line--IXeRJI7:nth-child(7) > div.specification--prop--Jh28bKu:nth-child(2) > div.specification--desc--Dxx6W0W > span",
+        "score": 1
+      }
+    ],
+    "origin": [
+      {
+        "selector": "div#nav-specification > ul.specification--list--GZuXzRX > li.specification--line--IXeRJI7:nth-child(14) > div.specification--prop--Jh28bKu:nth-child(2) > div.specification--desc--Dxx6W0W",
+        "score": 1
+      }
+    ],
+    "name": [
+      {
+        "selector": "div#root > div.pdp-page-wrap > div.pdp-body.pdp-wrap > div.pdp-body-top > div.pdp-body-top-left > div.pdp-info > div.pdp-info-right > div.title--wrap--UUHae_g > h1",
+        "score": 1
+      }
+    ]
+  },
+  "aliexpress.com": {
+    "name": [
+      {
+        "selector": "div#root > div.pdp-page-wrap > div.pdp-body.pdp-wrap > div.pdp-body-top > div.pdp-body-top-left > div.pdp-info > div.pdp-info-right > div.title--wrap--UUHae_g > h1",
+        "score": 1
+      }
+    ],
+    "dimensions": [
+      {
+        "selector": "div#nav-specification > ul.specification--list--GZuXzRX > li.specification--line--IXeRJI7:nth-child(2) > div.specification--prop--Jh28bKu:nth-child(2) > div.specification--desc--Dxx6W0W",
+        "score": 0
+      }
+    ],
+    "weight": [],
+    "manufacturer": [
+      {
+        "selector": "div#root > div.pdp-page-wrap > div.pdp-body.pdp-wrap > div.pdp-body-top > div.pdp-body-top-right > div.action--container--Bv1OwjX > div.action--wrap--BWrENF4 > a.store-detail--wrap--IhR4e1j > div.store-detail--storeNameWrap--Z45gRHH > span.store-detail--storeName--Lk2FVZ4",
+        "score": 0
+      }
+    ]
+  },
+  "cntongbo.en.made-in-china.com": {
+    "name": [],
+    "manufacturer": [],
+    "origin": []
+  },
+  "cshome88.en.made-in-china.com": {
+    "origin": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-wrap.sr-layout-resp:nth-child(2) > div.sr-layout-main > div.sr-layout-block.detail-tab.J-tabs > div.sr-layout-subblock.detail-tab-item.J-tab-cnt:nth-child(2) > div.sr-layout-block.bsc-info:nth-child(2) > div.sr-layout-subblock > div.sr-layout-content > div.basic-info-list > div.bsc-item.cf:nth-child(28) > div.bac-item-value.fl",
+        "score": 3
+      }
+    ],
+    "dimensions": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-wrap.sr-layout-resp:nth-child(2) > div.sr-layout-main > div.sr-layout-block.detail-tab.J-tabs > div.sr-layout-subblock.detail-tab-item.J-tab-cnt:nth-child(2) > div.sr-layout-block.bsc-info:nth-child(2) > div.sr-layout-subblock > div.sr-layout-content > div.basic-info-list > div.bsc-item.cf:nth-child(14) > div.bac-item-value.fl",
+        "score": 3
+      }
+    ],
+    "name": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-detail.clears > div.sr-detail-content.clears > div.sr-layout-block.sr-layout-left > div.sr-layout-content.sr-proMainInfo.J-sr-proMainInfo > div.sr-proMainInfo-baseInfo > div.sr-proMainInfo-baseInfo-name > h1.sr-proMainInfo-baseInfoH1.J-baseInfo-name",
+        "score": 3
+      }
+    ],
+    "manufacturer": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-detail.clears > div.sr-detail-content.clears > div.sr-layout-block.sr-layout-left > div.sr-layout-content.sr-proMainInfo.J-sr-proMainInfo > div.sr-proMainInfo-baseInfo > div.sr-proMainInfo-baseInfo-property > div.sr-proMainInfo-baseInfo-propertyAttr > div.sr-layout-block.sr-com-place.sr-com-place-top:nth-child(2) > div > div.sr-linkTo-comInfo.J-linkTo-comInfo > div.sr-com.com-place-one.com-place-one-new > div.sr-com-info > div.sr-comInfo-title > div.title-txt > a > span.text-ellipsis",
+        "score": 3
+      }
+    ]
+  },
+  "matrixdiamond.en.made-in-china.com": {
+    "name": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-detail.clears > div.sr-detail-content.clears > div.sr-layout-block.sr-layout-left > div.sr-layout-content.sr-proMainInfo.J-sr-proMainInfo > div.sr-proMainInfo-baseInfo > div.sr-proMainInfo-baseInfo-name > h1.sr-proMainInfo-baseInfoH1.J-baseInfo-name",
+        "score": 1
+      }
+    ],
+    "manufacturer": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-detail.clears > div.sr-detail-content.clears > div.sr-layout-block.sr-layout-left > div.sr-layout-content.sr-proMainInfo.J-sr-proMainInfo > div.sr-proMainInfo-baseInfo > div.sr-proMainInfo-baseInfo-property > div.sr-proMainInfo-baseInfo-propertyAttr > div.sr-layout-block.sr-com-place.sr-com-place-top:nth-child(2) > div > div.sr-linkTo-comInfo.J-linkTo-comInfo > div.sr-com.com-place-one.com-place-one-new > div.sr-com-info > div.sr-comInfo-title > div.title-txt > a > span.text-ellipsis",
+        "score": 1
+      }
+    ],
+    "origin": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-wrap.sr-layout-resp:nth-child(2) > div.sr-layout-main > div.sr-layout-block.detail-tab.J-tabs > div.sr-layout-subblock.detail-tab-item.J-tab-cnt > div.sr-layout-block.bsc-info > div.sr-layout-subblock > div.sr-layout-content > div.basic-info-list > div.bsc-item.cf:nth-child(10) > div.bac-item-value.fl",
+        "score": 1
+      }
+    ]
+  },
+  "fsbestme.en.made-in-china.com": {
+    "name": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-detail.clears > div.sr-detail-content.clears > div.sr-layout-block.sr-layout-left > div.sr-layout-content.sr-proMainInfo.J-sr-proMainInfo > div.sr-proMainInfo-baseInfo > div.sr-proMainInfo-baseInfo-name > h1.sr-proMainInfo-baseInfoH1.J-baseInfo-name",
+        "score": 1
+      },
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(3) > div > div.sr-layout-detail.clears > div.sr-detail-content.clears > div.sr-layout-block.sr-layout-left > div.sr-layout-content.sr-proMainInfo.J-sr-proMainInfo > div.sr-proMainInfo-baseInfo > div.sr-proMainInfo-baseInfo-name > h1.sr-proMainInfo-baseInfoH1.J-baseInfo-name",
+        "score": 1
+      }
+    ],
+    "manufacturer": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-detail.clears > div.sr-detail-content.clears > div.sr-layout-block.sr-layout-left > div.sr-layout-content.sr-proMainInfo.J-sr-proMainInfo > div.sr-proMainInfo-baseInfo > div.sr-proMainInfo-baseInfo-property > div.sr-proMainInfo-baseInfo-propertyAttr > div.sr-layout-block.sr-com-place.sr-com-place-top:nth-child(2) > div > div.sr-linkTo-comInfo.J-linkTo-comInfo > div.sr-com.com-place-one > div.sr-com-info > div.sr-comInfo-title.has360 > div.title-txt > a > span.text-ellipsis",
+        "score": 2
+      }
+    ],
+    "dimensions": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-wrap.sr-layout-resp:nth-child(2) > div.sr-layout-main > div.sr-layout-block.detail-tab.J-tabs > div.sr-layout-subblock.detail-tab-item.J-tab-cnt > div.sr-layout-block.bsc-info > div.sr-layout-subblock > div.sr-layout-content > div.basic-info-list > div.bsc-item.cf:nth-child(10) > div.bac-item-value.fl",
+        "score": 1
+      },
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-wrap.sr-layout-resp:nth-child(2) > div.sr-layout-main > div.sr-layout-block.detail-tab.J-tabs > div.sr-layout-subblock.detail-tab-item.J-tab-cnt > div.sr-layout-block.bsc-info > div.sr-layout-subblock > div.sr-layout-content > div.basic-info-list > div.bsc-item.cf:nth-child(16) > div.bac-item-value.fl",
+        "score": 1
+      }
+    ],
+    "origin": [
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-wrap.sr-layout-resp:nth-child(2) > div.sr-layout-main > div.sr-layout-block.detail-tab.J-tabs > div.sr-layout-subblock.detail-tab-item.J-tab-cnt > div.sr-layout-block.bsc-info > div.sr-layout-subblock > div.sr-layout-content > div.basic-info-list > div.bsc-item.cf:nth-child(12) > div.bac-item-value.fl",
+        "score": 1
+      },
+      {
+        "selector": "html > body.theme-01.J-ATF > div.sr-container.J-layout:nth-child(4) > div > div.sr-layout-wrap.sr-layout-resp:nth-child(2) > div.sr-layout-main > div.sr-layout-block.detail-tab.J-tabs > div.sr-layout-subblock.detail-tab-item.J-tab-cnt > div.sr-layout-block.bsc-info > div.sr-layout-subblock > div.sr-layout-content > div.basic-info-list > div.bsc-item.cf:nth-child(18) > div.bac-item-value.fl",
+        "score": 1
+      }
+    ]
+  }
+}
