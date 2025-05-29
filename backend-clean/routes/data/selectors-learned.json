@@ -13,7 +13,7 @@
     "manufacturer": [
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator > a",
-        "score": 7
+        "score": 1
       },
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator",
@@ -30,7 +30,7 @@
     "name": [
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_title > div.product-title-container > h1",
-        "score": 8
+        "score": 2
       }
     ]
   },
