@@ -1,0 +1,58 @@
+[
+  {
+    "timestamp": "2025-05-28T07:51:09.767Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Reliable-Modern-Synthetic-Leather-for-Upholstery_50026413456.html?spm=a27aq.cp_15.3885147500.116.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item:nth-child(4) > div.right > span",
+    "field": "origin"
+  },
+  {
+    "timestamp": "2025-05-28T07:51:24.276Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Reliable-Modern-Synthetic-Leather-for-Upholstery_50026413456.html?spm=a27aq.cp_15.3885147500.116.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list > div.attribute-item:nth-child(3) > div.right > span",
+    "field": "dimensions"
+  },
+  {
+    "timestamp": "2025-05-28T07:51:48.618Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Reliable-Modern-Synthetic-Leather-for-Upholstery_50026413456.html?spm=a27aq.cp_15.3885147500.116.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_title > div.product-title-container > h1",
+    "field": "name"
+  },
+  {
+    "timestamp": "2025-05-28T07:51:55.216Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Reliable-Modern-Synthetic-Leather-for-Upholstery_50026413456.html?spm=a27aq.cp_15.3885147500.116.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator > a",
+    "field": "manufacturer"
+  },
+  {
+    "timestamp": "2025-05-28T07:53:14.970Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/A-Leather-Fabric-Made-in-Japan_10000001168780.html?spm=a2700.details.you_may_like.4.7a507484UdQsVd",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_title > div.product-title-container > h1",
+    "field": "name"
+  },
+  {
+    "timestamp": "2025-05-28T07:53:21.193Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/A-Leather-Fabric-Made-in-Japan_10000001168780.html?spm=a2700.details.you_may_like.4.7a507484UdQsVd",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator",
+    "field": "manufacturer"
+  },
+  {
+    "timestamp": "2025-05-28T07:53:50.867Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/A-Leather-Fabric-Made-in-Japan_10000001168780.html?spm=a2700.details.you_may_like.4.7a507484UdQsVd",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list > div.attribute-item:nth-child(3) > div.right > span",
+    "field": "dimensions"
+  },
+  {
+    "timestamp": "2025-05-28T07:54:03.738Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/A-Leather-Fabric-Made-in-Japan_10000001168780.html?spm=a2700.details.you_may_like.4.7a507484UdQsVd",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item:nth-child(4) > div.right > span",
+    "field": "origin"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "timestamp": "2025-05-28T07:44:42.983Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Customized-Wall-Decoration-Free-Standing-Indoor_60756437597.html?spm=a27aq.cp_15.3885147500.84.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator > a",
+    "field": "manufacturer"
+  },
+  {
+    "timestamp": "2025-05-28T07:44:50.293Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Customized-Wall-Decoration-Free-Standing-Indoor_60756437597.html?spm=a27aq.cp_15.3885147500.84.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_title > div.product-title-container > h1",
+    "field": "name"
+  },
+  {
+    "timestamp": "2025-05-28T07:45:04.801Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Customized-Wall-Decoration-Free-Standing-Indoor_60756437597.html?spm=a27aq.cp_15.3885147500.84.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(3) > div.attribute-item:nth-child(4) > div.right > span",
+    "field": "weight"
+  },
+  {
+    "timestamp": "2025-05-28T07:45:13.167Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Customized-Wall-Decoration-Free-Standing-Indoor_60756437597.html?spm=a27aq.cp_15.3885147500.84.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(3) > div.attribute-item:nth-child(3) > div.right > span",
+    "field": "dimensions"
+  },
+  {
+    "timestamp": "2025-05-28T07:45:53.857Z",
+    "domain": "alibaba.com",
+    "url": "https://www.alibaba.com/product-detail/Customized-Wall-Decoration-Free-Standing-Indoor_60756437597.html?spm=a27aq.cp_15.3885147500.84.5f444e30vecqJu",
+    "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item > div.right",
+    "field": "origin"
+  }
+]
