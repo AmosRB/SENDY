@@ -97,7 +97,7 @@ export default function ProductDetailsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div><label className="block text-sm font-medium text-black mb-1">נקודת מוצא</label><input className="w-full h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm" value={data.origin} onChange={(e) => setData({ ...data, origin: e.target.value })} /></div>
+            <div><label className="block text-sm font-medium text-black mb-1">עיר מוצא</label><input className="w-full h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm" value={data.origin} onChange={(e) => setData({ ...data, origin: e.target.value })} /></div>
             <div className="sm:col-span-2"><label className="block text-sm font-medium text-black mb-1">כתובת יעד המשלוח – מספר בית - רחוב - עיר - מדינה</label><input className="w-full h-[32px] px-4 border border-black rounded-xl shadow-sm text-sm" /></div>
           </div>
 
