@@ -7,9 +7,14 @@ let db;
 
 async function connectToDatabase() {
   if (!db) {
-    await client.connect();
-    db = client.db('client-system-db'); // ודא שהשם תואם למה שיצרת ב-Atlas
-    console.log('✅ Connected to MongoDB');
+    try {
+      await client.connect();
+      db = client.db('client-system-db');
+      console.log('✅ Connected to MongoDB');
+    } catch (err) {
+      console.error('❌ Failed to connect to MongoDB:', err.message);
+      throw new Error(`MongoDB connection error: ${err.message}`);
+    }
   }
   return db;
 }

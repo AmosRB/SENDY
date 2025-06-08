@@ -82,7 +82,7 @@ export default function LinkInputPage() {
   const handleLinkSubmit = (e) => {
     e.preventDefault();
     sessionStorage.setItem('productLink', link);
-    router.push('/product');
+    router.push('/newproduct');
   };
 
   return (
@@ -93,7 +93,7 @@ export default function LinkInputPage() {
       <div className="w-full max-w-sm flex flex-col items-center mt-48 space-y-6">
         {step === 'enterName' && (
           <form onSubmit={handleNameSubmit} noValidate className="w-full space-y-4">
-            <h1 className="text-2xl font-bold text-center text-black">רוצה הצעת מחיר למשלוח מחו"ל? </h1>
+            <h1 dir="rtl" className="text-2xl font-bold text-center text-black">רוצה הצעת מחיר למשלוח מחו"ל ? </h1>
             <input
               type="text"
               placeholder="שם"

@@ -10,18 +10,23 @@ const payments = require('./routes/payments');
 const adminSummary = require('./routes/adminSummary');
 const connectToDatabase = require('./db');
 const users = require('./routes/users');
+const customsBrokers = require('./routes/customsBrokers');
+const submittedQuotes = require('./routes/submittedQuotes'); // ✅
 
-const app = express(); // ✅ קודם כל יוצרים את app
-
+const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ ראוטרים
+app.use('/api/customs-brokers', customsBrokers);
 app.use('/api/train-selector', trainSelector);
 app.use('/api/quotes', quotes);
 app.use('/api/payments', payments);
 app.use('/api/admin', adminSummary);
-app.use('/api/users', users); // ✅ עכשיו זה תקין
+app.use('/api/users', users);
+app.use('/api/submitted-quotes', submittedQuotes); // ✅ חדש
 
+// 📦 נתיב חילוץ מוצר
 app.get('/extract', async (req, res) => {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'Missing URL' });
@@ -36,13 +41,19 @@ app.get('/extract', async (req, res) => {
   }
 });
 
+// 🔁 התחברות למסד
 const PORT = 4135;
-app.listen(PORT, async () => {
-  console.log(`🚀 API running on http://localhost:${PORT}`);
+const connectWithRetry = async () => {
   try {
     await connectToDatabase();
     console.log('✅ Connected to MongoDB on startup');
   } catch (err) {
-    console.error('❌ MongoDB connection failed on startup:', err.message);
+    console.error('❌ MongoDB connection failed. Retrying in 5 seconds...');
+    setTimeout(connectWithRetry, 5000);
   }
+};
+
+app.listen(PORT, () => {
+  console.log(`🚀 API running on http://localhost:${PORT}`);
+  connectWithRetry();
 });

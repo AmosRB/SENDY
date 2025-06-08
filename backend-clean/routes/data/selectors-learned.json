@@ -3,7 +3,7 @@
     "origin": [
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item > div.right",
-        "score": 0
+        "score": 2
       },
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list:nth-child(2) > div.attribute-item:nth-child(4) > div.right > span",
@@ -13,7 +13,7 @@
     "manufacturer": [
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator > a",
-        "score": 1
+        "score": 2
       },
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div > div.module_company > div.product-company > div.product-company-info > span.company-name.detail-separator",
@@ -24,7 +24,7 @@
     "dimensions": [
       {
         "selector": "div#container > div.layout-body.id-pt-2 > div.layout-left > div:nth-child(2) > div.module_attribute > div.attribute-layout > div.attribute-info > div.attribute-list > div.attribute-item:nth-child(3) > div.right > span",
-        "score": 0
+        "score": 2
       }
     ],
     "name": [
@@ -38,7 +38,7 @@
     "name": [
       {
         "selector": "span#productTitle",
-        "score": 6
+        "score": 80
       },
       {
         "selector": "div#aplus > div.aplus-v2.desktop.celwidget > div.celwidget.aplus-module.module-2.aplus-standard > div.aplus-module-wrapper.apm-floatnone.apm-fixed-width > div.apm-sidemodule.apm-spacing > div.apm-sidemodule-textright > h3.a-spacing-mini",
@@ -56,7 +56,7 @@
     "manufacturer": [
       {
         "selector": "a#bylineInfo",
-        "score": 4
+        "score": 78
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
@@ -78,63 +78,63 @@
     "dimensions": [
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(4) > td.a-size-base.prodDetAttrValue",
-        "score": 3
+        "score": 4
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr > td.a-size-base.prodDetAttrValue",
-        "score": 2
+        "score": 0
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(21) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(38) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       }
     ],
     "weight": [
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
-        "score": 2
+        "score": 5
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(2) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(22) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(31) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(30) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(2) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       }
     ],
     "origin": [
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(23) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 0
       },
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(5) > td.a-size-base.prodDetAttrValue",
-        "score": 1
+        "score": 3
       }
     ]
   },
