@@ -1,3 +1,4 @@
+// qoutefill.tsx
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useState, useEffect, useRef } from 'react';
@@ -12,6 +13,7 @@ export default function NewProduct() {
 
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [quoteId, setQuoteId] = useState('');
+  const [notes, setNotes] = useState('');
 
   const [shippingType, setShippingType] = useState({ FOB: false, EXW: false });
   const [destination, setDestination] = useState({ warehouse: false, domestic: false, address: '' });
@@ -22,34 +24,57 @@ export default function NewProduct() {
     inLandDelivery: false 
   });
 
-const [oceanFreight, setOceanFreight] = useState('');
-const [customsFee, setCustomsFee] = useState('');
-const [standards, setStandards] = useState('');
-const [insurance, setInsurance] = useState('');
-const [inLandDelivery, setInLandDelivery] = useState('');
-const totalPrice =
-  (parseFloat(oceanFreight) || 0) +
-  (services.customs ? parseFloat(customsFee) || 0 : 0) +
-  (services.standards ? parseFloat(standards) || 0 : 0) +
-  (services.insurance ? parseFloat(insurance) || 0 : 0) +
-  (services.inLandDelivery ? parseFloat(inLandDelivery) || 0 : 0);
+  const [oceanFreight, setOceanFreight] = useState('');
+  const [customsFee, setCustomsFee] = useState('');
+  const [standards, setStandards] = useState('');
+  const [insurance, setInsurance] = useState('');
+  const [inLandDelivery, setInLandDelivery] = useState('');
+  const [validity, setValidity] = useState('');
 
- const [validity, setValidity] = useState('');
-
-
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<{ fileId: string; filename: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const totalPrice =
+    (parseFloat(oceanFreight) || 0) +
+    (services.customs ? parseFloat(customsFee) || 0 : 0) +
+    (services.standards ? parseFloat(standards) || 0 : 0) +
+    (services.insurance ? parseFloat(insurance) || 0 : 0) +
+    (services.inLandDelivery ? parseFloat(inLandDelivery) || 0 : 0);
+
+  const handleDownloadAll = async () => {
+    try {
+      const savedQuote = sessionStorage.getItem('quoteData');
+      if (!savedQuote) return alert('לא נמצאו מסמכים');
+
+      const parsed = JSON.parse(savedQuote);
+      const attachments = parsed.attachments || [];
+      if (attachments.length === 0) return alert('לא קיימים מסמכים להורדה');
+
+      for (const file of attachments) {
+        if (!file.fileId || !file.filename) continue;
+
+        const link = document.createElement('a');
+        link.href = `http://localhost:4135/api/quotes/download/${file.fileId}`;
+        link.download = file.filename;
+        link.target = '_blank';
+        link.click();
+      }
+    } catch (err) {
+      console.error('❌ הורדה נכשלה:', err);
+      alert('אירעה שגיאה בהורדת הקבצים');
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(prev => [...prev, ...Array.from(e.target.files)]);
+      setFiles(prev => [...prev, ...Array.from(e.target.files).map(f => ({ fileId: '', filename: f.name }))]);
     }
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (e.dataTransfer.files) {
-      setFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]);
+      setFiles(prev => [...prev, ...Array.from(e.dataTransfer.files).map(f => ({ fileId: '', filename: f.name }))]);
     }
   };
 
@@ -57,32 +82,39 @@ const totalPrice =
   const goNext = () => router.push('/product');
 
   useEffect(() => {
-    const fetchNewQuoteId = async () => {
-      try {
-        const res = await fetch('http://localhost:4135/api/quotes/new-id');
-        if (!res.ok) throw new Error("API failed");
-        const data = await res.json();
-        console.log('📦 quoteId:', data.quoteId);
-        setQuoteId(data.quoteId || '');
-      } catch (err) {
-        console.error('❌ Failed to fetch quoteId:', err);
-      }
-    };
+    const savedQuote = sessionStorage.getItem('quoteData');
 
-    const fetchFromSession = () => {
-      const savedLink = sessionStorage.getItem('productLink');
-      if (savedLink && savedLink.trim() !== '') {
-        setLink(savedLink);
-      } else {
-        setLink('');
-        setData({ name: 'N/A', manufacturer: 'N/A', weight: 'N/A', dimensions: 'N/A', cbm: 'N/A', origin: 'N/A' });
-        setReady(true);
-      }
-    };
-
-    fetchNewQuoteId();
-    fetchFromSession();
+    if (savedQuote) {
+      const parsed = JSON.parse(savedQuote);
+      setQuoteId(parsed.quoteId || '');
+      setData({
+        name: parsed.productName || '',
+        manufacturer: parsed.manufacturer || '',
+        origin: parsed.origin || '',
+        weight: parsed.totalWeight || '',
+        dimensions: parsed.totalVolume || '',
+        cbm: parsed.cbm || ''
+      });
+      setLink(parsed.productUrl || '');
+      setShippingType(parsed.shippingType || { FOB: false, EXW: false });
+      setDestination({
+        warehouse: parsed.destination?.warehouse || false,
+        domestic: parsed.inLandDelivery || parsed.destination?.domestic || false,
+        address: parsed.destination?.address || ''
+      });
+      setServices({
+        customs: parsed.services?.customs || false,
+        standards: parsed.services?.standards || false,
+        insurance: parsed.services?.insurance || false,
+        inLandDelivery: parsed.inLandDelivery || false
+      });
+      setTermsAccepted(parsed.termsAccepted || false);
+      setNotes(parsed.notes || '');
+      const quoteAttachments = parsed.attachments || [];
+      setFiles(quoteAttachments);
+    }
   }, []);
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start px-4 pt-6 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative" dir="rtl">
@@ -139,7 +171,14 @@ const totalPrice =
 
   {/* יצרן */}
   <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">יצרן</label>
-  <input type="text" className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]" placeholder="לדוגמה: LG" />
+  <input
+  type="text"
+  value={data.manufacturer}
+  onChange={(e) => setData({ ...data, manufacturer: e.target.value })}
+  className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+  placeholder="לדוגמה: LG"
+/>
+
 
   {/* נקודת מוצא */}
   <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">נקודת מוצא</label>
@@ -203,7 +242,13 @@ const totalPrice =
   <div className="flex items-center gap-3 border border-gray-400 rounded-lg px-4 py-1">
     <label className="flex items-center gap-2">
       <span className="text-[16px]">FOB</span>
-      <input type="checkbox" className="form-checkbox accent-blue-600 w-4 h-4" />
+     <input
+  type="checkbox"
+  className="form-checkbox accent-blue-600 w-4 h-4"
+  checked={shippingType.FOB}
+  onChange={(e) => setShippingType({ ...shippingType, FOB: e.target.checked })}
+/>
+
     </label>
     <label className="flex items-center gap-2">
       <span className="text-[16px]">EXW</span>
@@ -220,19 +265,25 @@ const totalPrice =
 
   {/* מחסני חברת השילוח */}
   <label className="col-span-2 flex items-center gap-2 cursor-pointer">
-    <input type="checkbox" className="form-checkbox accent-blue-600 w-5 h-5" />
+        <input
+                  type="checkbox"
+                  className="form-checkbox accent-blue-600 w-5 h-5"
+                  checked={destination.warehouse} // קשור ל-destination.warehouse
+                  onChange={(e) => setDestination({ ...destination, warehouse: e.target.checked })}
+                />
     <span className="text-[20px] whitespace-nowrap">מחסני חברת השילוח</span>
   </label>
 
   {/* הובלה בישראל */}
 <div className="col-span-1 flex justify-end">
   <label className="flex items-center gap-2 cursor-pointer">
-    <input
+  <input
   type="checkbox"
   className="form-checkbox accent-blue-600 w-6 h-6"
   checked={services.inLandDelivery}
   onChange={(e) => setServices({ ...services, inLandDelivery: e.target.checked })}
 />
+
 
     <span className="text-[20px] whitespace-nowrap">הובלה בישראל</span>
   </label>
@@ -241,31 +292,38 @@ const totalPrice =
 
   {/* כתובת בישראל */}
   <div className="col-span-3 flex justify-start"> {/* Changed from col-span-2 to col-span-3 */}
-    <input
-      type="text"
-      placeholder="כתובת בישראל"
-      className="h-[36px] w-full px-4 border border-gray-400 rounded-xl shadow-sm text-[15px] text-right"
-      dir="rtl"
-    />
+ <input
+  type="text"
+  value={destination.address}
+  onChange={(e) => setDestination({ ...destination, address: e.target.value })}
+  placeholder="כתובת בישראל"
+  className="h-[36px] w-full px-4 border border-gray-400 rounded-xl shadow-sm text-[15px] text-right"
+  dir="rtl"
+/>
+
   </div>
 
 </div>
 
 <label className="col-span-1 text-[19px] text-gray-800 font-semibold text-left">פרטים והערות</label>
 <textarea
+  value={notes}
+  onChange={(e) => setNotes(e.target.value)}
   className="col-span-5 h-[70px] px-4 py-2 border border-gray-400 rounded-xl shadow-sm text-sm resize-none"
   placeholder=""
 />
+
 <div className="col-span-6 grid grid-cols-6 gap-3 items-start">
   {/* כפתור מימין */}
   <div className="col-span-1 text-left">
-    <button
-      type="button"
-      onClick={() => fileInputRef.current?.click()}
-      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded-md text-sm"
-    >
-      הוסף מסמכים
-    </button>
+ <button
+  type="button"
+  onClick={handleDownloadAll}
+  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded-md text-sm"
+>
+  הורד מסמכים
+</button>
+
   </div>
 
   {/* אינפוט גרירה משמאל */}
@@ -283,7 +341,8 @@ const totalPrice =
       <div className="flex flex-wrap gap-3">
         {files.map((f, i) => (
           <div key={i} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full text-black text-xs">
-            <span className="truncate max-w-[150px]">{f.name}</span>
+            <span className="truncate max-w-[150px]">{f.filename}</span> 
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -307,97 +366,22 @@ const totalPrice =
     />
   </div>
 </div>
-
 </div>
-
-
       </div>
-<div className="grid grid-cols-6 gap-x-3 items-center mt-4">
-  <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">הובלה ימית</label>
-  <input
-    type="text"
-    value={oceanFreight}
-    onChange={(e) => setOceanFreight(e.target.value)}
-    className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-    placeholder="עלות"
-  />
-</div>
-
-{services.customs && (
-  <div className="grid grid-cols-6 gap-x-3 items-center mt-4">
-    <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">עמילות</label>
-    <input
-      type="text"
-      value={customsFee}
-      onChange={(e) => setCustomsFee(e.target.value)}
-      className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-      placeholder="עלות"
-    />
-  </div>
-)}
 
 
-{services.standards && (
-  <div className="grid grid-cols-6 gap-x-3 items-center mt-4">
-    <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">טיפול מול מכון התקנים*</label>
-    <input
-      type="text"
-      value={standards}
-      onChange={(e) => setStandards(e.target.value)}
-      className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-      placeholder="עלות"
-    />
-  </div>
-)}
-
-{services.insurance && (
-  <div className="grid grid-cols-6 gap-x-3 items-center mt-4">
-    <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">ביטוח</label>
-    <input
-      type="text"
-      value={insurance}
-      onChange={(e) => setInsurance(e.target.value)}
-      className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-      placeholder="עלות"
-    />
-  </div>
-
-)}
-{services.inLandDelivery && (
-  <div className="grid grid-cols-6 gap-x-3 items-center mt-4">
-    <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">הובלה בישראל</label>
-    <input
-      type="text"
-      value={inLandDelivery}
-      onChange={(e) => setInLandDelivery(e.target.value)}
-      className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-      placeholder="עלות"
-    />
-  </div>
-)}
-
-<div className="grid grid-cols-6 gap-x-3 items-center mt-4">
-  <label className="col-span-4 text-[24px] text-gray-800 font-semibold text-left">מחיר</label>
-  <input
-    type="text"
-    value={totalPrice.toFixed(2)}
-    readOnly
-    className="col-span-1 h-[40px] px-4 rounded-lg border border-gray-400 text-[15px] bg-gray-100 cursor-not-allowed"
-    placeholder="מחיר לכל ההצעה"
-  />
-</div>
+{/*מתחת למסגרת*/}
 
 
 
-{/* טקסט הסבר וצ'קבוקסים בשורה אחת - הפוך */}
-      <div className="w-[1070px] flex flex-row-reverse justify-between mt-6">
-  {/* צ'קבוקסים וכפתור - עכשיו מימין */}
-  <div className="w-[300px] flex flex-col items-end space-y-3">
-    
+<div className="w-[1000px] flex justify-between gap-10 mt-6 mx-auto">
+  {/* טור ימין – בלוק ההצעה */}
+  <div className="w-[320px] flex flex-col items-end space-y-3">
+
     <label className="flex items-center gap-2 w-full">
       <input
         type="checkbox"
-        defaultChecked={true} // או false, תלוי אם לסמן
+        defaultChecked={true}
         className="form-checkbox border border-black accent-blue-600 w-6 h-6"
       />
       <span className="w-full text-right text-[20px] text-black">לא כולל מיסי נמל</span>
@@ -412,57 +396,142 @@ const totalPrice =
       <span className="w-full text-right text-[20px] text-black">לא כולל מע"מ</span>
     </label>
 
-  </div>
-</div>
-<div className="grid grid-cols-7 gap-x-3 items-center mt-4">
-  <label className="col-span-5 text-[20px] text-gray-800 font-semibold text-left leading-[36px]">
-    ההצעה בתוקף עד
+<div className="w-full flex justify-end items-center">
+  <label className="text-[16px] text-gray-800 font-semibold">
+    ההצעה בתוקף עד&nbsp;&nbsp; {/* Add one or more &nbsp; for spacing */}
   </label>
   <input
     type="date"
     value={validity}
     onChange={(e) => setValidity(e.target.value)}
-    className="col-span-1 h-[36px] px-2 pt-[6px] rounded-lg border border-gray-400 text-[15px] text-right"
+    dir="rtl"
+    className="h-[36px] w-[180px] px-3 rounded-lg border border-gray-400 text-[15px]"
   />
 </div>
 
 
-     
-      {/* טקסט הסבר וצ'קבוקסים בשורה אחת - הפוך */}
-      <div className="w-[1000px] flex flex-row-reverse justify-between mt-6">
-        
-        {/* צ'קבוקסים וכפתור - עכשיו מימין */}
-        <div className="w-[300px] flex flex-col items-end space-y-3">
-          
 
-          <label className="flex items-center gap-2 w-full mt-2">
-            <input type="checkbox" className="appearance-none w-5 h-5 border-2 border-black rounded-sm checked:bg-blue-600 checked:border-black" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-           <span className="w-full text-right text-[14px] text-black">
-  אני מאשר שקראתי את <a href="/terms" target="_blank" className="underline text-blue-700 hover:text-blue-900">תנאי השימוש</a> באתר
-</span>
-          </label>
 
-          <button
-  type="submit"
-  disabled={!termsAccepted}
-  className={`w-full py-2 rounded-md font-bold text-[20px] mt-3 shadow-md transition ${
-    termsAccepted
-      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-      : 'bg-gray-400 text-black border border-black'
-  }`}
->
-  הגשת הצעת המחיר
-</button>
 
-        </div>
 
-        {/* טקסט ההסבר - עכשיו משמאל */}
-       <div className="w-[500px] text-right text-[16px] text-black leading-relaxed space-y-2 mt-[-400px]">
 
-          <p className="font-semibold">* טיפול מול מכון התקנים לא כולל תשלומים למכון התקנים </p>
 
-          </div>
-        </div>
+
+    <label className="flex items-center gap-2 w-full mt-2">
+      <input
+        type="checkbox"
+        className="appearance-none w-5 h-5 border-2 border-black rounded-sm checked:bg-blue-600 checked:border-black"
+        checked={termsAccepted}
+        onChange={(e) => setTermsAccepted(e.target.checked)}
+      />
+      <span className="w-full text-right text-[14px] text-black">
+        אני מאשר שקראתי את <a href="/terms" target="_blank" className="underline text-blue-700 hover:text-blue-900">תנאי השימוש</a> באתר
+      </span>
+    </label>
+
+    <button
+      type="submit"
+      disabled={!termsAccepted}
+      className={`w-full py-2 rounded-md font-bold text-[20px] mt-3 shadow-md transition ${
+        termsAccepted
+          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+          : 'bg-gray-400 text-black border border-black'
+      }`}
+    >
+      הגשת הצעת המחיר
+    </button>
+
+  </div>
+
+  {/* טור שמאל – שדות המחיר */}
+  <div className="flex-1 flex flex-col gap-4">
+
+    <div className="grid grid-cols-6 gap-x-3 items-center">
+      <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">הובלה ימית</label>
+      <input
+        type="text"
+        value={oceanFreight}
+        onChange={(e) => setOceanFreight(e.target.value)}
+        className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+        placeholder="עלות"
+      />
+    </div>
+
+    {services.customs && (
+      <div className="grid grid-cols-6 gap-x-3 items-center">
+        <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">עמילות</label>
+        <input
+          type="text"
+          value={customsFee}
+          onChange={(e) => setCustomsFee(e.target.value)}
+          className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+          placeholder="עלות"
+        />
+      </div>
+    )}
+
+{services.standards && (
+  <div className="grid grid-cols-6 gap-x-3 items-start">
+    <div className="col-span-4 flex flex-col text-left">
+      <label className="text-[20px] text-gray-800 font-semibold">טיפול מול מכון התקנים*</label>
+      <span className="text-[13px] text-gray-500 mt-1">לא כולל תשלום למכון התקנים</span>
+    </div>
+    <input
+      type="text"
+      value={standards}
+      onChange={(e) => setStandards(e.target.value)}
+      className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+      placeholder="עלות"
+    />
+  </div>
+)}
+
+
+
+    {services.insurance && (
+      <div className="grid grid-cols-6 gap-x-3 items-center">
+        <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">ביטוח</label>
+        <input
+          type="text"
+          value={insurance}
+          onChange={(e) => setInsurance(e.target.value)}
+          className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+          placeholder="עלות"
+        />
+      </div>
+    )}
+
+    {services.inLandDelivery && (
+      <div className="grid grid-cols-6 gap-x-3 items-center">
+        <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">הובלה בישראל</label>
+        <input
+          type="text"
+          value={inLandDelivery}
+          onChange={(e) => setInLandDelivery(e.target.value)}
+          className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+          placeholder="עלות"
+        />
+      </div>
+    )}
+
+    <div className="grid grid-cols-6 gap-x-3 items-center">
+      <label className="col-span-4 text-[24px] text-gray-800 font-semibold text-left">מחיר</label>
+      <input
+        type="text"
+        value={totalPrice.toFixed(2)}
+        readOnly
+        className="col-span-2 h-[40px] px-4 rounded-lg border border-gray-400 text-[15px] bg-gray-100 cursor-not-allowed"
+        placeholder="מחיר לכל ההצעה"
+      />
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
       </div>
     </div>
   );
