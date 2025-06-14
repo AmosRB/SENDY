@@ -3,7 +3,6 @@ const router = express.Router();
 const connectToDatabase = require('../db');
 const { ObjectId } = require('mongodb');
 
-
 // ✅ GET - שליפת משתמשים לפי שם ו/או טלפון
 router.get('/', async (req, res) => {
   try {
@@ -12,7 +11,8 @@ router.get('/', async (req, res) => {
 
     const query = {};
     if (name) query.name = { $regex: `^${name}$`, $options: 'i' };
-    if (phone) query.phone = phone;
+   if (phone) query.phone = phone.replace(/[^0-9]/g, '');
+
 
     const users = await db.collection('users').find(query).toArray();
     res.json(users);
@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ POST - הוספת משתמש חדש
+/// ✅ POST - הוספת משתמש חדש
 router.post('/', async (req, res) => {
   const { name, phone, email, role } = req.body;
 
@@ -31,20 +31,37 @@ router.post('/', async (req, res) => {
 
   try {
     const db = await connectToDatabase();
-    const result = await db.collection('users').insertOne({
-      name,
-      phone,
-      email,
-      role,
-      createdAt: new Date()
-    });
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    
+  const newUser = {
+  name,
+  phone: cleanPhone,
+  email,
+  role,
+  business: req.body.business || '',
+  taxIdNumber: req.body.taxIdNumber || '',
+  createdAt: new Date()
+};
 
-    res.json({ insertedId: result.insertedId });
+
+    console.log('📥 ניסיון לרשום משתמש:', newUser);
+
+    const result = await db.collection('users').insertOne(newUser);
+
+    if (!result.acknowledged) {
+      console.error('❌ insertOne לא אישר את ההוספה');
+      return res.status(500).json({ error: 'Insert failed' });
+    }
+
+    console.log('✅ נוצר משתמש חדש:', result.insertedId);
+    res.status(201).json({ _id: result.insertedId, ...newUser });
+
   } catch (err) {
-    console.error('❌ Failed to save user:', err.message);
-    res.status(500).json({ error: 'Database error' });
+    console.error('❌ שגיאה ברישום משתמש:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
+
 
 // ✅ NEW: GET - שליפת כל המשתמשים (לדשבורד)
 router.get('/all', async (req, res) => {
@@ -67,6 +84,5 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete user' });
   }
 });
-
 
 module.exports = router;

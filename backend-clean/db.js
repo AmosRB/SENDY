@@ -11,6 +11,10 @@ async function connectToDatabase() {
       await client.connect();
       db = client.db('client-system-db');
       console.log('✅ Connected to MongoDB');
+
+      // ⬅️ יצירת אינדקס ייחודי ל־quoteId
+      await db.collection('quotes').createIndex({ quoteId: 1 }, { unique: true });
+
     } catch (err) {
       console.error('❌ Failed to connect to MongoDB:', err.message);
       throw new Error(`MongoDB connection error: ${err.message}`);
@@ -18,5 +22,8 @@ async function connectToDatabase() {
   }
   return db;
 }
+
+console.log('📡 MONGO_URI בפועל:', uri);
+
 
 module.exports = connectToDatabase;

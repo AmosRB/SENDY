@@ -38,7 +38,7 @@
     "name": [
       {
         "selector": "span#productTitle",
-        "score": 141
+        "score": 143
       },
       {
         "selector": "div#aplus > div.aplus-v2.desktop.celwidget > div.celwidget.aplus-module.module-2.aplus-standard > div.aplus-module-wrapper.apm-floatnone.apm-fixed-width > div.apm-sidemodule.apm-spacing > div.apm-sidemodule-textright > h3.a-spacing-mini",
@@ -56,7 +56,7 @@
     "manufacturer": [
       {
         "selector": "a#bylineInfo",
-        "score": 139
+        "score": 141
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
@@ -78,7 +78,7 @@
     "dimensions": [
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(4) > td.a-size-base.prodDetAttrValue",
-        "score": 65
+        "score": 67
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr > td.a-size-base.prodDetAttrValue",
@@ -100,7 +100,7 @@
     "weight": [
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
-        "score": 66
+        "score": 68
       },
       {
         "selector": "table#productDetails_detailBullets_sections1 > tbody > tr:nth-child(3) > td.a-size-base.prodDetAttrValue",
@@ -134,7 +134,7 @@
       },
       {
         "selector": "table#productDetails_techSpec_section_1 > tbody > tr:nth-child(5) > td.a-size-base.prodDetAttrValue",
-        "score": 64
+        "score": 66
       }
     ]
   },

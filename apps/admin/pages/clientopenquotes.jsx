@@ -4,8 +4,8 @@ import QuoteCard from '../components/QuoteCard';
 import SubmittedQuoteCard from '../components/SubmittedQuoteCard';
 
 export default function BrokerStatusPage() {
-  const [broker, setBroker] = useState(null);
-  const [brokerName, setBrokerName] = useState('');
+  const [clientId, setClientId] = useState('');
+  const [clientName, setClientName] = useState('');
   const [error, setError] = useState('');
   const [openQuotes, setOpenQuotes] = useState([]);
   const [submittedQuotes, setSubmittedQuotes] = useState([]);
@@ -14,63 +14,60 @@ export default function BrokerStatusPage() {
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL;
 
-useEffect(() => {
-  const code = sessionStorage.getItem('brokerCode');
-  const cachedBroker = sessionStorage.getItem('brokerData');
+const fetchQuotesForClient = async (id) => {
+  try {
+    const [quotesRes, submittedRes] = await Promise.all([
+      fetch(`${apiBase}/api/quotes`, { cache: "no-store" }),
+      fetch(`${apiBase}/api/submitted-quotes/all`, { cache: "no-store" })
+    ]);
 
-  if (!code) {
-    setError('אין קוד גישה');
-    return;
+    const allQuotes = await quotesRes.json();
+    const allSubmitted = await submittedRes.json();
+
+    const myQuotes = allQuotes.filter(
+  q =>
+    q.clientId?.toString() === id &&
+    q.status === 'submitted'
+);
+
+    const mySubmitted = allSubmitted.filter(q => q.clientId === id);
+
+    const submittedIds = new Set(mySubmitted.map(q => q.quoteId));
+    const filteredQuotes = myQuotes.filter(q => !submittedIds.has(q.quoteId));
+
+    setOpenQuotes(filteredQuotes);
+    setSubmittedQuotes(mySubmitted);
+    sessionStorage.removeItem('quoteData');
+
+  } catch (err) {
+    setError('שגיאה בטעינת הנתונים');
   }
+};
 
-  const loadBrokerAndQuotes = async () => {
-    try {
-      if (cachedBroker) {
-        const brokerData = JSON.parse(cachedBroker);
-        setBroker(brokerData);
-        setBrokerName(brokerData.name || '');
-      }
 
-      const brokerRes = await fetch(`${apiBase}/api/customs-brokers?code=${code}`);
-      const brokerData = await brokerRes.json();
 
-      if (brokerData && brokerData._id) {
-        setBroker(brokerData);
-        setBrokerName(brokerData.name || '');
-        sessionStorage.setItem('brokerData', JSON.stringify(brokerData));
-      } else {
-        setError('עמיל מכס לא נמצא');
-        return;
-      }
 
-      const [allQuotes, mySubmitted] = await Promise.all([
-        fetch(`${apiBase}/api/quotes`).then(res => res.json()),
-        fetch(`${apiBase}/api/submitted-quotes?brokerCode=${code}`).then(res => res.json())
-      ]);
-
-      const mySubmittedIds = new Set(mySubmitted.map(q => q.quoteId));
-      const unsubmittedQuotes = allQuotes.filter(q => q.status === 'submitted' && !mySubmittedIds.has(q.quoteId));
-
-      setOpenQuotes(unsubmittedQuotes);
-      setSubmittedQuotes(mySubmitted);
-    } catch {
-      setError('שגיאה בטעינת הנתונים');
+  useEffect(() => {
+    const id = sessionStorage.getItem('clientId') || localStorage.getItem('clientId'); //
+    const name = sessionStorage.getItem('clientName') || localStorage.getItem('clientName'); // // הוספתי גם לוקאל סטורג' למקרה ששם נשמר שם
+    if (!id) {
+      setError('אין זיהוי לקוח'); //
+      return;
     }
-  };
+    setClientId(id); //
+    setClientName(name || ''); //
+    fetchQuotesForClient(id); //
+  }, []); //
 
-  loadBrokerAndQuotes();
-}, []);
-
-
-  const placeholderCount = 10;
-  const draftPlaceholders = Array.from({ length: Math.max(0, placeholderCount - openQuotes.length) });
-  const submittedPlaceholders = Array.from({ length: Math.max(0, placeholderCount - submittedQuotes.length) });
+  const placeholderCount = 10; //
+  const draftPlaceholders = Array.from({ length: Math.max(0, placeholderCount - openQuotes.length) }); //
+  const submittedPlaceholders = Array.from({ length: Math.max(0, placeholderCount - submittedQuotes.length) }); //
 
   return (
    <div className="min-h-screen pb-32 flex flex-col items-center justify-start px-4 pt-6 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white" dir="rtl">
 
       <Head>
-        <title>Share A Container | סטטוס עמיל מכס</title>
+        <title>Share A Container | סטטוס הצעות לקוח</title>
       </Head>
 
       <div className="fixed inset-0 z-0 pointer-events-none select-none">
@@ -80,24 +77,25 @@ useEffect(() => {
       <div className="relative z-10 w-full flex flex-col items-center">
         <img src="/logo-sharecontainer-cropped.png" alt="Share A Container" className="w-[330px] h-auto" />
         <h1 className="text-[28px] sm:text-[32px] font-bold text-black mt-2 text-center w-full">
-          מצב הצעות {broker?.name || brokerName}
+          מצב ההצעות של {clientName && `  ${clientName}`}
         </h1>
 
         {error && <p className="text-red-600 font-bold text-center mt-4">{error}</p>}
 
-        <div className="w-full max-w-[1200px] mt-10 grid grid-cols-2 gap-6 relative">
+               <div className="w-full max-w-[1200px] mt-10 grid grid-cols-2 gap-6 relative">
 
   {/* 🔍 חיפוש מיושר לקופסה התכלת */}
   <div className="absolute left-0 -top-10">
-    <input
-      type="text"
-      placeholder="חפש לפי מספר בקשה (בלי #)"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-[250px] px-3 py-1 border border-gray-400 rounded-lg text-sm text-right placeholder-gray-600 font-semibold"
-    />
-  </div>
- 
+  <input
+    type="text"
+    placeholder="חפש לפי מספר בקשה (בלי #)"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-[250px] px-3 py-1 border border-gray-400 rounded-lg text-sm text-right placeholder-gray-600 font-semibold"
+  />
+</div>
+
+          
           <div className="bg-green-100/20 border border-gray-500 rounded-xl p-4">
             <div className="bg-black text-white px-3 py-1 rounded-md mb-4 text-center w-full">בקשות להצעת מחיר</div>
             <div className="grid grid-cols-3 font-bold border-b pb-2 mb-2 text-sm text-gray-600">
@@ -106,19 +104,16 @@ useEffect(() => {
               <div>תאריך הגשה</div>
             </div>
             <div className="space-y-2">
-          {openQuotes.map((q) => (
-  <QuoteCard
-    key={q.quoteId}
-    quote={q}
-    layout="row"
-    background="green"
-    onClick={() => {
-      sessionStorage.setItem('quoteData', JSON.stringify(q));
-      location.href = '/qoutefill';
-    }}
-  />
-))}
+              {openQuotes.map((q) => (
+ <QuoteCard
+  quote={q}
+  layout="row"
+  background="green"
+  modal={true}
+/>
 
+
+              ))}
               {draftPlaceholders.map((_, i) => (
                 <div key={`draft-placeholder-${i}`} className="grid grid-cols-3 text-gray-400 border border-dashed border-gray-300 rounded-lg px-4 py-2 text-sm">
                   <div className="font-semibold">{openQuotes.length + i + 1}</div>
@@ -131,7 +126,7 @@ useEffect(() => {
 
           <div className="bg-sky-100/20 border border-gray-500 rounded-xl p-4">
             <div className="bg-black text-white px-3 py-1 rounded-md mb-4 text-center w-full">הצעות שהוגשו</div>
-           <div className="grid grid-cols-4 font-bold border-b pb-2 mb-2 text-sm text-gray-600">
+          <div className="grid grid-cols-4 font-bold border-b pb-2 mb-2 text-sm text-gray-600">
   <div>מספר בקשה</div>
   <div>סה״כ ש״ח</div>
   <div>סה״כ $</div>
@@ -139,9 +134,14 @@ useEffect(() => {
 </div>
 
             <div className="space-y-2">
-              {submittedQuotes
-                .filter(q => q.quoteId.includes(searchTerm))
-              .map((quote, index) => (
+ 
+
+{submittedQuotes
+  .filter((q) =>
+    q.clientId?.toString() === clientId &&
+    q.quoteId?.toString().includes(searchTerm.replace('#', ''))
+  )
+.map((quote, index) => (
   <div
     key={index}
     className="grid grid-cols-4 items-center border border-gray-900 rounded-lg px-3 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-400 bg-sky-300/60"
@@ -163,6 +163,11 @@ useEffect(() => {
   </div>
 ))
 }
+
+
+
+
+
               {submittedPlaceholders.map((_, i) => (
                 <div key={`submitted-placeholder-${i}`} className="grid grid-cols-3 text-gray-400 border border-dashed border-gray-300 rounded-lg px-4 py-2 text-sm">
                   <div className="font-semibold">{submittedQuotes.length + i + 1}</div>
@@ -175,22 +180,18 @@ useEffect(() => {
         </div>
       </div>
 
-      {activeQuote && (
-        <SubmittedQuoteCard
-          quote={activeQuote}
-          broker={broker}
-          onClose={() => setActiveQuote(null)}
-        />
-      )}
+{activeQuote && (
+  activeQuote.price
+    ? <SubmittedQuoteCard quote={activeQuote} broker={null} onClose={() => setActiveQuote(null)} />
+    : <QuoteCard quote={activeQuote} modal={true} />
+)}
 
-      <footer className="fixed bottom-0 left-0 w-full py-3 bg-black text-center text-sm text-white z-50 shadow-md">
+<footer className="fixed bottom-0 left-0 w-full py-3 bg-black text-center text-sm text-white z-50 shadow-md">
   כל הזכויות שמורות ל־
   <span className="text-orange-500 font-semibold">Share A Container</span>
    <div className="absolute left-4 top-3 text-purple-400 text-sm"> D&A code design ©</div>
 </footer>
-    </div>
-    
 
-    
+    </div>
   );
 }
