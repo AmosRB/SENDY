@@ -18,7 +18,8 @@ const testInsert = require('./routes/testInsert');
 
 
 const app = express();
-const PORT = 4135;
+const PORT = process.env.PORT || 4135;
+
 
 app.use(cors());
 app.use(express.json());
@@ -87,7 +88,7 @@ cron.schedule('0 3 * * *', () => {
 
 // 🚀 הפעלת השרת
 app.listen(PORT, () => {
-  console.log(`🚀 API running on http://localhost:${PORT}`);
+  console.log(`🚀 API running on port ${PORT}`);
   connectWithRetry();
 });
 
