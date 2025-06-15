@@ -25,8 +25,12 @@ router.post('/', async (req, res) => {
 
 await db.collection('quotes').updateOne(
   { quoteId: submission.quoteId },
-  { $set: { status: 'active', updatedAt: new Date() } }
+  {
+    $addToSet: { submittedBy: submission.brokerCode },
+    $set: { updatedAt: new Date() }
+  }
 );
+
 
 
     res.status(201).json({ insertedId: result.insertedId });
