@@ -1,0 +1,10 @@
+{
+  "name": "sendy",
+  "private": true,
+  "packageManager": "npm@10.2.4",
+  "workspaces": [
+    "backend-clean",
+    "apps",
+    "packages"
+  ]
+}
