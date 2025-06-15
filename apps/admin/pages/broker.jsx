@@ -12,7 +12,7 @@ export default function BrokerLoginPage() {
   const [form, setForm] = useState({ name: '', company: '', taxId: '', phone: '', email: '' });
   const [newCode, setNewCode] = useState('');
   const router = useRouter();
-  const apiBase = 'http://localhost:4135';
+  const apiBase = process.env.NEXT_PUBLIC_API_URL;
 
   const isSixDigitCode = (str) => /^\d{6}$/.test(str);
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
