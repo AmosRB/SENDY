@@ -1,6 +1,5 @@
-// הרחבת index.js - דילוג על knownUser לעסקים
+// index.js – גרסה יציבה עם loading + ספינר לא חוסם תפקוד
 import { useState, useRef, useEffect } from 'react';
-
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -15,6 +14,7 @@ export default function LinkInputPage() {
   const [errors, setErrors] = useState({ phone: '', email: '' });
   const [link, setLink] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [clientName, setClientName] = useState('');
 
@@ -30,9 +30,9 @@ export default function LinkInputPage() {
 
   const checkUserByPhoneOnly = async (isReturningUser = false) => {
     clearClientSession();
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`);
-    if (res.ok) {
+    setLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users?name=${encodeURIComponent(name.trim())}&phone=${encodeURIComponent(phone)}`);
       const data = await res.json();
       if (data && data.length > 0) {
         const user = data[0];
@@ -47,7 +47,6 @@ export default function LinkInputPage() {
         sessionStorage.setItem('clientBusiness', user.business || '');
         sessionStorage.setItem('clientTaxIdNumber', user.taxIdNumber || '');
 
-
         if (isReturningUser) {
           router.push('/clientopenquotes');
         } else {
@@ -60,8 +59,11 @@ export default function LinkInputPage() {
       } else {
         setStep('register');
       }
-    } else {
+    } catch (err) {
+      console.error('❌ שגיאה בבדיקה:', err);
       setStep('register');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -165,22 +167,32 @@ export default function LinkInputPage() {
     router.push('/newproduct');
   };
 
-  const [viewportWidth, setViewportWidth] = useState(100);
+  
 
-useEffect(() => {
-  const handleResize = () => setViewportWidth(window.innerWidth);
-  handleResize();
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
 
-const scaleClass = viewportWidth < 450 ? 'scale-[0.95]' : '';
-
+    const [viewportWidth, setViewportWidth] = useState(100);
+  useEffect(() => {
+    const handleResize = () => setViewportWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  const scaleClass = viewportWidth < 450 ? 'scale-[0.95]' : '';
 
   return (
-   <div className={`min-h-screen flex flex-col items-center justify-center px-[4vw] py-[2vh] bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative ${scaleClass}`}>
-
+    <div className={`min-h-screen flex flex-col items-center justify-center px-[4vw] py-[2vh] bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative ${scaleClass}`}>
       <Head><title>Sendy | Shipping Quote</title></Head>
+
+      {/* ✅ הודעת טעינה וספינר מוצגת למעלה, לא חוסמת את הפורמט */}
+{loading && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="flex flex-col items-center space-y-3">
+      <div className="text-blue-700 text-lg font-semibold">מאמת פרטים...</div>
+      <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  </div>
+)}
+
 
       <div className="w-full max-w-sm flex flex-col items-center mt-48 space-y-6">
         {step === 'businessDetails' && (
