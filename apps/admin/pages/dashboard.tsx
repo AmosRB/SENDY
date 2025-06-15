@@ -49,10 +49,11 @@ export default function AdminDashboard() {
           axios.get(`${BASE_URL}/api/quotes`)
         ]);
         setStats(summaryRes.data);
-        setUsers(usersRes.data);
-        setBrokers(brokersRes.data);
-        setQuotes(quotesRes.data);
-        generateChart(usersRes.data, quotesRes.data);
+        setUsers(usersRes.data as any[])
+      setBrokers(brokersRes.data as any[]);
+setQuotes(quotesRes.data as any[]);
+generateChart(usersRes.data as any[], quotesRes.data as any[]);
+
       } catch (error) {
         console.error("Failed to load data", error);
       } finally {
