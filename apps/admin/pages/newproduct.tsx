@@ -260,7 +260,7 @@ useEffect(() => {
 
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start px-4 pt-6 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative" dir="rtl">
+    <div className="min-h-screen flex flex-col items-center justify-start px-4 pt-6 pb-32 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative" dir="rtl">
       <Head>
         <title>sharecontainer</title>
       </Head>

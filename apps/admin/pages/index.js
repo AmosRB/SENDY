@@ -1,5 +1,6 @@
 // הרחבת index.js - דילוג על knownUser לעסקים
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -164,16 +165,29 @@ export default function LinkInputPage() {
     router.push('/newproduct');
   };
 
+  const [viewportWidth, setViewportWidth] = useState(100);
+
+useEffect(() => {
+  const handleResize = () => setViewportWidth(window.innerWidth);
+  handleResize();
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+
+const scaleClass = viewportWidth < 450 ? 'scale-[0.95]' : '';
+
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative">
+   <div className={`min-h-screen flex flex-col items-center justify-center px-[4vw] py-[2vh] bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative ${scaleClass}`}>
+
       <Head><title>Sendy | Shipping Quote</title></Head>
 
       <div className="w-full max-w-sm flex flex-col items-center mt-48 space-y-6">
         {step === 'businessDetails' && (
           <form onSubmit={handleBusinessSubmit} className="w-full space-y-4">
             <h1 className="text-xl font-bold text-center">עסקים מקבלים אצלנו יחס מועדף</h1>
-            <input type="text" placeholder="שם העסק" className="w-full border border-gray-300 rounded-2xl px-4 py-3" value={business} onChange={(e) => setBusiness(e.target.value)} />
-            <input type="text" placeholder="מספר ח.פ / עוסק מורשה" className="w-full border border-gray-300 rounded-2xl px-4 py-3" value={taxIdNumber} onChange={(e) => setTaxIdNumber(e.target.value)} />
+            <input type="text" placeholder="שם העסק" className="w-full border border-gray-300 rounded-2xl px-[4vw] py-[2vh] sm:px-4 sm:py-4 text-right text-black placeholder-amber-700"value={business} onChange={(e) => setBusiness(e.target.value)} />
+            <input type="text" placeholder="מספר ח.פ / עוסק מורשה" className="w-full border border-gray-300 rounded-2xl px-[4vw] py-[2vh] sm:px-4 sm:py-4 text-right text-black placeholder-amber-700" value={taxIdNumber} onChange={(e) => setTaxIdNumber(e.target.value)} />
             <button type="submit" className="w-full py-2 rounded-2xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">בואו נעשה עסקים</button>
           </form>
         )}
@@ -214,7 +228,7 @@ export default function LinkInputPage() {
       <div className="w-full max-w-sm flex flex-col items-center mt-48 space-y-6">
         {step === 'enterName' && (
           <form onSubmit={handleNameSubmit} className="w-full space-y-4">
-            <h1 className="text-2xl font-bold text-center text-black mb-10 " dir="rtl">רוצה הצעת מחיר למשלוח מחו"ל ?</h1>
+            <h1 className="text-[6vw] sm:text-2xl font-bold text-center text-black mb-10 " dir="rtl">רוצה הצעת מחיר למשלוח מחו"ל ?</h1>
      <input
   type="text"
   placeholder=" הכנס שם מלא  לכניסה"
@@ -224,7 +238,7 @@ export default function LinkInputPage() {
 />
 
 
-            <button type="submit" className="w-full py-4 rounded-2xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">כניסה</button>
+            <button type="submit" className="w-full py-[2vh] sm:py-4 text-[4.5vw] sm:text-lg rounded-2xl text-white font-bold transition shadow-md bg-blue-600 hover:bg-blue-700">כניסה</button>
             <p onClick={() => setStep('returningName')} className="text-center text-blue-600 underline mt-2 cursor-pointer">כניסה לאזור האישי למנויים</p>
           </form>
         )}
@@ -233,7 +247,7 @@ export default function LinkInputPage() {
           <form onSubmit={handleReturningNameSubmit} className="w-full space-y-4">
             <h1 className="text-xl font-bold text-center text-black">הכנס את שמך כדי להמשיך</h1>
             <input type="text" placeholder="שם" className="w-full border border-gray-300 rounded-2xl px-4 py-3" value={name} onChange={(e) => setName(e.target.value)} />
-            <button type="submit" className="w-full py-4 rounded-2xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">המשך</button>
+            <button type="submit" className="w-full py-[2vh] sm:py-4 text-[4.5vw] sm:text-lg rounded-2xl text-white font-bold transition shadow-md bg-blue-600 hover:bg-blue-700">המשך</button>
           </form>
         )}
 
@@ -242,7 +256,7 @@ export default function LinkInputPage() {
             <h1 className="text-xl font-bold text-center text-black">הי {name}, נא להזין מספר טלפון</h1>
             {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
             <input type="text" placeholder="מספר טלפון" className="w-full border border-gray-300 rounded-2xl px-4 py-4 text-right text-black placeholder-amber-700" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            <button type="submit" className="w-full py-4 rounded-2xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">כניסה</button>
+            <button type="submit" className="w-full py-[2vh] sm:py-4 text-[4.5vw] sm:text-lg rounded-2xl text-white font-bold transition shadow-md bg-blue-600 hover:bg-blue-700">כניסה</button>
           </form>
         )}
 
@@ -251,7 +265,7 @@ export default function LinkInputPage() {
             <h1 className="text-xl font-bold text-center text-black">הי {name}, נא לאמת מספר טלפון</h1>
             {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
             <input type="text" placeholder="מספר טלפון" className="w-full border border-gray-300 rounded-2xl px-4 py-4 text-right text-black placeholder-amber-700" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            <button type="submit" className="w-full py-4 rounded-2xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">המשך</button>
+            <button type="submit" className="w-full py-[2vh] sm:py-4 text-[4.5vw] sm:text-lg rounded-2xl text-white font-bold transition shadow-md bg-blue-600 hover:bg-blue-700">המשך</button>
           </form>
         )}
 
@@ -265,7 +279,7 @@ export default function LinkInputPage() {
     <input
       type="text"
       placeholder="מספר טלפון"
-      className="w-full border border-gray-300 rounded-2xl px-4 py-4 text-right text-black placeholder-amber-700"
+      className="w-full border border-gray-300 rounded-2xl px-[4vw] py-[2vh] sm:px-4 sm:py-4 text-right text-black placeholder-amber-700"
       value={phone}
       onChange={(e) => setPhone(e.target.value)}
     />
@@ -274,7 +288,7 @@ export default function LinkInputPage() {
     <input
       type="text"
       placeholder="אימייל"
-      className="w-full border border-gray-300 rounded-2xl px-4 py-4 text-right text-black placeholder-amber-700"
+      className="w-full border border-gray-300 rounded-2xl px-[4vw] py-[2vh] sm:px-4 sm:py-4 text-right text-black placeholder-amber-700"
       value={email}
       onChange={(e) => setEmail(e.target.value)}
     />
@@ -332,9 +346,9 @@ export default function LinkInputPage() {
         {step === 'knownUser' && (
           <form onSubmit={handleLinkSubmit} className="w-full space-y-4">
             <p className="text-xl font-semibold text-center">שלום לך {name}</p>
-            <h1 className="text-2xl font-bold text-center text-black mt-6">קבל הצעת מחיר למשלוח</h1>
+            <h1 className="text-[6vw] sm:text-2xl font-bold text-center text-black mt-6">קבל הצעת מחיר למשלוח</h1>
             <p className="text-center text-gray-600 mb-2">העתק לפה את הקישור לדף המוצר</p>
-            <input type="url" className="w-full border border-gray-300 rounded-2xl px-4 py-4 text-base bg-white shadow-md text-center text-lg" placeholder="https://example.com/product" value={link} onChange={(e) => setLink(e.target.value)} />
+            <input type="url" className="w-full border border-gray-300 rounded-2xl px-[4vw] py-[2vh] sm:px-4 sm:py-4 text-right text-black placeholder-amber-700" placeholder="https://example.com/product" value={link} onChange={(e) => setLink(e.target.value)} />
             <button type="submit" className="w-full py-4 rounded-2xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">המשך</button>
           </form>
         )}
