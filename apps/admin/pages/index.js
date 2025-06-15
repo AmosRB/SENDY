@@ -252,6 +252,16 @@ export default function LinkInputPage() {
 
             <button type="submit" className="w-full py-[2vh] sm:py-4 text-[4.5vw] sm:text-lg rounded-2xl text-white font-bold transition shadow-md bg-blue-600 hover:bg-blue-700">כניסה</button>
             <p onClick={() => setStep('returningName')} className="text-center text-blue-600 underline mt-2 cursor-pointer">כניסה לאזור האישי למנויים</p>
+            <p className="text-center text-[18px] text-gray-700 mt-4">
+  עמיל מכס ורוצה להצטרף למערך נותני ההצעות?{' '}
+  <span
+    onClick={() => router.push('/broker')}
+    className="text-blue-600 underline cursor-pointer font-semibold"
+  >
+    הכנס מכאן
+  </span>
+</p>
+
           </form>
         )}
 
@@ -365,17 +375,7 @@ export default function LinkInputPage() {
           </form>
         )}
       </div>
-<div className="absolute bottom-20 left-0 right-0 text-center text-[20px] text-gray-700">
-  <p>
-    עמיל מכס ורוצה להצטרף למערך נותני ההצעות?{' '}
-    <span
-      onClick={() => router.push('/broker')}
-      className="text-blue-600 underline cursor-pointer font-semibold"
-    >
-      הכנס מכאן
-    </span>
-  </p>
-</div>
+
 
 <footer className="fixed bottom-0 left-0 w-full py-3 bg-black text-center text-sm text-white z-50 shadow-md">
   כל הזכויות שמורות ל־
