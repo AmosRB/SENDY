@@ -2,7 +2,8 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useState, useEffect, useRef } from 'react';
-import ProductInfoWindow from './ProductInfoWindow';
+import ProductInfoWindow from '../components/ProductInfoWindow';
+
 
 export default function NewProduct() {
   const router = useRouter();
