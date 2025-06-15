@@ -83,7 +83,8 @@ const goNext = () => {
   const fetchData = (url: string) => {
     setReady(false);
     setLoading(true);
-    fetch(`http://localhost:4135/extract?url=${encodeURIComponent(url)}`)
+   fetch(`${process.env.NEXT_PUBLIC_API_URL}/extract?url=${encodeURIComponent(url)}`)
+
       .then(res => res.json())
       .then(data => {
         setData(data);
@@ -145,7 +146,8 @@ useEffect(() => {
 
     const fetchNewQuoteId = async () => {
       try {
-        const res = await fetch('http://localhost:4135/api/quotes/new-id');
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quotes/new-id`);
+
         if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
@@ -211,7 +213,8 @@ useEffect(() => {
 };
 
 
-      const res = await fetch('http://localhost:4135/api/quotes', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quotes`, {
+
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(quoteData)
@@ -224,7 +227,8 @@ useEffect(() => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const uploadRes = await fetch(`http://localhost:4135/api/quotes/upload/${finalQuoteId}`, {
+       const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quotes/upload/${finalQuoteId}`, {
+
           method: 'POST',
           body: formData
         });

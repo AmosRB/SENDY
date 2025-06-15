@@ -30,7 +30,7 @@ export default function LinkInputPage() {
   const checkUserByPhoneOnly = async (isReturningUser = false) => {
     clearClientSession();
 
-    const res = await fetch(`http://localhost:4135/api/users?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`);
     if (res.ok) {
       const data = await res.json();
       if (data && data.length > 0) {
@@ -113,7 +113,7 @@ export default function LinkInputPage() {
   };
 
   const registerUser = async () => {
-    const res = await fetch('http://localhost:4135/api/users', {
+   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

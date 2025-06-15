@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import dynamic from "next/dynamic";
 
-const BASE_URL = "http://localhost:4135";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4135";
+
+
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function AdminDashboard() {

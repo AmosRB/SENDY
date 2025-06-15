@@ -10,7 +10,8 @@ export default function LearnedSelectorsPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const res = await fetch('http://localhost:4135/api/train-selector/all');
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/train-selector/all`);
+
     const json = await res.json();
     setData(json);
     groupData(json);
@@ -31,33 +32,36 @@ export default function LearnedSelectorsPage() {
   };
 
   const handleDelete = async (item) => {
-    await fetch('http://localhost:4135/api/train-selector/delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: item.url, selector: item.selector, field: item.field })
-    });
+   await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/train-selector/delete`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: item.url, selector: item.selector, field: item.field })
+});
     fetchData();
   };
 
   const handleSave = async (item) => {
-    await fetch('http://localhost:4135/api/fixed-selectors', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: item.url, selector: item.selector, field: item.field })
-    });
+await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/fixed-selectors`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: item.url, selector: item.selector, field: item.field })
+});
+
     alert('✅ נשמר לסלקטורים קבועים');
   };
 
   const handleExportAndClear = async () => {
-    const res = await fetch('http://localhost:4135/api/train-selector/export', {
-      method: 'POST'
-    });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/train-selector/export`, {
+  method: 'POST'
+});
+
     const result = await res.json();
     alert(`📦 נוצר קובץ ${result.path} (${result.totalDomains} דומיינים)`);
     // ננקה את הרשומות הגולמיות לאחר השמירה
-    await fetch('http://localhost:4135/api/train-selector/clear', {
-      method: 'POST'
-    });
+   await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/train-selector/clear`, {
+  method: 'POST'
+});
+
     fetchData();
   };
 

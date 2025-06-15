@@ -75,7 +75,8 @@ const [client, setClient] = useState<{
         if (!file.fileId || !file.filename) continue;
 
         const link = document.createElement('a');
-        link.href = `http://localhost:4135/api/quotes/download/${file.fileId}`;
+       link.href = `${process.env.NEXT_PUBLIC_API_URL}/api/quotes/download/${file.fileId}`;
+
         link.download = file.filename;
         link.target = '_blank';
         link.click();
@@ -93,7 +94,8 @@ const [client, setClient] = useState<{
   if (!broker?.code) return alert("פרטי עמיל מכס חסרים");
 
   try {
-    const res = await fetch('http://localhost:4135/api/submitted-quotes', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/submitted-quotes`, {
+
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

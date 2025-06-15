@@ -1,6 +1,8 @@
 // apps/admin/pages/admin-selectors.js
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+const apiBase = process.env.NEXT_PUBLIC_API_URL;
+
 
 export default function AdminSelectorsPage() {
   const [selectors, setSelectors] = useState({});
@@ -9,7 +11,8 @@ export default function AdminSelectorsPage() {
 
   const fetchSelectors = () => {
     setLoading(true);
-    fetch('http://localhost:4135/api/selectors')
+    fetch(`${apiBase}/api/selectors`)
+
       .then(res => res.json())
       .then((data) => {
         console.log('✅ Selectors loaded:', data);
@@ -38,7 +41,8 @@ export default function AdminSelectorsPage() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch('http://localhost:4135/api/selectors', {
+      await fetch(`${apiBase}/api/selectors`, {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(selectors),

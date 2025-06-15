@@ -10,7 +10,8 @@ export default function StatsPage() {
   const [selectedDomain, setSelectedDomain] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:4135/api/train-selector/selectors-learned')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/train-selector/selectors-learned`)
+
       .then(res => res.json())
       .then(json => {
         setData(json);
