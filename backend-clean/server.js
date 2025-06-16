@@ -24,7 +24,6 @@ app.use(cors());
 app.use(express.json());
 
 
-app.use('/api/test-insert', testInsert);
 // ✅ ראוטים
 console.log('✅ customsBrokers route loaded');
 
