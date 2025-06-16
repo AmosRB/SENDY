@@ -1,6 +1,23 @@
+// customsBrokers.js
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
+
+// יש להעתיק את הפונקציה הזו גם לכאן או ליצור קובץ utilities נפרד
+// המכיל פונקציה זו ולייצא אותה לשני הקבצים.
+// לצורך הפתרון, נניח שהיא קיימת כאן גם כן.
+async function generateUniqueCode(db) {
+  let code;
+  let existsInUsers = true;
+  let existsInBrokers = true;
+
+  while (existsInUsers || existsInBrokers) {
+    code = Math.floor(100000 + Math.random() * 900000).toString();
+    existsInUsers = await db.collection('users').findOne({ code });
+    existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) });
+  }
+  return code;
+}
 
 router.get('/all', async (req, res) => {
   try {
@@ -26,15 +43,18 @@ router.get('/all', async (req, res) => {
 
 // ✅ רישום חדש עם לוגים ובדיקות קפדניות
 router.post('/', async (req, res) => {
-  const { name, company, taxId, phone, email, code } = req.body;
+  // הקוד נוצר בשרת, לכן לא נקבל אותו מה-body
+  const { name, company, taxId, phone, email } = req.body; 
   console.log('📥 POST /api/customs-brokers - body:', req.body);
 
-  if (!name || !company || !taxId || !phone || !email || !code) {
+  // ודא ששדות חובה קיימים
+  if (!name || !company || !taxId || !phone || !email) { 
     console.warn('⚠️ שדות חסרים בטופס');
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  if ([name, company, taxId, phone, email, code].some(v => typeof v !== 'string' || !v.trim())) {
+  // בדיקת פורמט (הסרת בדיקת ה-code כי הוא לא מגיע מה-body)
+  if ([name, company, taxId, phone, email].some(v => typeof v !== 'string' || !v.trim())) { 
     console.warn('⚠️ שדה כלשהו לא תקין מבחינת סוג או ריק');
     return res.status(400).json({ error: 'Invalid input format' });
   }
@@ -42,26 +62,23 @@ router.post('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
 
-    // ודא שהקוד לא כבר בשימוש
-    const exists = await db.collection('customs-brokers').findOne({ code: String(code) });
-    if (exists) {
-      console.warn('⚠️ קוד כבר קיים:', code);
-      return res.status(409).json({ error: 'Code already in use' });
-    }
+    // יצירת קוד ייחודי באמצעות generateUniqueCode
+    const code = await generateUniqueCode(db);
 
     const brokerData = {
-  name: name.trim(),
-  company: company.trim(),
-  taxId: taxId.trim(),
-  phone: phone.trim(),
-  email: email.trim(),
-  code: String(code),
-  createdAt: new Date()
-};
+      name: name.trim(),
+      company: company.trim(),
+      taxId: taxId.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+      code: String(code), // הקוד שנוצר
+      createdAt: new Date()
+    };
 
 
     const result = await db.collection('customs-brokers').insertOne(brokerData);
-    const newBroker = await db.collection('customs-brokers').findOne({ _id: result.insertedId });
+    // קבלת האובייקט המלא חזרה
+    const newBroker = await db.collection('customs-brokers').findOne({ _id: result.insertedId }); 
 
     console.log('✅ עמיל חדש נוסף:', newBroker);
     res.status(201).json(newBroker);
@@ -71,7 +88,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 🔍 שליפת עמיל לפי קוד
+// 🔍 שליפת עמיל לפי קוד (לא משתנה)
 router.get('/', async (req, res) => {
   const { code } = req.query;
   console.log('📤 GET /api/customs-brokers?code=', code);

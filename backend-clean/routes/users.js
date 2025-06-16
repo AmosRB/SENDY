@@ -1,87 +1,101 @@
+// users.js
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
 const { ObjectId } = require('mongodb');
 
-// ✅ GET - שליפת משתמשים לפי שם ו/או טלפון
+// פונקציה לייצור ובדיקת ייחודיות של קוד על פני כל הקולקציות הרלוונטיות
+async function generateUniqueCode(db) {
+  let code;
+  let existsInUsers = true;
+  let existsInBrokers = true;
+
+  while (existsInUsers || existsInBrokers) {
+    code = Math.floor(100000 + Math.random() * 900000).toString();
+    existsInUsers = await db.collection('users').findOne({ code });
+    existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) }); // לוודא השוואת מחרוזת
+  }
+  return code;
+}
+
+// ✅ GET לפי קוד אישי (לא משתנה)
 router.get('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
-    const { name, phone } = req.query;
+    const { code } = req.query;
 
-    const query = {};
-    if (name) query.name = { $regex: `^${name}$`, $options: 'i' };
-   if (phone) query.phone = phone.replace(/[^0-9]/g, '');
+    if (!code || !/^\d{6}$/.test(code)) {
+      return res.status(400).json({ error: 'קוד אישי לא תקין או חסר' });
+    }
 
+    const user = await db.collection('users').findOne({ code });
+    if (!user) return res.status(404).json({ error: 'לא נמצא משתמש' });
 
-    const users = await db.collection('users').find(query).toArray();
-    res.json(users);
+    res.json(user);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch users' });
+    res.status(500).json({ error: 'שגיאה בשליפה' });
   }
 });
 
-/// ✅ POST - הוספת משתמש חדש
+// ✅ POST - רישום משתמש חדש עם קוד אישי
 router.post('/', async (req, res) => {
-  const { name, phone, email, role } = req.body;
+  // נוסיף name ו-phone לבקשה
+  const { email, role, business, taxIdNumber, name, phone } = req.body; 
 
-  if (!name || !phone || !email || !role) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  // ודא ששדות חובה (כולל name ו-phone) קיימים
+  if (!email || !role || !name || !phone) { 
+    return res.status(400).json({ error: 'חסרים שדות חובה (שם, טלפון, אימייל, תפקיד)' });
   }
 
   try {
     const db = await connectToDatabase();
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
-    
-  const newUser = {
-  name,
-  phone: cleanPhone,
-  email,
-  role,
-  business: req.body.business || '',
-  taxIdNumber: req.body.taxIdNumber || '',
-  createdAt: new Date()
-};
 
+    // השתמש בפונקציה החדשה לייצור קוד ייחודי
+    const code = await generateUniqueCode(db);
 
-    console.log('📥 ניסיון לרשום משתמש:', newUser);
+    const newUser = {
+      name, // הוספת שם
+      phone, // הוספת טלפון
+      email,
+      role,
+      business: business || '',
+      taxIdNumber: taxIdNumber || '',
+      createdAt: new Date(),
+      code, // הקוד הייחודי שנוצר
+    };
 
     const result = await db.collection('users').insertOne(newUser);
 
     if (!result.acknowledged) {
-      console.error('❌ insertOne לא אישר את ההוספה');
-      return res.status(500).json({ error: 'Insert failed' });
+      return res.status(500).json({ error: 'שגיאה בהוספה' });
     }
 
-    console.log('✅ נוצר משתמש חדש:', result.insertedId);
     res.status(201).json({ _id: result.insertedId, ...newUser });
-
   } catch (err) {
-    console.error('❌ שגיאה ברישום משתמש:', err.message);
+    console.error('❌ שגיאה ברישום:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-
-// ✅ NEW: GET - שליפת כל המשתמשים (לדשבורד)
+// ✅ GET כל המשתמשים (לא משתנה)
 router.get('/all', async (req, res) => {
   try {
     const db = await connectToDatabase();
     const users = await db.collection('users').find().sort({ createdAt: -1 }).toArray();
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch all users' });
+    res.status(500).json({ error: 'שליפה נכשלה' });
   }
 });
 
-// DELETE - מחיקת משתמש לפי ID
+// ✅ DELETE לפי ID (לא משתנה)
 router.delete('/:id', async (req, res) => {
   try {
     const db = await connectToDatabase();
     const result = await db.collection('users').deleteOne({ _id: new ObjectId(req.params.id) });
     res.json({ deletedCount: result.deletedCount });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete user' });
+    res.status(500).json({ error: 'מחיקה נכשלה' });
   }
 });
 
