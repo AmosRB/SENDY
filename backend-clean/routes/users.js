@@ -8,12 +8,12 @@ const { ObjectId } = require('mongodb');
 async function generateUniqueCode(db) {
   let code;
   let existsInUsers = true;
-  let existsInBrokers = true;
+  let existsInBrokers = true; // וודא שזה כתוב כך, עם 'e' בסוף 'brokers'
 
-  while (existsInUsers || existsInBroaks) { // תיקון כאן: existsInBroakers -> existsInBrokers
+  while (existsInUsers || existsInBrokers) {
     code = Math.floor(100000 + Math.random() * 900000).toString();
     existsInUsers = await db.collection('users').findOne({ code });
-    existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) }); // לוודא השוואת מחרוזת
+    existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) }); // וודא שגם כאן כתוב existsInBrokers
   }
   return code;
 }
@@ -39,12 +39,10 @@ router.get('/', async (req, res) => {
 
 // ✅ POST - רישום משתמש חדש עם קוד אישי
 router.post('/', async (req, res) => {
-  // נוסיף name ו-phone לבקשה
-  const { email, role, business, taxIdNumber, name, phone } = req.body; 
+  const { name, phone, email, role, business, taxIdNumber } = req.body; // הוספתי name ו-phone ל-destructuring
 
-  // ודא ששדות חובה (כולל name ו-phone) קיימים
-  if (!email || !role || !name || !phone) { 
-    return res.status(400).json({ error: 'חסרים שדות חובה (שם, טלפון, אימייל, תפקיד)' });
+  if (!name || !phone || !email || !role) { // וודא בדיקה גם על name ו-phone
+    return res.status(400).json({ error: 'חסרים שדות חובה' });
   }
 
   try {
@@ -54,14 +52,14 @@ router.post('/', async (req, res) => {
     const code = await generateUniqueCode(db);
 
     const newUser = {
-      name, // הוספת שם
-      phone, // הוספת טלפון
+      name,
+      phone,
       email,
       role,
       business: business || '',
       taxIdNumber: taxIdNumber || '',
       createdAt: new Date(),
-      code, // הקוד הייחודי שנוצר
+      code,
     };
 
     const result = await db.collection('users').insertOne(newUser);
@@ -70,8 +68,7 @@ router.post('/', async (req, res) => {
       return res.status(500).json({ error: 'שגיאה בהוספה' });
     }
 
-    // חשוב: החזר את כל אובייקט המשתמש החדש כולל ה-code שנוצר
-    res.status(201).json({ _id: result.insertedId, ...newUser }); 
+    res.status(201).json({ _id: result.insertedId, ...newUser });
   } catch (err) {
     console.error('❌ שגיאה ברישום:', err.message);
     res.status(500).json({ error: err.message });
@@ -85,19 +82,85 @@ router.get('/all', async (req, res) => {
     const users = await db.collection('users').find().sort({ createdAt: -1 }).toArray();
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: 'שליפה נכשלה' });
+    res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
 
-// ✅ DELETE לפי ID (לא משתנה)
+// ✅ GET משתמש לפי ID (לא משתנה)
+router.get('/:id', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+
+    const user = await db.collection('users').findOne({ _id: new ObjectId(id) });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching user' });
+  }
+});
+
+// ✅ PUT - עדכון משתמש קיים (לא משתנה)
+router.put('/:id', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const { id } = req.params;
+    const { name, phone, email, role, business, taxIdNumber } = req.body;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+
+    const updatedUser = {
+      name,
+      phone,
+      email,
+      role,
+      business: business || '',
+      taxIdNumber: taxIdNumber || '',
+    };
+
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updatedUser }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'User updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error updating user' });
+  }
+});
+
+// ✅ DELETE - מחיקת משתמש (לא משתנה)
 router.delete('/:id', async (req, res) => {
   try {
     const db = await connectToDatabase();
-    const result = await db.collection('users').deleteOne({ _id: new ObjectId(req.params.id) });
-    res.json({ deletedCount: result.deletedCount });
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+
+    const result = await db.collection('users').deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'User deleted successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'מחיקה נכשלה' });
+    res.status(500).json({ error: 'Error deleting user' });
   }
 });
+
 
 module.exports = router;
