@@ -14,7 +14,6 @@ const adminSummary = require('./routes/adminSummary');
 const users = require('./routes/users');
 const customsBrokers = require('./routes/customsBrokers');
 const submittedQuotes = require('./routes/submittedQuotes');
-const testInsert = require('./routes/testInsert');
 
 
 const app = express();
