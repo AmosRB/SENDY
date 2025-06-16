@@ -31,17 +31,8 @@ router.post('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
 
-    // ❌ הסר את הלוגיקה הזו מפה:
-    // let code;
-    // let existsInUsers = true;
-    // let existsInBrokers = true;
-    // while (existsInUsers || existsInBrokers) {
-    //   code = Math.floor(100000 + Math.random() * 900000).toString();
-    //   existsInUsers = await db.collection('users').findOne({ code });
-    //   existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) });
-    // }
+    const code = await generateUniqueCode(db, 'broker');
 
-    const code = await generateUniqueCode(db); // <-- שימוש בפונקציה המיובאת
 
     const brokerData = {
       name: name.trim(),

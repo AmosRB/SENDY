@@ -44,7 +44,8 @@ router.post('/', async (req, res) => {
     //   exists = await db.collection('users').findOne({ code });
     // }
 
-    const code = await generateUniqueCode(db); // <-- שימוש בפונקציה המיובאת
+    const code = await generateUniqueCode(db, 'client');
+
 
     const newUser = {
       name,
