@@ -30,12 +30,14 @@ const fetchQuotesForClient = async (id) => {
     q.status === 'submitted'
 );
 
+const ignored = JSON.parse(localStorage.getItem('ignoredQuotes') || '[]');
+const visibleQuotes = myQuotes.filter(q => !ignored.includes(q.quoteId));
+setOpenQuotes(visibleQuotes);
+
     const mySubmitted = allSubmitted.filter(q => q.clientId === id);
 
-    const submittedIds = new Set(mySubmitted.map(q => q.quoteId));
-    const filteredQuotes = myQuotes.filter(q => !submittedIds.has(q.quoteId));
+  setOpenQuotes(myQuotes);
 
-    setOpenQuotes(filteredQuotes);
     setSubmittedQuotes(mySubmitted);
     sessionStorage.removeItem('quoteData');
 
@@ -98,19 +100,31 @@ const fetchQuotesForClient = async (id) => {
           
           <div className="bg-green-100/20 border border-gray-500 rounded-xl p-4">
             <div className="bg-black text-white px-3 py-1 rounded-md mb-4 text-center w-full">בקשות להצעת מחיר</div>
-            <div className="grid grid-cols-3 font-bold border-b pb-2 mb-2 text-sm text-gray-600">
-              <div>מספר בקשה</div>
-              <div>שם המוצר</div>
-              <div>תאריך הגשה</div>
-            </div>
+          <div className="grid grid-cols-4 font-bold border-b pb-2 mb-2 text-sm text-gray-600 text-right">
+  <div className="col-span-1">מספר בקשה</div>
+  <div className="col-span-1">תאריך הגשה</div>
+  <div className="col-span-2">שם המוצר</div>
+</div>
+
             <div className="space-y-2">
               {openQuotes.map((q) => (
- <QuoteCard
+<QuoteCard
   quote={q}
   layout="row"
   background="green"
   modal={true}
+  submittedCount={q.submittedBy?.length || 0}
+onIgnore={(id) => {
+  fetch(`${apiBase}/api/quotes`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quoteId: id, clientClosed: true })
+  });
+  setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
+}}
+
 />
+
 
 
               ))}

@@ -209,7 +209,9 @@ useEffect(() => {
   notes,
   termsAccepted,
   createdAt: new Date(),
-  status: 'submitted'
+  status: 'submitted',
+  submittedBy: [],
+
 };
 
 

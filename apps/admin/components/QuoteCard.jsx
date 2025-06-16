@@ -6,7 +6,10 @@ export default function QuoteCard({
   layout = 'card',
   background,
   onClick,
-  modal = false // ⬅️ חדש: האם לפתוח מודאל פנימי
+  modal = false,
+  submittedCount = 0,
+   onIgnore,
+   showFooter = true
 }) {
   const [showDetails, setShowDetails] = useState(false);
 
@@ -23,7 +26,9 @@ export default function QuoteCard({
     highlight ? 'bg-orange-100 hover:bg-orange-200' :
     'bg-white hover:bg-gray-100';
 
-  const rowClasses = 'grid grid-cols-3 items-center px-3 py-2 text-sm';
+  const rowClasses = 'grid grid-cols-4 items-center text-sm';
+
+
 
   const handleClick = (e) => {
     e.stopPropagation();
@@ -61,32 +66,56 @@ export default function QuoteCard({
     </div>
   );
 
-  if (layout === 'row') {
-    return (
-      <>
-        <div className={`${baseClasses} ${rowClasses} ${bgColor}`} onClick={handleClick}>
-          <div className="font-semibold text-gray-800">#{quoteId}</div>
-          <div className="text-gray-700">{productName}</div>
-          <div className="text-gray-500">{createdAt}</div>
-        </div>
-        {modal && showDetails && <ClientQuoteModal />}
-      </>
-    );
-  }
+if (layout === 'row') {
+ return (
+  <>
+    <div
+      className={`${baseClasses} ${bgColor} rounded-xl overflow-hidden text-sm`}
+      onClick={handleClick}
+    >
+      {/* שורת התוכן של הכרטיס */}
+    <div className={`${rowClasses} px-4 py-2`}>
+  {/* עמודה 1 – מספר בקשה */}
+  <div className="col-span-1 font-semibold text-gray-800">#{quoteId}</div>
 
-  return (
-    <>
-      <div
-        className={`${baseClasses} ${bgColor} p-4 shadow-md text-sm`}
-        onClick={handleClick}
+  {/* עמודה 2 – תאריך */}
+  <div className="col-span-1 text-gray-500">{createdAt}</div>
+
+  {/* עמודה 3 – שם מוצר (2/4) */}
+  <div className="col-span-2 text-gray-700">{productName}</div>
+</div>
+
+
+      {/* ✅ פוטר בתוך הכרטיס */}
+ {showFooter && (
+  <div className="flex justify-between items-center bg-emerald-200 px-4 py-[6px] text-[14px] font-semibold border-t border-emerald-600 text-right">
+    {submittedCount > 0 && (
+      <span className="text-blue-800">
+        מספר ההצעות שהוגשו {submittedCount}
+      </span>
+    )}
+    {onIgnore && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onIgnore(quote.quoteId);
+        }}
+        className="text-red-600 hover:underline"
       >
-        <div className="flex justify-between items-center mb-1">
-          <span className="font-bold text-gray-800">#{quoteId}</span>
-          <span className="text-gray-500">{createdAt}</span>
-        </div>
-        <div className="text-gray-700">{productName}</div>
-      </div>
-      {modal && showDetails && <ClientQuoteModal />}
-    </>
-  );
+        לא מעוניין לקבל עוד הצעות
+      </button>
+    )}
+  </div>
+)}
+
+    </div>
+
+    {modal && showDetails && <ClientQuoteModal />}
+  </>
+);
+
+}
+
+
+
 }

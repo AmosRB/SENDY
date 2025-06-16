@@ -165,4 +165,22 @@ router.delete('/:quoteId', async (req, res) => {
   }
 });
 
+router.put('/', async (req, res) => {
+  const { quoteId, ...updates } = req.body;
+
+  if (!quoteId) return res.status(400).json({ error: 'Missing quoteId' });
+
+  try {
+    const db = await connectToDatabase();
+    const result = await db.collection('quotes').updateOne(
+      { quoteId },
+      { $set: { ...updates, updatedAt: new Date() } }
+    );
+    res.json({ success: true, modifiedCount: result.modifiedCount });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update quote' });
+  }
+});
+
+
 module.exports = router;

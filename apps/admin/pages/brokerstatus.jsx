@@ -48,8 +48,14 @@ useEffect(() => {
         fetch(`${apiBase}/api/submitted-quotes?brokerCode=${code}`).then(res => res.json())
       ]);
 
-      const mySubmittedIds = new Set(mySubmitted.map(q => q.quoteId));
-      const unsubmittedQuotes = allQuotes.filter(q => q.status === 'submitted' && !mySubmittedIds.has(q.quoteId));
+const unsubmittedQuotes = allQuotes.filter(q =>
+  q.status === 'submitted' &&
+  (!q.clientClosed) &&
+  (!q.submittedBy || !q.submittedBy.includes(code))
+);
+
+
+
 
       setOpenQuotes(unsubmittedQuotes);
       setSubmittedQuotes(mySubmitted);
@@ -100,11 +106,12 @@ useEffect(() => {
  
           <div className="bg-green-100/20 border border-gray-500 rounded-xl p-4">
             <div className="bg-black text-white px-3 py-1 rounded-md mb-4 text-center w-full">בקשות להצעת מחיר</div>
-            <div className="grid grid-cols-3 font-bold border-b pb-2 mb-2 text-sm text-gray-600">
-              <div>מספר בקשה</div>
-              <div>שם המוצר</div>
-              <div>תאריך הגשה</div>
-            </div>
+            <div className="grid grid-cols-4 font-bold border-b pb-2 mb-2 text-sm text-gray-600 text-right">
+  <div className="col-span-1">מספר בקשה</div>
+  <div className="col-span-1">תאריך הגשה</div>
+  <div className="col-span-2">שם המוצר</div>
+</div>
+
             <div className="space-y-2">
           {openQuotes.map((q) => (
   <QuoteCard
@@ -112,6 +119,7 @@ useEffect(() => {
     quote={q}
     layout="row"
     background="green"
+    showFooter={false}
     onClick={() => {
       sessionStorage.setItem('quoteData', JSON.stringify(q));
       location.href = '/qoutefill';
