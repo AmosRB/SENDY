@@ -3,23 +3,11 @@ const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
 const { ObjectId } = require('mongodb');
-
-// פונקציה לייצור ובדיקת ייחודיות של קוד על פני כל הקולקציות הרלוונטיות
-async function generateUniqueCode(db) {
-  let code;
-  let existsInUsers = true;
-  let existsInBrokers = true; // וודא שזה כתוב כך, עם 'e' בסוף 'brokers'
-
-  while (existsInUsers || existsInBrokers) {
-    code = Math.floor(100000 + Math.random() * 900000).toString();
-    existsInUsers = await db.collection('users').findOne({ code });
-    existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) }); // וודא שגם כאן כתוב existsInBrokers
-  }
-  return code;
-}
+const generateUniqueCode = require('../utils/codeGenerator'); // <-- הוספה: ייבוא הפונקציה
 
 // ✅ GET לפי קוד אישי (לא משתנה)
 router.get('/', async (req, res) => {
+  // ... (הקוד הקיים של GET)
   try {
     const db = await connectToDatabase();
     const { code } = req.query;
@@ -39,17 +27,24 @@ router.get('/', async (req, res) => {
 
 // ✅ POST - רישום משתמש חדש עם קוד אישי
 router.post('/', async (req, res) => {
-  const { name, phone, email, role, business, taxIdNumber } = req.body; // הוספתי name ו-phone ל-destructuring
+  const { name, phone, email, role, business, taxIdNumber } = req.body;
 
-  if (!name || !phone || !email || !role) { // וודא בדיקה גם על name ו-phone
-    return res.status(400).json({ error: 'חסרים שדות חובה' });
+  if (!email || !role || !name || !phone) {
+    return res.status(400).json({ error: 'חסרים שדות חובה (שם, טלפון, אימייל, תפקיד)' });
   }
 
   try {
     const db = await connectToDatabase();
 
-    // השתמש בפונקציה החדשה לייצור קוד ייחודי
-    const code = await generateUniqueCode(db);
+    // ❌ הסר את הלוגיקה הזו מפה:
+    // let code;
+    // let exists = true;
+    // while (exists) {
+    //   code = Math.floor(100000 + Math.random() * 900000).toString();
+    //   exists = await db.collection('users').findOne({ code });
+    // }
+
+    const code = await generateUniqueCode(db); // <-- שימוש בפונקציה המיובאת
 
     const newUser = {
       name,
@@ -72,71 +67,6 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error('❌ שגיאה ברישום:', err.message);
     res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ GET כל המשתמשים (לא משתנה)
-router.get('/all', async (req, res) => {
-  try {
-    const db = await connectToDatabase();
-    const users = await db.collection('users').find().sort({ createdAt: -1 }).toArray();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch users' });
-  }
-});
-
-// ✅ GET משתמש לפי ID (לא משתנה)
-router.get('/:id', async (req, res) => {
-  try {
-    const db = await connectToDatabase();
-    const { id } = req.params;
-
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid ID' });
-    }
-
-    const user = await db.collection('users').findOne({ _id: new ObjectId(id) });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: 'Error fetching user' });
-  }
-});
-
-// ✅ PUT - עדכון משתמש קיים (לא משתנה)
-router.put('/:id', async (req, res) => {
-  try {
-    const db = await connectToDatabase();
-    const { id } = req.params;
-    const { name, phone, email, role, business, taxIdNumber } = req.body;
-
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid ID' });
-    }
-
-    const updatedUser = {
-      name,
-      phone,
-      email,
-      role,
-      business: business || '',
-      taxIdNumber: taxIdNumber || '',
-    };
-
-    const result = await db.collection('users').updateOne(
-      { _id: new ObjectId(id) },
-      { $set: updatedUser }
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ message: 'User updated successfully' });
-  } catch (err) {
-    res.status(500).json({ error: 'Error updating user' });
   }
 });
 

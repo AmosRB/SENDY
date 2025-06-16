@@ -2,35 +2,12 @@
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
+const generateUniqueCode = require('../utils/codeGenerator'); // <-- הוספה: ייבוא הפונקציה
 
-// יש להעתיק את הפונקציה הזו גם לכאן או ליצור קובץ utilities נפרד
-// המכיל פונקציה זו ולייצא אותה לשני הקבצים.
-// לצורך הפתרון, נניח שהיא קיימת כאן גם כן.
-async function generateUniqueCode(db) {
-  let code;
-  let existsInUsers = true;
-  let existsInBrokers = true;
-
-  while (existsInUsers || existsInBrokers) {
-    code = Math.floor(100000 + Math.random() * 900000).toString();
-    existsInUsers = await db.collection('users').findOne({ code });
-    existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) });
-  }
-  return code;
-}
+// ❌ הסר את הפונקציה generateUniqueCode שהייתה מוגדרת פה
 
 router.get('/all', async (req, res) => {
-  try {
-    const db = await connectToDatabase();
-    const brokers = await db.collection('customs-brokers').find().sort({ name: 1 }).toArray();
-    res.json(brokers);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch brokers' });
-  }
-});
-
-// שליפת כל העמילים (קיים)
-router.get('/all', async (req, res) => {
+  // ... (הקוד הקיים של GET /all)
   try {
     const db = await connectToDatabase();
     const brokers = await db.collection('customs-brokers').find().sort({ name: 1 }).toArray();
@@ -43,27 +20,28 @@ router.get('/all', async (req, res) => {
 
 // ✅ רישום חדש עם לוגים ובדיקות קפדניות
 router.post('/', async (req, res) => {
-  // הקוד נוצר בשרת, לכן לא נקבל אותו מה-body
-  const { name, company, taxId, phone, email } = req.body; 
+  const { name, company, taxId, phone, email } = req.body; // <-- שינוי: הסרת 'code' מה-body
   console.log('📥 POST /api/customs-brokers - body:', req.body);
 
-  // ודא ששדות חובה קיימים
-  if (!name || !company || !taxId || !phone || !email) { 
-    console.warn('⚠️ שדות חסרים בטופס');
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  // בדיקת פורמט (הסרת בדיקת ה-code כי הוא לא מגיע מה-body)
-  if ([name, company, taxId, phone, email].some(v => typeof v !== 'string' || !v.trim())) { 
-    console.warn('⚠️ שדה כלשהו לא תקין מבחינת סוג או ריק');
-    return res.status(400).json({ error: 'Invalid input format' });
+  if (!name || !company || !taxId || !phone || !email) {
+    console.warn('⚠️ שדות חסרים בטופס הרישום של עמיל המכס');
+    return res.status(400).json({ error: 'חסרים שדות חובה' });
   }
 
   try {
     const db = await connectToDatabase();
 
-    // יצירת קוד ייחודי באמצעות generateUniqueCode
-    const code = await generateUniqueCode(db);
+    // ❌ הסר את הלוגיקה הזו מפה:
+    // let code;
+    // let existsInUsers = true;
+    // let existsInBrokers = true;
+    // while (existsInUsers || existsInBrokers) {
+    //   code = Math.floor(100000 + Math.random() * 900000).toString();
+    //   existsInUsers = await db.collection('users').findOne({ code });
+    //   existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) });
+    // }
+
+    const code = await generateUniqueCode(db); // <-- שימוש בפונקציה המיובאת
 
     const brokerData = {
       name: name.trim(),
@@ -75,10 +53,8 @@ router.post('/', async (req, res) => {
       createdAt: new Date()
     };
 
-
     const result = await db.collection('customs-brokers').insertOne(brokerData);
-    // קבלת האובייקט המלא חזרה
-    const newBroker = await db.collection('customs-brokers').findOne({ _id: result.insertedId }); 
+    const newBroker = await db.collection('customs-brokers').findOne({ _id: result.insertedId });
 
     console.log('✅ עמיל חדש נוסף:', newBroker);
     res.status(201).json(newBroker);
@@ -90,6 +66,7 @@ router.post('/', async (req, res) => {
 
 // 🔍 שליפת עמיל לפי קוד (לא משתנה)
 router.get('/', async (req, res) => {
+  // ... (הקוד הקיים של GET)
   const { code } = req.query;
   console.log('📤 GET /api/customs-brokers?code=', code);
 
@@ -100,18 +77,16 @@ router.get('/', async (req, res) => {
 
   try {
     const db = await connectToDatabase();
-    const broker = await db.collection('customs-brokers').findOne({ code: String(code) });
-
+    const broker = await db.collection('customs-brokers').findOne({ code });
     if (!broker) {
-      console.warn('⚠️ לא נמצא עמיל עם קוד:', code);
-      return res.status(404).json({ error: 'Broker not found' });
+      console.log('🤷‍♀️ לא נמצא עמיל מכס עם הקוד:', code);
+      return res.status(404).json({ error: 'Customs broker not found' });
     }
-
-    console.log('✅ נמצא עמיל:', broker.name);
+    console.log('✅ נמצא עמיל מכס:', broker.name);
     res.json(broker);
   } catch (err) {
-    console.error('❌ שגיאה בשליפת עמיל:', err.message);
-    res.status(500).json({ error: 'Failed to fetch broker' });
+    console.error('❌ שגיאה בשליפת עמיל מכס:', err.message);
+    res.status(500).json({ error: 'Database error' });
   }
 });
 
