@@ -11,11 +11,11 @@ export default function LinkInputPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('private');
+  const [role, setRole] = useState('private'); // ברירת מחדל ללקוח פרטי
   const [business, setBusiness] = useState('');
   const [taxIdNumber, setTaxIdNumber] = useState('');
   const [link, setLink] = useState('');
-  const [errors, setErrors] = useState({ phone: '', email: '' });
+  const [errors, setErrors] = useState({ phone: '', email: '', name: '', business: '', taxIdNumber: '' }); // הוספתי שדות לשגיאות
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
@@ -23,6 +23,14 @@ export default function LinkInputPage() {
     sessionStorage.clear();
     localStorage.clear();
   };
+
+  // useEffect לטיפול בתפקיד כאשר משתמש לוחץ על כפתור רישום
+  useEffect(() => {
+    if (step === 'registerPrivate') setRole('private');
+    else if (step === 'registerStore') setRole('store');
+    else if (step === 'registerImporter') setRole('importer');
+  }, [step]);
+
 
   const handleClientCodeSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +56,8 @@ export default function LinkInputPage() {
           ['clientEmail', user.email || ''],
           ['clientRole', user.role || ''],
           ['clientBusiness', user.business || ''],
-          ['clientTaxIdNumber', user.taxIdNumber || '']
+          ['clientTaxIdNumber', user.taxIdNumber || ''],
+          ['clientCode', user.code] // שמירת הקוד האישי
         ];
         fields.forEach(([key, value]) => {
           sessionStorage.setItem(key, value);
@@ -78,8 +87,8 @@ export default function LinkInputPage() {
 
       // אם הקוד לא נמצא באף אחת מהקולקציות
       setError('הקוד לא נמצא - נא להירשם');
-      setStep('register'); // נשאר כשלב לרישום, למרות שאפשרויות הרישום גלויות
-
+      setStep('registerPrivate'); // מנתב לטופס רישום פרטי כברירת מחדל אם הקוד לא נמצא
+      setRole('private');
     } catch (err) {
       console.error('❌ שגיאה בבדיקת קוד:', err);
       setError('שגיאה זמנית - נסה שוב');
@@ -88,52 +97,53 @@ export default function LinkInputPage() {
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    clearClientSession();
 
-    const newErrors = { phone: '', email: '' };
+  const handleRegisterSubmit = async (e) => { // פונקציה אחידה לטיפול בכל טפסי הרישום
+    e.preventDefault();
+    clearClientSession(); // נקה סשן לפני רישום חדש
+
+    const newErrors = {};
     // בדיקות ולידציה
-    if (!/^\d{9,10}$/.test(phone.replace(/[^0-9]/g, ''))) newErrors.phone = 'הכנס מספר טלפון תקין';
-    // תיקון ה-regex של האימייל
-    if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'הכנס אימייל תקני'; 
+    if (!name.trim()) newErrors.name = 'יש להזין שם מלא';
+    if (!/^[0-9]{9,10}$/.test(phone.replace(/[^0-9]/g, ''))) newErrors.phone = 'מספר טלפון לא תקין';
+    if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'אימייל לא תקני';
+
+    if (role === 'store' || role === 'importer') { // בדיקה עבור תפקידים עסקיים
+      if (!business.trim()) newErrors.business = 'יש להזין שם עסק';
+      if (!taxIdNumber.trim()) newErrors.taxIdNumber = 'יש להזין מספר ח.פ / עוסק מורשה';
+    }
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).every(key => !newErrors[key])) { // בדיקה שאין שגיאות
-      if (role === 'store' || role === 'importer') {
-        setStep('businessDetails');
-        return;
-      }
-      await registerUser();
-    }
-  };
+    if (Object.keys(newErrors).length > 0) return; // אם יש שגיאות, עצור
 
-  const registerUser = async () => {
-    // שולח את כל הנתונים כולל name ו-phone
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, email, role, business, taxIdNumber }) // createdAt יווסף בשרת
-    });
+    // שליחת הנתונים לשרת
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, email, business, taxIdNumber, role })
+      });
 
-    if (res.ok) {
-      const newUser = await res.json();
-      sessionStorage.setItem('clientId', newUser._id);
-      localStorage.setItem('clientId', newUser._id);
-      sessionStorage.setItem('clientName', newUser.name); // שמירת שם המשתמש
-      router.push('/newproduct');
-    } else {
-      alert('שגיאה ברישום המשתמש');
-    }
-  };
+      const { ok, data } = await res.json().then(data => ({ ok: res.ok, data }));
 
-  const handleBusinessSubmit = async (e) => {
-    e.preventDefault();
-    if (!business.trim() || !taxIdNumber.trim()) {
-      alert('יש למלא את כל שדות העסק');
-      return;
+      if (!ok) throw new Error(data.error || 'שגיאה כללית ברישום');
+
+      // שמירת הפרטים שחזרו מהשרת, כולל הקוד האישי
+      sessionStorage.setItem('clientId', data._id);
+      localStorage.setItem('clientId', data._id);
+      sessionStorage.setItem('clientName', data.name);
+      sessionStorage.setItem('clientCode', data.code); // שמירת הקוד האישי שהתקבל מהשרת
+      localStorage.setItem('clientCode', data.code); // שמירת הקוד האישי שהתקבל מהשרת
+
+
+      // הצגת הקוד למשתמש
+      alert(`נרשמת בהצלחה! הקוד האישי שלך הוא: ${data.code}. אנא שמור אותו לכניסות עתידיות.`);
+
+      router.push('/newproduct'); // ניתוב לעמוד הבא
+    } catch (err) {
+      setError(err.message);
+      console.error('❌ שגיאה ברישום:', err);
     }
-    await registerUser();
   };
 
   const handleLinkSubmit = (e) => {
@@ -185,13 +195,13 @@ export default function LinkInputPage() {
           <form onSubmit={handleClientCodeSubmit} className="w-full space-y-4">
             <h1 className="text-xl font-bold text-center text-gray-800">כניסת לקוחות</h1>
             {error && <p className="text-red-600 text-center text-sm font-semibold">{error}</p>}
-          <input
-            type="text"
-            placeholder="הכנס קוד אישי" // שיניתי את ה-placeholder
-            className="w-full border border-gray-300 rounded-xl px-4 py-4 text-right text-black placeholder-amber-700"
-            value={clientCode}
-            onChange={(e) => setClientCode(e.target.value)}
-          />
+            <input
+              type="text"
+              placeholder="הכנס קוד אישי"
+              className="w-full border border-gray-300 rounded-xl px-4 py-4 text-right text-black placeholder-amber-700"
+              value={clientCode}
+              onChange={(e) => setClientCode(e.target.value)}
+            />
             <button type="submit" className="w-full py-3 rounded-xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">
               כניסה
             </button>
@@ -199,7 +209,6 @@ export default function LinkInputPage() {
         )}
 
         {/* שורת הכותרת וקישוריות הרישום - ממוקמים מחוץ לכל תנאי step */}
-        {/* שימו לב - כדי שטופס הרישום יופיע, עליכם ללחוץ על אחד הקישורים (פרטי/חנות/יבואן) */}
         <div>
           <p className="text-center text-[17px] font-semibold text-black mt-6">
             הרשמה לאתר לפי סוג משתמש
@@ -215,48 +224,13 @@ export default function LinkInputPage() {
           </div>
         </div>
 
-        {/* טופס רישום לפי סוג */}
-        {/* הוספתי תנאי ל-step=='register' כדי שיופיעו השדות גם אם הקוד לא נמצא */}
-        {(step === 'register' || ['registerPrivate', 'registerStore', 'registerImporter'].includes(step)) && (
+        {/* טופס רישום מאוחד */}
+        {(['registerPrivate', 'registerStore', 'registerImporter'].includes(step)) && (
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const newErrors = {};
-              if (!name.trim()) newErrors.name = 'יש להזין שם מלא';
-              if (!/^[0-9]{9,10}$/.test(phone.replace(/[^0-9]/g, ''))) newErrors.phone = 'מספר טלפון לא תקין';
-              // תיקון ה-regex
-              if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'אימייל לא תקני'; 
-              if (step === 'registerStore' || step === 'registerImporter' || role === 'store' || role === 'importer') { // בדיקה עבור תפקידים עסקיים
-                if (!business.trim()) newErrors.business = 'יש להזין שם עסק';
-                if (!taxIdNumber.trim()) newErrors.taxIdNumber = 'יש להזין מספר ח.פ / עוסק מורשה';
-              }
-              setErrors(newErrors);
-              if (Object.keys(newErrors).length > 0) return;
-
-              // קביעת התפקיד הנכון אם הגענו לפה מ-step='register' (לאחר קוד שגוי)
-              let currentRole = role;
-              if (step === 'registerPrivate') currentRole = 'private';
-              else if (step === 'registerStore') currentRole = 'store';
-              else if (step === 'registerImporter') currentRole = 'importer';
-
-              fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, phone, email, business, taxIdNumber, role: currentRole }) // שליחת ה-role הנכון
-              })
-                .then(res => res.json().then(data => ({ ok: res.ok, data })))
-                .then(({ ok, data }) => {
-                  if (!ok) throw new Error(data.error || 'שגיאה כללית');
-                  sessionStorage.setItem('clientId', data._id);
-                  localStorage.setItem('clientId', data._id);
-                  sessionStorage.setItem('clientName', data.name);
-                  router.push('/newproduct');
-                })
-                .catch(err => setError(err.message));
-            }}
+            onSubmit={handleRegisterSubmit} // משתמשים בפונקציה המאוחדת
             className="w-full max-w-sm space-y-4 mt-6"
           >
-            <h1 className="text-xl font-bold text-center text-black">רישום משתמש חדש</h1> {/* הוספתי כותרת לטופס הרישום */}
+            <h1 className="text-xl font-bold text-center text-black">רישום משתמש חדש</h1>
             <input
               type="text"
               placeholder="שם מלא"
@@ -264,7 +238,7 @@ export default function LinkInputPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
+            {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
             <input
               type="text"
               placeholder="טלפון"
@@ -272,7 +246,7 @@ export default function LinkInputPage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
-            {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
+            {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
             <input
               type="text"
               placeholder="אימייל"
@@ -280,8 +254,10 @@ export default function LinkInputPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+            {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
+
             {/* שדות עסק יופיעו רק אם נבחר תפקיד של חנות או יבואן */}
-            {(step === 'registerStore' || step === 'registerImporter') && (
+            {(role === 'store' || role === 'importer') && (
               <>
                 <input
                   type="text"
@@ -290,6 +266,7 @@ export default function LinkInputPage() {
                   value={business}
                   onChange={(e) => setBusiness(e.target.value)}
                 />
+                {errors.business && <p className="text-red-600 text-sm">{errors.business}</p>}
                 <input
                   type="text"
                   placeholder="מספר ח.פ / עוסק מורשה"
@@ -297,6 +274,7 @@ export default function LinkInputPage() {
                   value={taxIdNumber}
                   onChange={(e) => setTaxIdNumber(e.target.value)}
                 />
+                {errors.taxIdNumber && <p className="text-red-600 text-sm">{errors.taxIdNumber}</p>}
               </>
             )}
             {error && <p className="text-red-600 text-center text-sm">{error}</p>}
@@ -306,7 +284,8 @@ export default function LinkInputPage() {
           </form>
         )}
 
-        {/* הבלוקים הבאים מוסתרים או משמשים לוגיקה ישנה - כרגע לא רלוונטיים למקרה זה */}
+        {/* הבלוקים הבאים מוסתרים או משמשים לוגיקה ישנה - **יש למחוק אותם** */}
+        {/*
         {step === 'register' && ( // זהו בלוק רישום ישן שנדרש למחוק אם הולכים על השיטה החדשה
           <form onSubmit={handleRegister} className="w-full space-y-4">
             <h1 className="text-xl font-bold text-center text-black">רישום משתמש חדש</h1>
@@ -342,8 +321,9 @@ export default function LinkInputPage() {
             <button type="submit" className="w-full py-2 rounded-2xl text-white font-bold text-lg transition shadow-md bg-blue-600 hover:bg-blue-700">בואו נעשה עסקים</button>
           </form>
         )}
+        */}
 
-        {step === 'knownUser' && ( // זהו בלוק שיופעל לאחר כניסה מוצלחת, אולי נשנה את שם ה-step
+        {step === 'knownUser' && ( // זהו בלוק שיופעל לאחר כניסה מוצלחת
           <form onSubmit={handleLinkSubmit} className="w-full space-y-4">
             <h1 className="text-xl font-bold text-center text-black">קבל הצעת מחיר למשלוח</h1>
             <p className="text-center text-gray-600">העתק לפה את הקישור לדף המוצר</p>

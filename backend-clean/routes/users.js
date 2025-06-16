@@ -10,7 +10,7 @@ async function generateUniqueCode(db) {
   let existsInUsers = true;
   let existsInBrokers = true;
 
-  while (existsInUsers || existsInBrokers) {
+  while (existsInUsers || existsInBroaks) { // תיקון כאן: existsInBroakers -> existsInBrokers
     code = Math.floor(100000 + Math.random() * 900000).toString();
     existsInUsers = await db.collection('users').findOne({ code });
     existsInBrokers = await db.collection('customs-brokers').findOne({ code: String(code) }); // לוודא השוואת מחרוזת
@@ -70,7 +70,8 @@ router.post('/', async (req, res) => {
       return res.status(500).json({ error: 'שגיאה בהוספה' });
     }
 
-    res.status(201).json({ _id: result.insertedId, ...newUser });
+    // חשוב: החזר את כל אובייקט המשתמש החדש כולל ה-code שנוצר
+    res.status(201).json({ _id: result.insertedId, ...newUser }); 
   } catch (err) {
     console.error('❌ שגיאה ברישום:', err.message);
     res.status(500).json({ error: err.message });
