@@ -8,6 +8,7 @@ export default function QuoteCard({
   onClick,
   modal = false,
   submittedCount = 0,
+   onShowSubmitted,
    onIgnore,
    showFooter = true
 }) {
@@ -88,12 +89,21 @@ if (layout === 'row') {
 
       {/* ✅ פוטר בתוך הכרטיס */}
  {showFooter && (
-  <div className="flex justify-between items-center bg-emerald-200 px-4 py-[6px] text-[14px] font-semibold border-t border-emerald-600 text-right">
-    {submittedCount > 0 && (
-      <span className="text-blue-800">
-        מספר ההצעות שהוגשו {submittedCount}
-      </span>
-    )}
+    <div className="flex justify-between items-center bg-emerald-200 px-4 py-[6px] text-[14px] font-semibold border-t border-emerald-600 text-right">
+      {submittedCount > 0 && (
+ <span
+  className="text-blue-800 cursor-pointer underline hover:text-blue-600 transition"
+  onClick={e => {
+    e.stopPropagation(); // מונע הפעלת onClick של כל הכרטיס
+    onShowSubmitted && onShowSubmitted(quoteId);
+  }}
+  title="הצג הצעות שהוגשו לבקשה זו"
+>
+  צפה במספר ההצעות שהוגשו {submittedCount}
+</span>
+
+
+      )}
     {onIgnore && (
       <button
         onClick={(e) => {
@@ -102,7 +112,7 @@ if (layout === 'row') {
         }}
         className="text-red-600 hover:underline"
       >
-        לא מעוניין לקבל עוד הצעות
+        להפסיק לקבל הצעות
       </button>
     )}
   </div>

@@ -114,6 +114,8 @@ setOpenQuotes(visibleQuotes);
   background="green"
   modal={true}
   submittedCount={q.submittedBy?.length || 0}
+   onShowSubmitted={quoteId => setSearchTerm(searchTerm === quoteId ? '' : quoteId)}
+  active={searchTerm === q.quoteId}
 onIgnore={(id) => {
   fetch(`${apiBase}/api/quotes`, {
     method: 'PUT',
