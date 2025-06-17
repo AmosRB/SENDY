@@ -67,9 +67,10 @@ export default function BrokerLoginPage() {
   };
 
   const copyAndEnter = () => {
-    navigator.clipboard.writeText(newCode);
-    router.push('/broker-dashboard'); // ניתוב לדאשבורד
-  };
+  navigator.clipboard.writeText(newCode);
+  router.push('/brokerstatus'); 
+};
+
 
   // אין צורך ב-useEffect שמטפל בפרמטר 'action=register' 
   // מכיוון שהדף מתחיל תמיד במצב 'register' כעת.

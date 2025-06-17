@@ -298,8 +298,6 @@ const totalDollar =
 
 
 
-
-
   {/* רשת של 6 עמודות במקום 7 */}
 <div className="grid grid-cols-6 gap-x-3 gap-y-4 w-full items-center">
   {/* שם המוצר */}
@@ -500,91 +498,17 @@ const totalDollar =
 
 
 {/* מסגרת להגשת ההצעה */}
-<div className="mt-6 w-[1000px] border-2 border-black rounded-xl bg-[#cceeff88] px-6 py-6 flex flex-col gap-6">
-
+<div className="mt-6 w-[1000px] border-2 border-black rounded-xl bg-[#cceeff88] px-6 py-6 flex flex-col gap-6 ">
 
   {/* כותרת למסגרת */}
   <h2 className="text-center text-[20px] font-bold text-gray-800 mb-0">
     פרטי הצעת המחיר להגשה
   </h2>
 
-  <div className="flex justify-between gap-10">
+  {/* שינויים כאן: הוספת pl-16 והשארת gap-20 */}
+  <div className="flex justify-between gap-20 pl-16">
 
-    {/* טור ימין – בלוק ההצעה */}
-    <div className="w-[320px] flex flex-col items-end space-y-3">
-      <div className="w-full flex flex-col items-end mb-8">
-  <label className="text-[16px] text-gray-800 font-semibold mb-1 text-right w-full">הערות כלליות להצעה</label>
- <textarea
-  value={submissionNotes}
-  onChange={(e) => setSubmissionNotes(e.target.value)}
-    rows={3}
-    className="w-full text-sm border border-gray-400 rounded-lg px-3 py-2 resize-none"
-    placeholder="הערות שיצורפו להצעת המחיר"
-  />
-</div>
-
-<div className="w-full flex justify-end items-center">
-        <label className="text-[16px] text-gray-800 font-semibold">
-          ההצעה בתוקף עד&nbsp;&nbsp;
-        </label>
-        <input
-          type="date"
-          value={validity}
-          onChange={(e) => setValidity(e.target.value)}
-          dir="rtl"
-          className="h-[36px] w-[180px] px-3 rounded-lg border border-gray-400 text-[15px]"
-        />
-      </div>
-
-      <label className="flex items-center gap-2 w-full">
-       <input
-  type="checkbox"
-  checked={excludePortTaxes}
-  onChange={(e) => setExcludePortTaxes(e.target.checked)}
-  className="form-checkbox border border-black accent-blue-600 w-6 h-6"
-/>
-        <span className="w-full text-right text-[20px] text-black">לא כולל מיסי נמל</span>
-      </label>
-
-      <label className="flex items-center gap-2 w-full">
-      <input
-  type="checkbox"
-  checked={excludeVAT}
-  onChange={(e) => setExcludeVAT(e.target.checked)}
-  className="form-checkbox border border-black accent-blue-600 w-6 h-6"
-/>
-        <span className="w-full text-right text-[20px] text-black">לא כולל מע"מ</span>
-      </label>
-
-    
-
-      <label className="flex items-center gap-2 w-full mt-2">
-        <input
-          type="checkbox"
-          className="appearance-none w-5 h-5 border-2 border-black rounded-sm checked:bg-blue-600 checked:border-black"
-          checked={termsAccepted}
-          onChange={(e) => setTermsAccepted(e.target.checked)}
-        />
-        <span className="w-full text-right text-[14px] text-black">
-          אני מאשר שקראתי את <a href="/terms" target="_blank" className="underline text-blue-700 hover:text-blue-900">תנאי השימוש</a> באתר
-        </span>
-      </label>
-
-      <button
-        type="button"
-        onClick={submitFinalQuote}
-        disabled={!termsAccepted}
-        className={`w-full py-2 rounded-md font-bold text-[20px] mt-3 shadow-md transition ${
-          termsAccepted
-            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-            : 'bg-gray-400 text-black border border-black'
-        }`}
-      >
-        הגשת הצעת המחיר
-      </button>
-    </div>
-
-    {/* טור שמאל – שדות המחיר */}
+    {/* טור שמאל – שדות המחיר (היה טור שמאל, עכשיו יופיע מימין) */}
     <div className="flex-1 flex flex-col gap-4">
       <div className="grid grid-cols-6 gap-x-3 items-center">
         <label className="col-span-3 text-[20px] text-gray-800 font-semibold text-left">הובלה ימית</label>
@@ -704,11 +628,80 @@ const totalDollar =
         />
       </div>
     </div>
+
+    {/* טור ימין – בלוק ההצעה (היה טור ימין, עכשיו יופיע משמאל) */}
+    <div className="w-[320px] flex flex-col items-end space-y-3">
+      <div className="w-full flex flex-col items-end mb-8">
+        <label className="text-[16px] text-gray-800 font-semibold mb-1 text-right w-full">הערות כלליות להצעה</label>
+        <textarea
+          value={submissionNotes}
+          onChange={(e) => setSubmissionNotes(e.target.value)}
+          rows={3}
+          className="w-full text-sm border border-gray-400 rounded-lg px-3 py-2 resize-none"
+          placeholder="הערות שיצורפו להצעת המחיר"
+        />
+      </div>
+
+      <div className="w-full flex justify-end items-center">
+        <label className="text-[16px] text-gray-800 font-semibold">
+          ההצעה בתוקף עד&nbsp;&nbsp;
+        </label>
+        <input
+          type="date"
+          value={validity}
+          onChange={(e) => setValidity(e.target.value)}
+          dir="rtl"
+          className="h-[36px] w-[180px] px-3 rounded-lg border border-gray-400 text-[15px]"
+        />
+      </div>
+
+      <label className="flex items-center gap-2 w-full">
+        <input
+          type="checkbox"
+          checked={excludePortTaxes}
+          onChange={(e) => setExcludePortTaxes(e.target.checked)}
+          className="form-checkbox border border-black accent-blue-600 w-6 h-6"
+        />
+        <span className="w-full text-right text-[20px] text-black">לא כולל מיסי נמל</span>
+      </label>
+
+      <label className="flex items-center gap-2 w-full">
+        <input
+          type="checkbox"
+          checked={excludeVAT}
+          onChange={(e) => setExcludeVAT(e.target.checked)}
+          className="form-checkbox border border-black accent-blue-600 w-6 h-6"
+        />
+        <span className="w-full text-right text-[20px] text-black">לא כולל מע"מ</span>
+      </label>
+
+      <label className="flex items-center gap-2 w-full mt-2">
+        <input
+          type="checkbox"
+         className="form-checkbox border border-black accent-blue-600 w-6 h-6"
+          checked={termsAccepted}
+          onChange={(e) => setTermsAccepted(e.target.checked)}
+        />
+        <span className="w-full text-right text-[14px] text-black">
+          אני מאשר שקראתי את <a href="/terms" target="_blank" className="underline text-blue-700 hover:text-blue-900">תנאי השימוש</a> באתר
+        </span>
+      </label>
+
+      <button
+        type="button"
+        onClick={submitFinalQuote}
+        disabled={!termsAccepted}
+        className={`w-full py-2 rounded-md font-bold text-[20px] mt-3 shadow-md transition ${
+          termsAccepted
+            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+            : 'bg-gray-400 text-black border border-black'
+        }`}
+      >
+        הגשת הצעת המחיר
+      </button>
+    </div>
   </div>
 </div>
-
-
-
 
 
       {showSuccess && (

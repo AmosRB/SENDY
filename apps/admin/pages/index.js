@@ -4,119 +4,157 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 
 export default function LinkInputPage() {
+  // --- State Definitions ---
+  // General UI state
   const [clientCode, setClientCode] = useState('');
-  const [error, setError] = useState(''); // שגיאות כלליות
-  const [step, setStep] = useState('input'); // 'input', 'registerUserForm', 'knownUser', 'registrationSuccess'
+  const [error, setError] = useState(''); // General errors
+  // 'input', 'registerUserForm', 'knownUser', 'registrationSuccess'
+  const [step, setStep] = useState('input');
   const [loading, setLoading] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [copyMessage, setCopyMessage] = useState(''); // This state doesn't seem to be used anywhere. Consider removing if not needed.
 
-  // שדות טופס הרישום
+  // Registration form fields
+  const [currentUserData, setCurrentUserData] = useState(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState(''); // 'private', 'store', 'importer', 'broker'
   const [business, setBusiness] = useState('');
   const [taxIdNumber, setTaxIdNumber] = useState('');
 
+  // Link input state
   const [link, setLink] = useState('');
-  const [errors, setErrors] = useState({ phone: '', email: '', name: '', business: '', taxIdNumber: '' }); // שגיאות ולידציה ספציפיות
-  const [menuOpen, setMenuOpen] = useState(false);
-  const router = useRouter();
-  const [copyMessage, setCopyMessage] = useState('');
 
-  // 🚨 NEW STATE: להצגת הקוד לאחר רישום מוצלח
+  // Validation errors for form fields
+  const [errors, setErrors] = useState({ phone: '', email: '', name: '', business: '', taxIdNumber: '' });
+
+  // State for displaying code after successful registration
   const [registrationSuccessCode, setRegistrationSuccessCode] = useState('');
 
+  // --- Hooks ---
+  const router = useRouter();
+
+  useEffect(() => {
+    // This effect can be used for initial load logic if needed
+  }, []);
+
+  // --- Utility Functions ---
   const clearClientSession = () => {
     sessionStorage.clear();
     localStorage.clear();
   };
 
-  // פונקציית חזרה אחורה
+  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+  const validatePhone = (phone) => /^\d{9,10}$/.test(phone.replace(/[^0-9]/g, ''));
+
+  // --- Event Handlers ---
+
+  // Function to go back to previous step
   const goBack = () => {
-    setError(''); // נקה שגיאות כשחוזרים אחורה
-    setErrors({}); // נקה שגיאות ולידציה
+  setError('');
+  setErrors({});
+  setCurrentUserData(null);
+  setStep('input');
+};
 
-    if (step === 'registerUserForm') {
-      setStep('input'); // חזור למסך כניסת קוד
-    } else if (step === 'knownUser') {
-      // אם משתמש קיים, יכול להיות שהוא הגיע מההתחברות הראשית
-      setStep('input'); 
-    }
-  };
 
-  // פונקציה לטיפול בלחיצה על קישור בתפריט
+  // Function to handle menu item clicks (for registration roles)
   const handleMenuClick = (targetRole) => {
-    setMenuOpen(false); // סגור את התפריט
-    setError(''); // נקה שגיאות
-    setErrors({}); // נקה שגיאות ולידציה
+    setMenuOpen(false); // Close the menu
+    setError(''); // Clear errors
+    setErrors({}); // Clear validation errors
+
     if (targetRole === 'broker') {
-      router.push('/broker?action=register'); // **שינוי כאן: וודא שזה מנווט לרישום ישירות**
+      // Navigate directly to broker registration page
+      router.push('/broker?action=register');
     } else {
       setStep('registerUserForm');
       setRole(targetRole);
     }
   };
 
-  const handleLinkSubmit = async (e) => {
-  e.preventDefault();
-  if (!link || !link.trim()) {
-    setError("נא להזין קישור מוצר");
-    return;
-  }
+  // Handle submission of the personal code
+  const handleUniversalCodeSubmit = async (e) => {
+    e.preventDefault();
+    setError(''); // Clear previous errors
+    setLoading(true);
 
-  sessionStorage.setItem("productLink", link);
-  router.push("/newproduct");
-};
-
-
-
-  // ... (שאר הקוד של handleClientCodeSubmit, handleRegisterSubmit, handleLinkSubmit, validateEmail, validatePhone)
-
-  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
-  const validatePhone = (phone) => /^\d{9,10}$/.test(phone.replace(/[^0-9]/g, ''));
-
-
-  setLoading(true);
-  const isBroker = clientCode.startsWith('9');
-  const endpoint = isBroker
-    ? `/api/customs-brokers?code=${clientCode}`
-    : `/api/users?code=${clientCode}`;
-
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`);
-    if (!res.ok) {
-      setError('קוד לא קיים. אנא הירשם.');
-      // כאן תוכל להפעיל רישום ייעודי אוטומטי אם תרצה
+    if (!clientCode || !clientCode.trim()) {
+      setError("נא להזין קוד אישי");
+      setLoading(false);
       return;
     }
-    const data = await res.json();
 
-    if (isBroker) {
-      // ✦ לוגיקה לעמיל מכס
-      localStorage.setItem('brokerId', data._id);
-      localStorage.setItem('brokerName', data.name);
-      localStorage.setItem('brokerCode', data.code);
-      // מעבר לדשבורד/סטטוס עמיל
-      router.push('/broker-dashboard'); // או '/brokerstatus'
-    } else {
-      // ✦ לוגיקה ללקוח
-      localStorage.setItem('clientId', data._id);
-      localStorage.setItem('clientName', data.name);
-      localStorage.setItem('clientCode', data.code);
-      router.push('/newproduct'); // או כל דף המשך שתרצה
+    // Determine if it's a broker code (starts with '9') or a user code
+    const isBroker = clientCode.startsWith('9');
+    const endpoint = isBroker
+      ? `/api/customs-brokers?code=${clientCode}`
+      : `/api/users?code=${clientCode}`;
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`);
+
+      if (!res.ok) {
+        setError('קוד לא קיים. אנא הירשם.');
+        // Optionally, could setStep('registerUserForm') here to prompt registration
+        return;
+      }
+
+      const data = await res.json();
+
+if (isBroker) {
+  // שמירת פרטי עמיל מכס
+  localStorage.setItem('brokerId', data._id);
+  localStorage.setItem('brokerName', data.name);
+  localStorage.setItem('brokerCode', data.code);
+  localStorage.setItem('brokerPhone', data.phone);
+  localStorage.setItem('brokerEmail', data.email);
+  localStorage.setItem('brokerCompany', data.company);
+  localStorage.setItem('brokerTaxId', data.taxId);
+
+  sessionStorage.setItem('brokerId', data._id);
+  sessionStorage.setItem('brokerName', data.name);
+  sessionStorage.setItem('brokerCode', data.code);
+  sessionStorage.setItem('brokerPhone', data.phone);
+  sessionStorage.setItem('brokerEmail', data.email);
+  sessionStorage.setItem('brokerCompany', data.company);
+  sessionStorage.setItem('brokerTaxId', data.taxId);
+
+  router.push('/brokerstatus');
+} else {
+  // שמירת פרטי לקוח/יבואן
+  localStorage.setItem('clientId', data._id);
+  localStorage.setItem('clientName', data.name);
+  localStorage.setItem('clientCode', data.code);
+  localStorage.setItem('clientPhone', data.phone);
+  localStorage.setItem('clientEmail', data.email);
+  if (data.business) localStorage.setItem('clientBusiness', data.business);
+
+  sessionStorage.setItem('clientId', data._id);
+  sessionStorage.setItem('clientName', data.name);
+  sessionStorage.setItem('clientCode', data.code);
+  sessionStorage.setItem('clientPhone', data.phone);
+  sessionStorage.setItem('clientEmail', data.email);
+  if (data.business) sessionStorage.setItem('clientBusiness', data.business);
+
+setCurrentUserData(data);
+setStep('userWelcome');
+
+}
+}  catch (err) {
+      console.error('Error verifying code:', err);
+      setError('שגיאה כללית באימות קוד.');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError('שגיאה כללית באימות קוד.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-
-    const handleRegisterSubmit = async (e) => {
+  // Handle submission of the registration form
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    setErrors({});
-    setError(''); // איפוס שגיאות כלליות
+    setErrors({}); // Clear specific validation errors
+    setError(''); // Reset general errors
 
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'שם הוא שדה חובה';
@@ -128,7 +166,6 @@ export default function LinkInputPage() {
       if (!business.trim()) newErrors.business = 'שם החברה/עסק הוא שדה חובה ליבואנים';
       if (!taxIdNumber.trim() || !/^\d{9}$/.test(taxIdNumber)) newErrors.taxIdNumber = 'מספר ח.פ / עוסק מורשה לא תקין ליבואנים';
     }
-
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -157,19 +194,33 @@ export default function LinkInputPage() {
 
       const data = await response.json();
 
-      if (response.ok) {
-        console.log('Registration successful:', data);
-        setError(''); // איפוס שגיאה כללית
-        const receivedCode = data.code;
-        console.log('Received code from backend:', receivedCode);
+   if (response.ok) {
+  console.log('Registration successful:', data);
+  setError('');
+  const receivedCode = data.code;
 
-        // 🚨 NO ALERT - שמור בסטייט והצג ב-UI
-        setRegistrationSuccessCode(receivedCode);
-        sessionStorage.setItem('clientCode', receivedCode);
-        setClientCode(receivedCode);
-        setStep('registrationSuccess'); // 🚨 NEW STEP
+  // שמירת כל הפרטים ב-localStorage וב-sessionStorage:
+  localStorage.setItem('clientId', data._id);
+  localStorage.setItem('clientName', name);
+  localStorage.setItem('clientCode', receivedCode);
+  localStorage.setItem('clientPhone', phone);
+  localStorage.setItem('clientEmail', email);
+  if (business) localStorage.setItem('clientBusiness', business);
+  if (taxIdNumber) localStorage.setItem('clientTaxIdNumber', taxIdNumber);
 
-      } else {
+  sessionStorage.setItem('clientId', data._id);
+  sessionStorage.setItem('clientName', name);
+  sessionStorage.setItem('clientCode', receivedCode);
+  sessionStorage.setItem('clientPhone', phone);
+  sessionStorage.setItem('clientEmail', email);
+  if (business) sessionStorage.setItem('clientBusiness', business);
+  if (taxIdNumber) sessionStorage.setItem('clientTaxIdNumber', taxIdNumber);
+
+  setRegistrationSuccessCode(receivedCode);
+  setClientCode(receivedCode);
+  setStep('registrationSuccess');
+}
+ else {
         console.error('Registration failed:', data.error);
         setError(data.error || 'שגיאה ברישום');
       }
@@ -181,22 +232,23 @@ export default function LinkInputPage() {
     }
   };
 
-  
+
+  // --- Render Logic ---
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-6 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative pb-20">
       <Head>
         <title>Share A Container</title>
       </Head>
 
-      {/* כותרת עליונה - ממוקם מימין */}
+      {/* Header - top right */}
       <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
-        {/* תפריט המבורגר - יוצג בכל המסכים */}
-        <div className="relative"> {/* עוטף את כפתור ההמבורגר ואת התפריט הנפתח */}
+        {/* Hamburger Menu */}
+        <div className="relative">
           <button onClick={() => setMenuOpen(!menuOpen)} className="text-gray-800 text-3xl p-2 rounded-full hover:bg-gray-200">
-              ☰ {/* אייקון המבורגר */}
+            ☰ {/* Hamburger icon */}
           </button>
           {menuOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-right" style={{ transform: 'translateX(-85%)' }}> {/* מיקום התפריט מימין לכפתור, עם הזזה קלה */}
+            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-right" style={{ transform: 'translateX(-85%)' }}>
               <button onClick={() => handleMenuClick('private')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
                 הרשמת לקוח פרטי
               </button>
@@ -212,18 +264,17 @@ export default function LinkInputPage() {
             </div>
           )}
         </div>
-        
-        {/* חץ חזרה - יוצג רק אם זה לא הסטייט הראשוני ('input') */}
-        {(step !== 'input') && (
+
+        {/* Back Arrow - displayed only if not in the initial 'input' state */}
+        {(step !== 'input' && step !== 'registrationSuccess') && (
           <button onClick={goBack} className="text-gray-800 text-3xl p-2 rounded-full hover:bg-gray-200">
-            &#8594; {/* חץ ימינה */}
+            &#8594; {/* Right arrow */}
           </button>
         )}
       </div>
 
       <img src="/logo-sharecontainer-black.png" alt="Logo" className="w-[280px] h-[280px] object-contain mt-10" />
 
-      {/* העטיפה של הטפסים צריכה להיות גמישה כדי למרכז אלמנטים שאינם w-full */}
       <div className="w-full max-w-sm flex flex-col items-center mt-8 space-y-6">
         {loading && (
           <div className="flex items-center space-x-2 text-gray-700">
@@ -236,12 +287,13 @@ export default function LinkInputPage() {
         )}
         {error && <p className="text-red-600 text-center text-sm font-semibold">{error}</p>}
 
+        {/* Input Code Screen */}
         {step === 'input' && (
           <form onSubmit={handleUniversalCodeSubmit} className="w-full space-y-4 flex flex-col items-center">
             <h1 className="text-xl font-bold text-center text-gray-800">הכנס קוד אישי</h1>
             <input
               type="text"
-              placeholder="הכנס קוד אישי"
+              placeholder="הכנס קוד אישי או הרשם למטה"
               className="w-4/5 mx-auto border border-gray-300 rounded-2xl px-3 py-2 text-right text-black placeholder-amber-700"
               value={clientCode}
               onChange={(e) => setClientCode(e.target.value)}
@@ -259,12 +311,12 @@ export default function LinkInputPage() {
               <span className="text-orange-500">●</span>
               <button type="button" onClick={() => { setStep('registerUserForm'); setRole('importer'); setError(''); setErrors({}); }} className="hover:underline">יבואן</button>
               <span className="text-orange-500">●</span>
-              <button type="button" onClick={() => { router.push('/broker?action=register'); setError(''); setErrors({}); }} className="hover:underline">עמיל מכס</button> {/* **שינוי כאן: ניווט ישיר ל-`/broker?action=register`** */}
+              <button type="button" onClick={() => { router.push('/broker?action=register'); setError(''); setErrors({}); }} className="hover:underline">עמיל מכס</button>
             </div>
           </form>
         )}
 
-        {/* מסך רישום משתמש חדש */}
+        {/* New User Registration Form */}
         {step === 'registerUserForm' && (
           <form onSubmit={handleRegisterSubmit} className="w-full space-y-4 flex flex-col items-center">
             <h1 className="text-xl font-bold text-center text-black">הרשמת {role === 'private' ? 'לקוח פרטי' : role === 'store' ? 'חנות / עסק' : 'יבואן'}</h1>
@@ -287,39 +339,78 @@ export default function LinkInputPage() {
           </form>
         )}
 
-        {step === 'registrationSuccess' && (
-  <div className="w-full max-w-sm flex flex-col items-center mt-8 space-y-6">
-    <h2 className="text-xl font-bold text-black text-center">
-      נרשמת בהצלחה!  
-      <br />זה הקוד האישי שלך במערכת
-    </h2>
-    <p className="text-red-600 text-3xl font-mono tracking-widest text-center select-all border-dashed border-2 border-orange-500 p-3 rounded-xl bg-orange-50 shadow-sm">
-      {registrationSuccessCode}
-    </p>
-    <button
-      className="w-4/5 mx-auto mt-4 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded"
-      onClick={() => {
-        navigator.clipboard.writeText(registrationSuccessCode);
-        router.push('/newproduct'); // או כל דף המשך שתרצה
-      }}>
-      📋 העתק קוד והמשך
-    </button>
-    <p className="text-center text-black text-sm mt-2">
-      שמור את הקוד — תזדקק לו לכניסה למערכת בעתיד
-    </p>
+         {/* שלב ביניים: שלום שם, בחירת מסלול */}
+ {/* שלב ביניים: שלום שם, בחירת מסלול */}
+{step === 'userWelcome' && currentUserData && (
+  <div className="w-full max-w-sm flex flex-col items-center mt-12 space-y-8">
+    <h2 className="text-2xl font-bold text-black text-center mb-2">
+  ?שלום {currentUserData.name} לאן אנחנו היום
+</h2>
+
+    <div className="w-full flex flex-col gap-4">
+      <button
+         className="w-4/5 mx-auto py-2 rounded-2xl text-white font-bold text-base transition shadow-md bg-green-600 hover:bg-green-700"
+        onClick={() => {
+          if (currentUserData.role === 'importer') {
+            router.push('/importeropenquotes');
+          } else {
+            router.push('/clientopenquotes');
+          }
+        }}
+      >
+        עבור לדף האישי שלי
+      </button>
+      <button
+         className="w-4/5 mx-auto py-2 rounded-2xl text-white font-bold text-base transition shadow-md bg-blue-600 hover:bg-blue-700"
+        onClick={() => {
+          if (currentUserData.role === 'importer') {
+            router.push('/importerask');
+          } else {
+            router.push('/newproduct');
+          }
+        }}
+      >
+        בקשת הצעת מחיר חדשה
+      </button>
+    </div>
   </div>
 )}
 
+        {/* Registration Success Screen */}
+        {step === 'registrationSuccess' && (
+          <div className="w-full max-w-sm flex flex-col items-center mt-8 space-y-6">
+            <h2 className="text-xl font-bold text-black text-center">
+              נרשמת בהצלחה!
+              <br />זה הקוד האישי שלך במערכת
+            </h2>
+            <p className="text-red-600 text-3xl font-mono tracking-widest text-center select-all border-dashed border-2 border-orange-500 p-3 rounded-xl bg-orange-50 shadow-sm">
+              {registrationSuccessCode}
+            </p>
+            <button
+              className="w-4/5 mx-auto mt-4 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded"
+onClick={() => {
+  navigator.clipboard.writeText(registrationSuccessCode);
+  if (role === 'importer') {
+    router.push('/importeropenquotes');
+  } else {
+    router.push('/newproduct');
+  }
+
+ 
+
+}}
 
 
-        {step === 'knownUser' && ( 
-          <form onSubmit={handleLinkSubmit} className="w-full space-y-4 flex flex-col items-center">
-            <h1 className="text-xl font-bold text-center text-black">קבל הצעת מחיר למשלוח</h1>
-            <p className="text-center text-gray-600">העתק לפה את הקישור לדף המוצר</p>
-            <input type="url" className="w-4/5 mx-auto border border-gray-300 rounded-2xl px-3 py-2 text-right" placeholder="https://example.com/product" value={link} onChange={(e) => setLink(e.target.value)} />
-            <button type="submit" className="w-4/5 mx-auto py-2 rounded-2xl text-white font-bold text-base transition shadow-md bg-blue-600 hover:bg-blue-700">המשך</button>
-          </form>
+>
+              📋 העתק קוד והמשך
+            </button>
+            <p className="text-center text-black text-sm mt-2">
+              שמור את הקוד — תזדקק לו לכניסה למערכת בעתיד
+            </p>
+          </div>
         )}
+
+    
       </div>
 
       <footer className="fixed bottom-0 left-0 w-full py-3 bg-black text-center text-sm text-white z-50 shadow-md">

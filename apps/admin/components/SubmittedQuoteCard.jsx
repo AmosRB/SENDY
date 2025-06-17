@@ -96,20 +96,18 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/30">
-      <div
-        ref={cardRef}
-        className="bg-white w-full max-w-3xl rounded-xl shadow-lg overflow-hidden fixed"
-        style={{ top: position.y, left: position.x }}
-      >
-        <div
-          className="bg-indigo-800 text-white px-6 py-3 flex justify-between items-center cursor-move"
-          onMouseDown={handleMouseDown}
-        >
-          <h2 className="text-lg font-bold">פרטי הצעה #{quoteId}</h2>
-          <button onClick={onClose} className="text-white hover:text-gray-200 font-bold text-xl">✕</button>
-        </div>
+    <div
+  ref={cardRef}
+  className="bg-white w-full max-w-3xl rounded-xl shadow-lg overflow-hidden fixed cursor-move"
+  style={{ top: position.y, left: position.x }}
+  onMouseDown={handleMouseDown}
+>
+  <div className="bg-indigo-800 text-white px-6 py-3 flex justify-between items-center">
+    <h2 className="text-lg font-bold">פרטי הצעה {quoteId}</h2>
+    <button onClick={onClose} className="text-white hover:text-gray-200 font-bold text-xl">✕</button>
+  </div>
 
-        <div className="px-6 py-4 space-y-6 text-base">
+        <div className="px-6 py-4 text-base">
           <div className="border-b border-gray-300 pb-4">
             <h3 className="text-indigo-700 font-bold text-lg mb-2">בקשת הלקוח</h3>
             <div className="text-right text-[16px]">
@@ -118,11 +116,18 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
             </div>
             {clientBusiness && <div><strong>שם העסק:</strong> {clientBusiness}</div>}
             <div><strong>שם המוצר:</strong> {productName}</div>
-            <div><strong>יצרן:</strong> {manufacturer}</div>
-            <div><strong>מקור:</strong> {origin}</div>
-            <div><strong>נפח:</strong> {totalVolume}</div>
-            <div><strong>משקל:</strong> {totalWeight}</div>
-            <div><strong>לינק למוצר:</strong> <a href={productUrl} target="_blank" className="text-blue-600 underline">צפייה</a></div>
+<div className="flex flex-wrap gap-x-5 gap-y-2 items-center text-[16px] mt-2 mb-2">
+  <span><strong>יצרן:</strong> {manufacturer}</span>
+  <span><strong>מקור:</strong> {origin}</span>
+  <span><strong>נפח:</strong> {totalVolume}</span>
+  <span><strong>משקל:</strong> {totalWeight}</span>
+  <span>
+    <strong>לינק למוצר:</strong> {productUrl 
+      ? <a href={productUrl} target="_blank" className="text-blue-600 underline">צפייה</a>
+      : '—'}
+  </span>
+</div>
+
             <div><strong>הערות הלקוח:</strong> {quote.notes}</div>
 
           </div>
@@ -141,16 +146,8 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
             </span>
           </div>
 
-{quote.submissionNotes && (
-  <div className="mt-4 p-3 bg-blue-50 border border-blue-300 rounded-lg text-right">
-    <strong>הערות כלליות להצעה:</strong>
-    <div className="mt-1 whitespace-pre-wrap text-gray-800">{quote.submissionNotes}</div>
-  </div>
-)}
 
-      
-
-          <table className="w-full text-right border-collapse border border-gray-400 mt-2">
+          <table className="w-full text-right border-collapse border border-gray-400 mt-0">
             <thead>
               <tr className="bg-gray-200">
                 <th className="border border-gray-400 px-2 py-1">סעיף מחיר</th>
@@ -180,23 +177,33 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
               </tr>
             </tbody>
           </table>
+
+
 {(quote.excludePortTaxes || quote.excludeVAT) && (
-  <div className="flex justify-right gap-6 mt-2 text-lg text-black">
+  <div className="flex justify-right gap-8 mt-0 mb-0 text-lg text-black">
     {quote.excludePortTaxes && (
       <div>* הצעה לא כוללת מיסי נמל</div>
     )}
     {quote.excludeVAT && (
       <div>* המחיר אינו כולל מע"מ</div>
     )}
-  </div>  // ← נוספה הסגירה שחסרה
+  </div>
 )}
+
+          {quote.submissionNotes && (
+  <div className="mt-4 p-3 bg-blue-50 border border-blue-300 rounded-lg text-right">
+    <strong>הערות כלליות להצעה:</strong>
+    <div className="mt-1 whitespace-pre-wrap text-gray-800">{quote.submissionNotes}</div>
+  </div>
+)}
+
 
 
         
         </div>
           <div className="bg-gradient-to-t from-gray-800 to-gray-500 px-6 py-4 flex justify-between items-center">
           <button onClick={() => window.print()} className="bg-amber-200 hover:bg-amber-100 text-gray-800 text-sm px-4 py-2 rounded">📄 הדפס הצעה</button>
-          <button onClick={handleContact} className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">📧 צור קשר</button>
+          <button onClick={handleContact} className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">📧  השב במייל ל{brokerName}</button>
         </div>
       </div>
     </div>

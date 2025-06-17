@@ -97,7 +97,7 @@ const unsubmittedQuotes = allQuotes.filter(q =>
   <div className="absolute left-0 -top-10">
     <input
       type="text"
-      placeholder="חפש לפי מספר בקשה (בלי #)"
+      placeholder="חפש לפי מספר בקשה "
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)}
       className="w-[250px] px-3 py-1 border border-gray-400 rounded-lg text-sm text-right placeholder-gray-600 font-semibold"
@@ -156,7 +156,7 @@ const unsubmittedQuotes = allQuotes.filter(q =>
     onClick={() => setActiveQuote(quote)}
   >
     {/* עמודה 1 - מספר בקשה */}
-    <div className="font-semibold">#{quote.quoteId}</div>
+    <div className="font-semibold">{quote.quoteId}</div>
 
     {/* עמודה 2 - מחיר בש"ח */}
     <div className="text-right">₪ {quote.totalShekel || '0.00'}</div>

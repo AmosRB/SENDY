@@ -301,10 +301,15 @@ useEffect(() => {
         </div>
 
         {/* טקסט תיאור */}
-        <p className="-mt-2 text-[20px] text-gray-700 leading-relaxed text-center max-w-[1000px] px-4 mx-auto">
-         עברו על הטופס ומלאו את הפרטים. חשובים במיוחד - משקל כולל, נפח כולל ועיר יציאת המשלוח...<br />
-          במידת הצורך פנו ליצרן המוצר, בקשו ממנו פרטים וצרפו את המסמכים ממנו בסעיף 'צרף מסמכים'..
-        </p>
+      <p className="-mt-2 text-[20px] text-gray-700 leading-relaxed text-center max-w-[1000px] px-4 mx-auto">
+  עברו על הטופס ומלאו את הפרטים. חשובים במיוחד - 
+  <span className="text-red-600 font-semibold">משקל כולל,</span> 
+  <span className="text-red-600 font-semibold"> נפח כולל </span>
+  <span className="text-red-600 font-semibold">ועיר יציאת המשלוח</span>
+  .<br />
+  במידת הצורך פנו ליצרן המוצר, בקשו ממנו פרטים וצרפו את המסמכים ממנו בסעיף 'צרף מסמכים'.
+</p>
+
 
         {/* מסגרת הטופס */}
         <div className="mt-4 w-[1000px] border-2 border-black rounded-xl bg-transparent px-6 py-6 flex flex-col gap-6">
@@ -343,7 +348,7 @@ useEffect(() => {
 
 
             {/* נקודת מוצא */}
-            <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">עיר מוצא</label>
+            <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">ארץ ועיר  מוצא</label>
           <input
   type="text"
   value={data.origin}
@@ -561,7 +566,12 @@ useEffect(() => {
               <span className="w-full text-right text-[20px] text-black">בקשה לבדיקת דרישות תקן</span>
             </label>
               <label className="flex items-center gap-2 w-full mt-2">
-              <input type="checkbox" className="appearance-none w-5 h-5 border-2 border-black rounded-sm checked:bg-blue-600 checked:border-black" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
+                <input
+    type="checkbox"
+    className="form-checkbox border border-black accent-blue-600 w-6 h-6"
+    checked={termsAccepted}
+    onChange={(e) => setTermsAccepted(e.target.checked)}
+  />
               <span className="w-full text-right text-[14px] text-black">
                 אני מאשר שקראתי את <a href="/terms" target="_blank" className="underline text-blue-700 hover:text-blue-900">תנאי השימוש</a> באתר
               </span>
