@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
+const { ObjectId } = require('mongodb');
 
 router.get('/dashboard-data', async (req, res) => {
   try {
@@ -61,6 +62,46 @@ router.get('/dashboard-data', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch dashboard data' });
+  }
+});
+
+router.delete('/user/:id', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    await db.collection('users').deleteOne({ _id: new ObjectId(req.params.id) });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+router.delete('/broker/:id', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    await db.collection('customs-brokers').deleteOne({ _id: new ObjectId(req.params.id) });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete broker' });
+  }
+});
+
+router.delete('/quote/:id', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    await db.collection('quotes').deleteOne({ _id: new ObjectId(req.params.id) });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete quote' });
+  }
+});
+
+router.delete('/submitted-quote/:id', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    await db.collection('submitted-quotes').deleteOne({ _id: new ObjectId(req.params.id) });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete submitted quote' });
   }
 });
 

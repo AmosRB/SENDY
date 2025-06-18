@@ -44,6 +44,57 @@ export default function AdminDashboard() {
   const submittedPageCount = Math.ceil(submittedQuotes.length / submittedPerPage);
   const submittedToShow = submittedQuotes.slice((submittedPage - 1) * submittedPerPage, submittedPage * submittedPerPage);
 
+  // מחיקת משתמש
+const handleDeleteUser = async (id: string) => {
+  if (confirm("למחוק את המשתמש?")) {
+    try {
+      await axios.delete(`${BASE_URL}/api/admin/user/${id}`);
+      setUsers((users) => users.filter((u) => u._id !== id));
+    } catch (err) {
+      alert("שגיאה במחיקת משתמש");
+    }
+  }
+};
+// אותו עיקרון ל־broker, quote, submittedQuote
+
+// מחיקת בקשת הצעה (quote)
+const handleDeleteQuote = async (id: string) => {
+  if (confirm("למחוק את הבקשה?")) {
+    try {
+      await axios.delete(`${BASE_URL}/api/admin/quote/${id}`);
+      setQuotes((quotes) => quotes.filter((q) => q._id !== id));
+    } catch (err) {
+      alert("שגיאה במחיקת בקשה");
+    }
+  }
+};
+
+// מחיקת הצעה שהוגשה (submittedQuote)
+const handleDeleteSubmitted = async (id: string) => {
+  if (confirm("למחוק את ההצעה שהוגשה?")) {
+    try {
+      await axios.delete(`${BASE_URL}/api/admin/submitted-quote/${id}`);
+      setSubmittedQuotes((arr) => arr.filter((q) => q._id !== id));
+    } catch (err) {
+      alert("שגיאה במחיקת הצעה שהוגשה");
+    }
+  }
+};
+
+// מחיקת עמיל מכס
+const handleDeleteBroker = async (id: string) => {
+  if (confirm("למחוק את עמיל המכס?")) {
+    try {
+      await axios.delete(`${BASE_URL}/api/admin/broker/${id}`);
+      setBrokers((brokers) => brokers.filter((b) => b._id !== id));
+    } catch (err) {
+      alert("שגיאה במחיקת עמיל מכס");
+    }
+  }
+};
+
+
+
 useEffect(() => {
   async function fetchData() {
     try {
@@ -154,6 +205,7 @@ useEffect(() => {
                 <th className="p-2 border">קוד</th>
                 <th className="p-2 border">תפקיד</th>
                 <th className="p-2 border">תאריך הרשמה</th>
+                 <th className="p-2 border">מחיקה</th>
               </tr>
             </thead>
             <tbody>
@@ -166,9 +218,16 @@ useEffect(() => {
                   <td className="p-2 border">{user.code}</td>
                   <td className="p-2 border">{user.role}</td>
                   <td className="p-2 border">{new Date(user.createdAt).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
+                   <td className="p-2 border text-center">
+        <button
+          onClick={() => handleDeleteUser(user._id)}
+          className="text-red-600 hover:underline"
+          title="מחק משתמש"
+        >🗑</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
         {/* כפתורי פג'ינציה */}
@@ -192,28 +251,37 @@ useEffect(() => {
         <h2 className="text-xl font-semibold mb-2 text-right">עמילי מכס</h2>
         <div className="overflow-x-auto max-h-[350px]">
           <table className="w-full text-sm border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border">שם</th>
-                <th className="p-2 border">אימייל</th>
-                <th className="p-2 border">טלפון</th>
-                <th className="p-2 border">חברה</th>
-                <th className="p-2 border">קוד</th>
-                <th className="p-2 border">תאריך הרשמה</th>
-              </tr>
-            </thead>
-            <tbody>
-              {brokersToShow.map((broker) => (
-                <tr key={broker._id}>
-                  <td className="p-2 border">{broker.name}</td>
-                  <td className="p-2 border">{broker.email}</td>
-                  <td className="p-2 border">{broker.phone}</td>
-                  <td className="p-2 border">{broker.company}</td>
-                  <td className="p-2 border">{broker.code}</td>
-                  <td className="p-2 border">{new Date(broker.createdAt).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
+           <thead className="bg-gray-100">
+  <tr>
+    <th className="p-2 border">שם</th>
+    <th className="p-2 border">אימייל</th>
+    <th className="p-2 border">טלפון</th>
+    <th className="p-2 border">חברה</th>
+    <th className="p-2 border">קוד</th>
+    <th className="p-2 border">תאריך הרשמה</th>
+    <th className="p-2 border">מחיקה</th>
+  </tr>
+</thead>
+<tbody>
+  {brokersToShow.map((broker) => (
+    <tr key={broker._id}>
+      <td className="p-2 border">{broker.name}</td>
+      <td className="p-2 border">{broker.email}</td>
+      <td className="p-2 border">{broker.phone}</td>
+      <td className="p-2 border">{broker.company}</td>
+      <td className="p-2 border">{broker.code}</td>
+      <td className="p-2 border">{new Date(broker.createdAt).toLocaleDateString()}</td>
+      <td className="p-2 border text-center">
+        <button
+          onClick={() => handleDeleteBroker(broker._id)}
+          className="text-red-600 hover:underline"
+          title="מחק עמיל מכס"
+        >🗑</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
         </div>
         <div className="flex justify-center items-center mt-2 gap-2">
@@ -233,19 +301,20 @@ useEffect(() => {
 
       {/* טבלת quotes */}
       <div className="bg-white p-4 rounded shadow mt-8">
-        <h2 className="text-xl font-semibold mb-2 text-right">כל ההצעות (Quotes)</h2>
+        <h2 className="text-xl font-semibold mb-2 text-right">כל הבקשות להצעת מחיר (Quotes)</h2>
         <div className="overflow-x-auto max-h-[350px]">
           <table className="w-full text-sm border">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-2 border">#</th>
+                <th className="p-2 border">מספר הצעה</th>
                 <th className="p-2 border">שם מוצר</th>
                 <th className="p-2 border">לקוח</th>
                 <th className="p-2 border">סטטוס</th>
                 <th className="p-2 border">תאריך</th>
-              </tr>
-            </thead>
-            <tbody>
+               <th className="p-2 border">מחיקה</th>
+  </tr>
+</thead>
+<tbody>
               {quotesToShow.map((q, i) => (
                 <tr key={q._id || i}>
                   <td className="p-2 border">{q.quoteId}</td>
@@ -253,9 +322,16 @@ useEffect(() => {
                   <td className="p-2 border">{q.clientName || q.clientId}</td>
                   <td className="p-2 border">{q.status}</td>
                   <td className="p-2 border">{q.createdAt ? new Date(q.createdAt).toLocaleDateString() : ""}</td>
-                </tr>
-              ))}
-            </tbody>
+                <td className="p-2 border text-center">
+        <button
+          onClick={() => handleDeleteQuote(q._id)}
+          className="text-red-600 hover:underline"
+          title="מחק בקשה"
+        >🗑</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
         <div className="flex justify-center items-center mt-2 gap-2">
@@ -274,34 +350,42 @@ useEffect(() => {
       </div>
 
       {/* טבלת submitted-quotes */}
-      <div className="bg-white p-4 rounded shadow mt-8">
-        <h2 className="text-xl font-semibold mb-2 text-right">כל ההצעות שהוגשו (Submitted Quotes)</h2>
-        <div className="overflow-x-auto max-h-[350px]">
-          <table className="w-full text-sm border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border">#</th>
-                <th className="p-2 border">שם מוצר</th>
-                <th className="p-2 border">עמיל מכס</th>
-                <th className="p-2 border">מחיר</th>
-                <th className="p-2 border">מטבע</th>
-                <th className="p-2 border">תאריך</th>
-              </tr>
-            </thead>
-            <tbody>
-              {submittedToShow.map((q, i) => (
-                <tr key={q._id || i}>
-                  <td className="p-2 border">{q.quoteId}</td>
-                  <td className="p-2 border">{q.productName}</td>
-                  <td className="p-2 border">{q.brokerName || q.brokerCode}</td>
-                  <td className="p-2 border">{q.price}</td>
-                  <td className="p-2 border">{q.currency}</td>
-                  <td className="p-2 border">{q.submittedAt ? new Date(q.submittedAt).toLocaleDateString() : ""}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    <div className="bg-white p-4 rounded shadow mt-8">
+  <h2 className="text-xl font-semibold mb-2 text-right">כל ההצעות שהוגשו (Submitted Quotes)</h2>
+  <div className="overflow-x-auto max-h-[350px]">
+    <table className="w-full text-sm border">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="p-2 border">מספר הצעה</th>
+          <th className="p-2 border">שם מוצר</th>
+          <th className="p-2 border">עמיל מכס</th>
+          <th className="p-2 border">סה"כ ב ש"ח</th>
+          <th className="p-2 border">$  סה"כ  ב </th>
+          <th className="p-2 border">תאריך</th>
+           <th className="p-2 border">מחיקה</th>
+        </tr>
+      </thead>
+      <tbody>
+        {submittedToShow.map((q, i) => (
+          <tr key={q._id || i}>
+            <td className="p-2 border">{q.quoteId}</td>
+            <td className="p-2 border">{q.productName}</td>
+            <td className="p-2 border">{q.brokerName || q.brokerCode}</td>
+            <td className="p-2 border">{q.totalShekel ?? ''}</td>
+            <td className="p-2 border">{q.totalDollar ?? ''}</td>
+            <td className="p-2 border">{q.submittedAt ? new Date(q.submittedAt).toLocaleDateString() : ""}</td>
+           <td className="p-2 border text-center">
+        <button
+          onClick={() => handleDeleteSubmitted(q._id)}
+          className="text-red-600 hover:underline"
+          title="מחק הצעה שהוגשה"
+        >🗑</button>
+      </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
         <div className="flex justify-center items-center mt-2 gap-2">
           <button
             onClick={() => setSubmittedPage((p) => Math.max(1, p - 1))}
