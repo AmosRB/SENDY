@@ -6,11 +6,60 @@ import { useRouter } from 'next/router';
 export default function ImporterAskPage() {
   const router = useRouter();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // כאן אפשר להוסיף ולידציה או שליחה לשרת
-    router.push('/importeropenquotes');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // שליפת נתונים מהטופס
+  const form = e.target;
+  const origin = form.origin.value;
+  const destination = form.destination.value;
+  const departureDate = form.departureDate.value;
+  const containerSize = form.containerSize.value;
+  const quantity = form.quantity.value;
+
+  // פרטי המשתמש מה-session/localStorage
+  const clientId = sessionStorage.getItem('clientId') || localStorage.getItem('clientId');
+  const clientName = sessionStorage.getItem('clientName') || '';
+  const clientPhone = sessionStorage.getItem('clientPhone') || '';
+  const clientBusiness = sessionStorage.getItem('clientBusiness') || '';
+  const clientEmail = sessionStorage.getItem('clientEmail') || '';
+
+  // הפקת quoteId עוקב מהשרת
+  const quoteIdRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quotes/new-id`);
+  const { quoteId } = await quoteIdRes.json();
+
+  // בניית הרשומה לשמירה
+  const data = {
+    quoteId,
+    status: 'submitted',
+    createdAt: new Date(),
+    clientId,
+    clientName,
+    clientPhone,
+    clientBusiness,
+    clientEmail,
+    origin,
+    destination,
+    departureDate,
+    containerSize,
+    quantity,
+    type: 'importer'
   };
+
+  // שליחה לשרת
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quotes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  if (res.ok) {
+    router.push('/importeropenquotes');
+  } else {
+    alert('שגיאה בשמירת הבקשה');
+  }
+};
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-6 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative pb-20">
       <Head>

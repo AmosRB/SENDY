@@ -182,5 +182,19 @@ router.put('/', async (req, res) => {
   }
 });
 
+// הצעה של יבואן
+router.post('/', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const data = req.body;
+    data.createdAt = new Date();
+    const result = await db.collection('quotes').insertOne(data);
+    res.status(201).json({ insertedId: result.insertedId });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save quote' });
+  }
+});
+
+
 
 module.exports = router;
