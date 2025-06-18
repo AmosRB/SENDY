@@ -4,58 +4,57 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import dynamic from "next/dynamic";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4135";
-
-
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function AdminDashboard() {
+  // סטייטים רגילים
   const [stats, setStats] = useState<any>({});
   const [users, setUsers] = useState<any[]>([]);
   const [brokers, setBrokers] = useState<any[]>([]);
   const [quotes, setQuotes] = useState<any[]>([]);
+  const [submittedQuotes, setSubmittedQuotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [chartLabels, setChartLabels] = useState<string[]>([]);
   const [loginCounts, setLoginCounts] = useState<number[]>([]);
   const [quoteCounts, setQuoteCounts] = useState<number[]>([]);
 
-  const handleDelete = async (id: string) => {
-    if (confirm("למחוק את המשתמש?")) {
-      try {
-        await axios.delete(`${BASE_URL}/api/users/${id}`);
-        setUsers(users.filter((u) => u._id !== id));
-      } catch (err) {
-        alert("שגיאה במחיקה");
-      }
-    }
-  };
+  // --- פג'ינציה לכל טבלה ---
+  // משתמשים
+  const [userPage, setUserPage] = useState(1);
+  const usersPerPage = 20;
+  const userPageCount = Math.ceil(users.length / usersPerPage);
+  const usersToShow = users.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
 
-  const handleDeleteBroker = async (id: string) => {
-    if (confirm("למחוק את עמיל המכס?")) {
-      try {
-        await axios.delete(`${BASE_URL}/api/customs-brokers/${id}`);
-        setBrokers(brokers.filter((b) => b._id !== id));
-      } catch (err) {
-        alert("שגיאה במחיקת עמיל מכס");
-      }
-    }
-  };
+  // עמילי מכס
+  const [brokerPage, setBrokerPage] = useState(1);
+  const brokersPerPage = 20;
+  const brokerPageCount = Math.ceil(brokers.length / brokersPerPage);
+  const brokersToShow = brokers.slice((brokerPage - 1) * brokersPerPage, brokerPage * brokersPerPage);
+
+  // הצעות מחיר
+  const [quotePage, setQuotePage] = useState(1);
+  const quotesPerPage = 20;
+  const quotePageCount = Math.ceil(quotes.length / quotesPerPage);
+  const quotesToShow = quotes.slice((quotePage - 1) * quotesPerPage, quotePage * quotesPerPage);
+
+  // הצעות שהוגשו
+  const [submittedPage, setSubmittedPage] = useState(1);
+  const submittedPerPage = 20;
+  const submittedPageCount = Math.ceil(submittedQuotes.length / submittedPerPage);
+  const submittedToShow = submittedQuotes.slice((submittedPage - 1) * submittedPerPage, submittedPage * submittedPerPage);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [summaryRes, usersRes, brokersRes, quotesRes] = await Promise.all([
-          axios.get(`${BASE_URL}/api/admin/summary`),
-          axios.get(`${BASE_URL}/api/users/all`),
-          axios.get(`${BASE_URL}/api/customs-brokers/all`),
-          axios.get(`${BASE_URL}/api/quotes`)
-        ]);
-        setStats(summaryRes.data);
-        setUsers(usersRes.data as any[])
-      setBrokers(brokersRes.data as any[]);
-setQuotes(quotesRes.data as any[]);
-generateChart(usersRes.data as any[], quotesRes.data as any[]);
-
+        const dashboardRes = await axios.get(`${BASE_URL}/api/admin/dashboard-data`);
+        const data = dashboardRes.data;
+        setStats(data.summary);
+        setUsers(data.users);
+        setBrokers(data.brokers);
+        setQuotes(data.quotes);
+        setSubmittedQuotes(data.submittedQuotes);
+        generateChart(data.users, data.quotes);
       } catch (error) {
         console.error("Failed to load data", error);
       } finally {
@@ -67,21 +66,18 @@ generateChart(usersRes.data as any[], quotesRes.data as any[]);
 
   const generateChart = (users: any[], quotes: any[]) => {
     const dateMap: Record<string, { users: number; quotes: number }> = {};
-
     users.forEach(u => {
       if (!u.createdAt) return;
       const date = new Date(u.createdAt).toISOString().split("T")[0];
       if (!dateMap[date]) dateMap[date] = { users: 0, quotes: 0 };
       dateMap[date].users++;
     });
-
     quotes.forEach(q => {
       if (!q.createdAt) return;
       const date = new Date(q.createdAt).toISOString().split("T")[0];
       if (!dateMap[date]) dateMap[date] = { users: 0, quotes: 0 };
       dateMap[date].quotes++;
     });
-
     const sortedDates = Object.keys(dateMap).sort();
     setChartLabels(sortedDates);
     setLoginCounts(sortedDates.map(date => dateMap[date]?.users || 0));
@@ -93,15 +89,14 @@ generateChart(usersRes.data as any[], quotesRes.data as any[]);
   return (
     <div className="p-6 min-h-screen bg-indigo-200">
       <h1 className="text-2xl font-bold mb-4 text-center">לוח שליטה - אדמין</h1>
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="p-4 bg-white rounded shadow text-right">סה"כ משתמשים: {stats.totalUsers}</div>
+        <div className="p-4 bg-white rounded shadow text-right">סה"כ הצעות מחיר: {stats.totalQuotes}</div>
+        <div className="p-4 bg-white rounded shadow text-right">סה"כ תשלומים: ₪{stats.totalPaid}</div>
+        <div className="p-4 bg-white rounded shadow text-right">סה"כ חשבוניות: ₪{stats.totalInvoiced}</div>
+      </div>
 
-    <div className="grid grid-cols-4 gap-4 mb-6">
-  <div className="p-4 bg-white rounded shadow text-right">סה"כ משתמשים: {stats.totalUsers}</div>
-  <div className="p-4 bg-white rounded shadow text-right">סה"כ הצעות מחיר: {stats.totalQuotes}</div>
-  <div className="p-4 bg-white rounded shadow text-right">סה"כ תשלומים: ₪{stats.totalPaid}</div>
-  <div className="p-4 bg-white rounded shadow text-right">סה"כ חשבוניות: ₪{stats.totalInvoiced}</div>
-</div>
-
-
+      {/* גרף */}
       <div className="mb-6 bg-white p-4 rounded shadow">
         <h2 className="text-xl font-semibold mb-2 text-right">📈 גרף כניסות והצעות לפי תאריך</h2>
         {chartLabels.length > 0 && (
@@ -121,6 +116,7 @@ generateChart(usersRes.data as any[], quotesRes.data as any[]);
         )}
       </div>
 
+      {/* 5 תשלומים אחרונים */}
       <div className="mb-6 bg-white p-4 rounded shadow">
         <h2 className="text-xl font-semibold mb-2 text-right">5 תשלומים אחרונים</h2>
         <table className="w-full text-sm">
@@ -133,7 +129,7 @@ generateChart(usersRes.data as any[], quotesRes.data as any[]);
           </thead>
           <tbody>
             {stats.recentPayments?.map((p: any) => (
-              <tr key={p._id} className="border-b">
+              <tr key={p._id}>
                 <td className="p-2">{p.paymentId}</td>
                 <td className="p-2">₪{p.amountPaid}</td>
                 <td className="p-2">{new Date(p.paidAt).toLocaleDateString()}</td>
@@ -143,63 +139,180 @@ generateChart(usersRes.data as any[], quotesRes.data as any[]);
         </table>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold mb-2 text-right">משתמשים רשומים</h2>
+      {/* טבלת משתמשים */}
+      <div className="bg-white p-4 rounded shadow mt-6">
+        <h2 className="text-xl font-semibold mb-2 text-right">משתמשים רשומים</h2>
+        <div className="overflow-x-auto max-h-[350px]">
           <table className="w-full text-sm border">
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 border">שם</th>
                 <th className="p-2 border">אימייל</th>
                 <th className="p-2 border">טלפון</th>
+                <th className="p-2 border">עסק</th>
+                <th className="p-2 border">קוד</th>
                 <th className="p-2 border">תפקיד</th>
                 <th className="p-2 border">תאריך הרשמה</th>
-                <th className="p-2 border">מחיקה</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="border-t">
+              {usersToShow.map((user) => (
+                <tr key={user._id}>
                   <td className="p-2 border">{user.name}</td>
                   <td className="p-2 border">{user.email}</td>
                   <td className="p-2 border">{user.phone}</td>
+                  <td className="p-2 border">{user.business}</td>
+                  <td className="p-2 border">{user.code}</td>
                   <td className="p-2 border">{user.role}</td>
                   <td className="p-2 border">{new Date(user.createdAt).toLocaleDateString()}</td>
-                  <td className="p-2 border text-center">
-                    <button onClick={() => handleDelete(user._id)} className="text-red-600 hover:underline">🗑</button>
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {/* כפתורי פג'ינציה */}
+        <div className="flex justify-center items-center mt-2 gap-2">
+          <button
+            onClick={() => setUserPage((p) => Math.max(1, p - 1))}
+            disabled={userPage === 1}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >קודם</button>
+          <span>עמוד {userPage} מתוך {userPageCount}</span>
+          <button
+            onClick={() => setUserPage((p) => Math.min(userPageCount, p + 1))}
+            disabled={userPage === userPageCount}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >הבא</button>
+        </div>
+      </div>
 
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold mb-2 text-right">עמילי מכס</h2>
+      {/* טבלת עמילי מכס */}
+      <div className="bg-white p-4 rounded shadow mt-6">
+        <h2 className="text-xl font-semibold mb-2 text-right">עמילי מכס</h2>
+        <div className="overflow-x-auto max-h-[350px]">
           <table className="w-full text-sm border">
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 border">שם</th>
                 <th className="p-2 border">אימייל</th>
                 <th className="p-2 border">טלפון</th>
-                <th className="p-2 border">אזור פעילות</th>
-                <th className="p-2 border">מחיקה</th>
+                <th className="p-2 border">חברה</th>
+                <th className="p-2 border">קוד</th>
+                <th className="p-2 border">תאריך הרשמה</th>
               </tr>
             </thead>
             <tbody>
-              {brokers.map((broker) => (
-                <tr key={broker._id} className="border-t">
+              {brokersToShow.map((broker) => (
+                <tr key={broker._id}>
                   <td className="p-2 border">{broker.name}</td>
                   <td className="p-2 border">{broker.email}</td>
                   <td className="p-2 border">{broker.phone}</td>
-                  <td className="p-2 border">{broker.region}</td>
-                  <td className="p-2 border text-center">
-                    <button onClick={() => handleDeleteBroker(broker._id)} className="text-red-600 hover:underline">🗑</button>
-                  </td>
+                  <td className="p-2 border">{broker.company}</td>
+                  <td className="p-2 border">{broker.code}</td>
+                  <td className="p-2 border">{new Date(broker.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="flex justify-center items-center mt-2 gap-2">
+          <button
+            onClick={() => setBrokerPage((p) => Math.max(1, p - 1))}
+            disabled={brokerPage === 1}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >קודם</button>
+          <span>עמוד {brokerPage} מתוך {brokerPageCount}</span>
+          <button
+            onClick={() => setBrokerPage((p) => Math.min(brokerPageCount, p + 1))}
+            disabled={brokerPage === brokerPageCount}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >הבא</button>
+        </div>
+      </div>
+
+      {/* טבלת quotes */}
+      <div className="bg-white p-4 rounded shadow mt-8">
+        <h2 className="text-xl font-semibold mb-2 text-right">כל ההצעות (Quotes)</h2>
+        <div className="overflow-x-auto max-h-[350px]">
+          <table className="w-full text-sm border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-2 border">#</th>
+                <th className="p-2 border">שם מוצר</th>
+                <th className="p-2 border">לקוח</th>
+                <th className="p-2 border">סטטוס</th>
+                <th className="p-2 border">תאריך</th>
+              </tr>
+            </thead>
+            <tbody>
+              {quotesToShow.map((q, i) => (
+                <tr key={q._id || i}>
+                  <td className="p-2 border">{q.quoteId}</td>
+                  <td className="p-2 border">{q.productName}</td>
+                  <td className="p-2 border">{q.clientName || q.clientId}</td>
+                  <td className="p-2 border">{q.status}</td>
+                  <td className="p-2 border">{q.createdAt ? new Date(q.createdAt).toLocaleDateString() : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-center items-center mt-2 gap-2">
+          <button
+            onClick={() => setQuotePage((p) => Math.max(1, p - 1))}
+            disabled={quotePage === 1}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >קודם</button>
+          <span>עמוד {quotePage} מתוך {quotePageCount}</span>
+          <button
+            onClick={() => setQuotePage((p) => Math.min(quotePageCount, p + 1))}
+            disabled={quotePage === quotePageCount}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >הבא</button>
+        </div>
+      </div>
+
+      {/* טבלת submitted-quotes */}
+      <div className="bg-white p-4 rounded shadow mt-8">
+        <h2 className="text-xl font-semibold mb-2 text-right">כל ההצעות שהוגשו (Submitted Quotes)</h2>
+        <div className="overflow-x-auto max-h-[350px]">
+          <table className="w-full text-sm border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-2 border">#</th>
+                <th className="p-2 border">שם מוצר</th>
+                <th className="p-2 border">עמיל מכס</th>
+                <th className="p-2 border">מחיר</th>
+                <th className="p-2 border">מטבע</th>
+                <th className="p-2 border">תאריך</th>
+              </tr>
+            </thead>
+            <tbody>
+              {submittedToShow.map((q, i) => (
+                <tr key={q._id || i}>
+                  <td className="p-2 border">{q.quoteId}</td>
+                  <td className="p-2 border">{q.productName}</td>
+                  <td className="p-2 border">{q.brokerName || q.brokerCode}</td>
+                  <td className="p-2 border">{q.price}</td>
+                  <td className="p-2 border">{q.currency}</td>
+                  <td className="p-2 border">{q.submittedAt ? new Date(q.submittedAt).toLocaleDateString() : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-center items-center mt-2 gap-2">
+          <button
+            onClick={() => setSubmittedPage((p) => Math.max(1, p - 1))}
+            disabled={submittedPage === 1}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >קודם</button>
+          <span>עמוד {submittedPage} מתוך {submittedPageCount}</span>
+          <button
+            onClick={() => setSubmittedPage((p) => Math.min(submittedPageCount, p + 1))}
+            disabled={submittedPage === submittedPageCount}
+            className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >הבא</button>
         </div>
       </div>
     </div>
