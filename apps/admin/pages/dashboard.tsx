@@ -44,25 +44,26 @@ export default function AdminDashboard() {
   const submittedPageCount = Math.ceil(submittedQuotes.length / submittedPerPage);
   const submittedToShow = submittedQuotes.slice((submittedPage - 1) * submittedPerPage, submittedPage * submittedPerPage);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const dashboardRes = await axios.get(`${BASE_URL}/api/admin/dashboard-data`);
-        const data = dashboardRes.data;
-        setStats(data.summary);
-        setUsers(data.users);
-        setBrokers(data.brokers);
-        setQuotes(data.quotes);
-        setSubmittedQuotes(data.submittedQuotes);
-        generateChart(data.users, data.quotes);
-      } catch (error) {
-        console.error("Failed to load data", error);
-      } finally {
-        setLoading(false);
-      }
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const dashboardRes = await axios.get(`${BASE_URL}/api/admin/dashboard-data`);
+      const data: any = dashboardRes.data; // הוספת :any כאן!
+      setStats(data.summary);
+      setUsers(data.users);
+      setBrokers(data.brokers);
+      setQuotes(data.quotes);
+      setSubmittedQuotes(data.submittedQuotes);
+      generateChart(data.users, data.quotes);
+    } catch (error) {
+      console.error("Failed to load data", error);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
-  }, []);
+  }
+  fetchData();
+}, []);
+
 
   const generateChart = (users: any[], quotes: any[]) => {
     const dateMap: Record<string, { users: number; quotes: number }> = {};
