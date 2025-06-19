@@ -119,6 +119,14 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
     <a href={`mailto:${clientEmail}`} className="text-blue-700 underline">{clientEmail}</a>
   </div>
   {clientBusiness && <div><strong>שם העסק:</strong> {clientBusiness}</div>}
+{/* הצגת סוג המשלוח */}
+{(shippingType.FOB || shippingType.EXW) && (
+  <div className="mt-2 text-[16px]">
+    <strong>סוג משלוח:</strong>
+    {shippingType.FOB && <span className="ml-3 text-blue-800">FOB</span>}
+    {shippingType.EXW && <span className="ml-3 text-green-800">EXW</span>}
+  </div>
+)}
 
   {/* הצגת בקשה ליבואן */}
   {origin && destination && containerSize && quantity ? (

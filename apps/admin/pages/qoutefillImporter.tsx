@@ -34,6 +34,8 @@ export default function QouteFillImporter() {
   const [submissionNotes, setSubmissionNotes] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [validity, setValidity] = useState('');
+  const [shippingType, setShippingType] = useState({ FOB: false, EXW: false });
+
 
   // מסמכים (לצפייה/הורדה)
   const [files, setFiles] = useState<{ fileId: string; filename: string }[]>([]);
@@ -74,7 +76,7 @@ export default function QouteFillImporter() {
     setDepartureDate(parsed.departureDate || '');
     setContainerSize(parsed.containerSize || '');
     setQuantity(parsed.quantity || 1);
-
+  setShippingType(parsed.shippingType || { FOB: false, EXW: false });
     // קבצים
     setFiles(parsed.attachments || []);
   }, []);
@@ -228,16 +230,29 @@ export default function QouteFillImporter() {
                     <span className="font-semibold">פרטי הבקשה :</span> 
                   </div>
                 )}
+                
               </div>
             )}
+            
           </div>
-         <div className="flex flex-row flex-wrap items-center justify-center gap-7 mt-2 text-[20px] text-gray-700">
-  <span>יציאה מ: <b>{origin || '-'}</b></span>
-  <span>| יעד: <b>{destination || '-'}</b></span>
-  <span>| תאריך: <b>{departureDate || '-'}</b></span>
-  <span>| גודל מכולה: <b>{containerSize || '-'}</b></span>
-  <span>| כמות מכולות: <b>{quantity || '-'}</b></span>
+<div className="flex flex-row flex-wrap items-center justify-center gap-7 mt-2 text-[20px] text-gray-800 bg-yellow-50 py-2 rounded-t-xl">
+  <span>יציאה מ: <b className="text-blue-900">{origin || '-'}</b></span>
+  <span>| יעד: <b className="text-green-800">{destination || '-'}</b></span>
+  <span>| תאריך: <b className="text-blue-900">{departureDate || '-'}</b></span>
 </div>
+<div className="flex flex-row flex-wrap items-center justify-center gap-7 text-[20px] text-gray-800 bg-yellow-50 py-2 rounded-b-xl">
+  <span>גודל מכולה: <b className="text-yellow-800">{containerSize || '-'}</b></span>
+  <span>| כמות מכולות: <b className="text-yellow-800">{quantity || '-'}</b></span>
+{(shippingType.FOB || shippingType.EXW) && (
+  <span className="text-gray-800">
+    |  סוג משלוח:
+    {shippingType.FOB && <span className="ml-2 text-blue-800 font-bold">FOB</span>}
+    {shippingType.EXW && <span className="ml-2 text-green-800 font-bold">EXW</span>}
+  </span>
+)}
+</div>
+
+
 
         </div>
 

@@ -92,7 +92,10 @@ const [client, setClient] = useState<{
   const broker = JSON.parse(sessionStorage.getItem('brokerData') || '{}');
   const quoteData = JSON.parse(sessionStorage.getItem('quoteData') || '{}');
   if (!broker?.code) return alert("פרטי עמיל מכס חסרים");
-
+  if (!shippingType.FOB && !shippingType.EXW) {
+    alert("יש לבחור לפחות סוג משלוח אחד (FOB או EXW)");
+    return;
+  }
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/submitted-quotes`, {
 
@@ -114,7 +117,7 @@ clientEmail: client?.email || '',
         origin: data.origin,
         totalVolume: data.dimensions,
         totalWeight: data.weight,
-        shippingType,
+        shippingType: shippingType,
         services,
         productUrl: link,
         notes: notes, // הערות הלקוח
@@ -187,7 +190,6 @@ excludeVAT,
 
   useEffect(() => {
     const savedQuote = sessionStorage.getItem('quoteData');
-
     if (savedQuote) {
       const parsed = JSON.parse(savedQuote);
       setQuoteId(parsed.quoteId || '');
@@ -212,6 +214,8 @@ excludeVAT,
         insurance: parsed.services?.insurance || false,
         inLandDelivery: parsed.inLandDelivery || false
       });
+      setShippingType(parsed.shippingType || { FOB: false, EXW: false });
+
       setTermsAccepted(false);
       setNotes(parsed.notes || '');
       const quoteAttachments = parsed.attachments || [];

@@ -1,11 +1,14 @@
 // pages/importerask.jsx
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+
 
 
 export default function ImporterAskPage() {
   const router = useRouter();
-
+const [shippingType, setShippingType] = useState({ FOB: false, EXW: false });
+  
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -16,6 +19,7 @@ const handleSubmit = async (e) => {
   const departureDate = form.departureDate.value;
   const containerSize = form.containerSize.value;
   const quantity = form.quantity.value;
+  
 
   // פרטי המשתמש מה-session/localStorage
   const clientId = sessionStorage.getItem('clientId') || localStorage.getItem('clientId');
@@ -43,7 +47,8 @@ const handleSubmit = async (e) => {
     departureDate,
     containerSize,
     quantity,
-    type: 'importer'
+    type: 'importer',
+    shippingType,
   };
 
   // שליחה לשרת
@@ -126,12 +131,38 @@ const handleSubmit = async (e) => {
     name="quantity"
     required
   />
+
+  <div className="flex gap-8 items-center justify-center mt-2 mb-2">
+  <label className="flex items-center gap-2">
+    <span className="text-[16px]">FOB</span>
+    <input
+      type="checkbox"
+      checked={shippingType.FOB}
+      onChange={(e) => setShippingType({ ...shippingType, FOB: e.target.checked })}
+      className="form-checkbox accent-blue-600 w-4 h-4"
+    />
+  </label>
+  <label className="flex items-center gap-2">
+    <span className="text-[16px]">EXW</span>
+    <input
+      type="checkbox"
+      checked={shippingType.EXW}
+      onChange={(e) => setShippingType({ ...shippingType, EXW: e.target.checked })}
+      className="form-checkbox accent-blue-600 w-4 h-4"
+    />
+  </label>
+</div>
+
+
+  
     <button
           type="submit"
           className="w-full py-2 rounded-lg text-white font-bold bg-blue-600 hover:bg-blue-700 mt-2"
         >
           שלח בקשה
         </button>
+
+        
 </form>
 
       </div>
