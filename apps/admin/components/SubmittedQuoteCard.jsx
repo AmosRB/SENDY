@@ -12,6 +12,10 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
     productName,
     manufacturer,
     origin,
+    destination,
+      departureDate,
+  containerSize,
+  quantity,
     totalVolume,
     totalWeight,
     shippingType = {},
@@ -109,28 +113,42 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
 
         <div className="px-6 py-4 text-base">
           <div className="border-b border-gray-300 pb-4">
-            <h3 className="text-indigo-700 font-bold text-lg mb-2">בקשת הלקוח</h3>
-            <div className="text-right text-[16px]">
-              <strong>שם הלקוח:</strong> {clientName} | <strong>טלפון:</strong> {clientPhone} | <strong>אימייל:</strong>{' '}
-              <a href={`mailto:${clientEmail}`} className="text-blue-700 underline">{clientEmail}</a>
-            </div>
-            {clientBusiness && <div><strong>שם העסק:</strong> {clientBusiness}</div>}
-            <div><strong>שם המוצר:</strong> {productName}</div>
-<div className="flex flex-wrap gap-x-5 gap-y-2 items-center text-[16px] mt-2 mb-2">
-  <span><strong>יצרן:</strong> {manufacturer}</span>
-  <span><strong>מקור:</strong> {origin}</span>
-  <span><strong>נפח:</strong> {totalVolume}</span>
-  <span><strong>משקל:</strong> {totalWeight}</span>
-  <span>
-    <strong>לינק למוצר:</strong> {productUrl 
-      ? <a href={productUrl} target="_blank" className="text-blue-600 underline">צפייה</a>
-      : '—'}
-  </span>
+  <h3 className="text-indigo-700 font-bold text-lg mb-2">בקשת הלקוח</h3>
+  <div className="text-right text-[16px]">
+    <strong>שם הלקוח:</strong> {clientName} | <strong>טלפון:</strong> {clientPhone} | <strong>אימייל:</strong>{' '}
+    <a href={`mailto:${clientEmail}`} className="text-blue-700 underline">{clientEmail}</a>
+  </div>
+  {clientBusiness && <div><strong>שם העסק:</strong> {clientBusiness}</div>}
+
+  {/* הצגת בקשה ליבואן */}
+  {origin && destination && containerSize && quantity ? (
+    <div className="flex flex-wrap gap-x-6 gap-y-2 items-center text-[16px] mt-2 mb-2">
+      <span><strong>יציאה מ:</strong> {origin}</span>
+      <span><strong>יעד:</strong> {destination}</span>
+      <span><strong>תאריך:</strong> {departureDate ? new Date(departureDate).toLocaleDateString('he-IL') : '-'}</span>
+      <span><strong>גודל מכולה:</strong> {containerSize}</span>
+      <span><strong>כמות מכולות:</strong> {quantity}</span>
+    </div>
+  ) : (
+    // אחרת מציג את המוצר הרגיל (כמו קודם)
+    <>
+      <div><strong>שם המוצר:</strong> {productName}</div>
+      <div className="flex flex-wrap gap-x-5 gap-y-2 items-center text-[16px] mt-2 mb-2">
+        <span><strong>יצרן:</strong> {manufacturer}</span>
+        <span><strong>מקור:</strong> {origin}</span>
+        <span><strong>נפח:</strong> {totalVolume}</span>
+        <span><strong>משקל:</strong> {totalWeight}</span>
+        <span>
+          <strong>לינק למוצר:</strong> {productUrl 
+            ? <a href={productUrl} target="_blank" className="text-blue-600 underline">צפייה</a>
+            : '—'}
+        </span>
+      </div>
+      <div><strong>הערות הלקוח:</strong> {notes}</div>
+    </>
+  )}
 </div>
 
-            <div><strong>הערות הלקוח:</strong> {quote.notes}</div>
-
-          </div>
 
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-right text-[18px] font-bold text-blue-900">הצעת המחיר</h3>

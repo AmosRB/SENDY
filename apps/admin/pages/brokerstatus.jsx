@@ -85,7 +85,7 @@ const unsubmittedQuotes = allQuotes.filter(q =>
 
       <div className="relative z-10 w-full flex flex-col items-center">
         <img src="/logo-sharecontainer-cropped.png" alt="Share A Container" className="w-[330px] h-auto" />
-        <h1 className="text-[28px] sm:text-[32px] font-bold text-black mt-2 text-center w-full">
+        <h1 className="text-[28px] sm:text-[32px] font-bold text-black mt-0 mb-12 text-center w-full">
           מצב הצעות {broker?.name || brokerName}
         </h1>
 
