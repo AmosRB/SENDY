@@ -96,7 +96,7 @@ export default function LinkInputPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`);
 
       if (!res.ok) {
-        setError('קוד לא קיים. אנא הירשם.');
+        setError('קוד לא קיים. אנא הרשם למטה.');
         // Optionally, could setStep('registerUserForm') here to prompt registration
         return;
       }
@@ -290,7 +290,7 @@ setStep('userWelcome');
         {/* Input Code Screen */}
         {step === 'input' && (
           <form onSubmit={handleUniversalCodeSubmit} className="w-full space-y-4 flex flex-col items-center">
-            <h1 className="text-xl font-bold text-center text-gray-800">הכנס קוד אישי</h1>
+            <h1 className="text-xl font-bold text-center text-gray-800">הכנס קוד אישי או הרשם</h1>
             <input
               type="text"
               placeholder="הכנס קוד אישי או הרשם למטה"

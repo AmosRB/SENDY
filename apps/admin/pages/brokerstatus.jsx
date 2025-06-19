@@ -113,7 +113,7 @@ const unsubmittedQuotes = allQuotes.filter(q =>
 </div>
 
             <div className="space-y-2">
-          {openQuotes.map((q) => (
+   {openQuotes.map((q) => (
   <QuoteCard
     key={q.quoteId}
     quote={q}
@@ -122,7 +122,11 @@ const unsubmittedQuotes = allQuotes.filter(q =>
     showFooter={false}
     onClick={() => {
       sessionStorage.setItem('quoteData', JSON.stringify(q));
-      location.href = '/qoutefill';
+      if (q.type === 'importer') {
+        location.href = '/qoutefillImporter';
+      } else {
+        location.href = '/qoutefill';
+      }
     }}
   />
 ))}

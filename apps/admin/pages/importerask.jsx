@@ -47,8 +47,8 @@ const handleSubmit = async (e) => {
   };
 
   // שליחה לשרת
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quotes`, {
-    method: 'POST',
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/quotes`, {
+  method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
@@ -66,7 +66,15 @@ const handleSubmit = async (e) => {
         <title>בקשה להצעת מחיר להובלת מכולות</title>
       </Head>
 
-      {/* Header (אפשר להוסיף תפריט או חזור אם תרצה) */}
+      <div className="absolute top-5 right-6 text-4xl text-blue-700 hover:text-blue-900 cursor-pointer z-50"
+     onClick={() => window.history.forward()} title="קדימה">
+  →
+</div>
+<div className="absolute top-5 left-6 text-4xl text-blue-700 hover:text-blue-900 cursor-pointer z-50"
+     onClick={() => window.history.back()} title="אחורה">
+  ←
+</div>
+
 
       <img src="/logo-sharecontainer-black.png" alt="Logo" className="w-[280px] h-[280px] object-contain mt-0" />
 

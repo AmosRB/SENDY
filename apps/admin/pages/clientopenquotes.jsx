@@ -78,7 +78,7 @@ setOpenQuotes(visibleQuotes);
 
       <div className="relative z-10 w-full flex flex-col items-center">
         <img src="/logo-sharecontainer-cropped.png" alt="Share A Container" className="w-[330px] h-auto" />
-        <h1 className="text-[28px] sm:text-[32px] font-bold text-black mt-2 text-center w-full">
+        <h1 className="text-[28px] sm:text-[32px] font-bold text-black mt-0 mb-12 text-center w-full">
           מצב בקשות של {clientName && `  ${clientName}`}
         </h1>
 
@@ -96,6 +96,17 @@ setOpenQuotes(visibleQuotes);
     className="w-[250px] px-3 py-1 border border-gray-400 rounded-lg text-sm text-right placeholder-gray-600 font-semibold"
   />
 </div>
+
+<div className="absolute right-0 -top-10">
+  <a
+    href="/newproduct"
+    className="bg-sky-200 hover:bg-sky-400 text-sm text-black rounded-lg px-3 py-1 shadow-lg transition-all duration-200 border border-sky-800"
+    style={{ minWidth: '145px', textAlign: 'center', letterSpacing: '0.5px' }}
+  >
+    הגש בקשה נוספת
+  </a>
+</div>
+
 
           
           <div className="bg-green-100/20 border border-gray-500 rounded-xl p-4">
@@ -126,8 +137,6 @@ onIgnore={(id) => {
 }}
 
 />
-
-
 
               ))}
               {draftPlaceholders.map((_, i) => (
