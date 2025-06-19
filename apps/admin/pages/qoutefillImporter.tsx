@@ -38,7 +38,24 @@ export default function QouteFillImporter() {
   // מסמכים (לצפייה/הורדה)
   const [files, setFiles] = useState<{ fileId: string; filename: string }[]>([]);
 
-  
+  // קודם, למעלה בקובץ (ליד ה־useState)
+ type FieldRow = [
+    string,
+    string,
+    React.Dispatch<React.SetStateAction<string>>,
+    string,
+    React.Dispatch<React.SetStateAction<string>>
+  ];
+
+  const fields: FieldRow[] = [
+    ['הובלה ימית', oceanFreight, setOceanFreight, currencyOcean, setCurrencyOcean],
+    ['עמילות', customsFee, setCustomsFee, currencyCustoms, setCurrencyCustoms],
+    ['טיפול מול מכון התקנים', standards, setStandards, currencyStandards, setCurrencyStandards],
+    ['ביטוח', insurance, setInsurance, currencyInsurance, setCurrencyInsurance],
+    ['הובלה בישראל', inLandDelivery, setInLandDelivery, currencyDelivery, setCurrencyDelivery]
+  ];
+
+
   // שליפה מה-sessionStorage
   useEffect(() => {
     const saved = sessionStorage.getItem('quoteData');
@@ -229,51 +246,48 @@ export default function QouteFillImporter() {
           <h2 className="text-center text-[20px] font-bold text-gray-800 mb-0">
             פרטי הצעת המחיר להגשה
           </h2>
+
+
+          
           <div className="flex justify-between gap-20 pl-16">
             <div className="flex-1 flex flex-col gap-4">
-              {[
-                ['הובלה ימית', oceanFreight, setOceanFreight, currencyOcean, setCurrencyOcean],
-                ['עמילות', customsFee, setCustomsFee, currencyCustoms, setCurrencyCustoms],
-                ['טיפול מול מכון התקנים', standards, setStandards, currencyStandards, setCurrencyStandards],
-                ['ביטוח', insurance, setInsurance, currencyInsurance, setCurrencyInsurance],
-                ['הובלה בישראל', inLandDelivery, setInLandDelivery, currencyDelivery, setCurrencyDelivery]
-              ].map(([label, val, setVal, curr, setCurr], idx) => (
-                <div key={idx} className="grid grid-cols-6 gap-x-3 items-center">
-                  <label className="col-span-3 text-[20px] text-gray-800 font-semibold text-left">{label}</label>
-                  <input
-                    type="text"
-                    value={val as string}
-                    onChange={(e) => (setVal as React.Dispatch<React.SetStateAction<string>>)(e.target.value)}
-                    className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-                    placeholder="עלות"
-                  />
-                  <select
-                    value={curr as string}
-                    onChange={(e) => (setCurr as React.Dispatch<React.SetStateAction<string>>)(e.target.value)}
-                    className="h-[32px] w-[60px] px-1 border border-gray-500 rounded-md text-lg"
-                  >
-                    <option value="₪">₪</option>
-                    <option value="$">$</option>
-                  </select>
-                </div>
-              ))}
-              <div className="grid grid-cols-6 gap-x-3 items-center">
-                <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">סה"כ לתשלום בש"ח</label>
-                <input
-                  type="text"
-                  value={totalShekel.toFixed(2)}
-                  readOnly
-                  className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px] bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-              <div className="grid grid-cols-6 gap-x-3 items-center">
-                <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">סה"כ לתשלום בדולר</label>
-                <input
-                  type="text"
-                  value={totalDollar.toFixed(2)}
-                  readOnly
-                  className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px] bg-gray-100 cursor-not-allowed"
-                />
+               {fields.map(([label, val, setVal, curr, setCurr], idx) => (
+      <div key={idx} className="grid grid-cols-6 gap-x-3 items-center">
+        <label className="col-span-3 text-[20px] text-gray-800 font-semibold text-left">{label}</label>
+        <input
+          type="text"
+          value={val}
+          onChange={e => setVal(e.target.value)}
+          className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+          placeholder="עלות"
+        />
+        <select
+          value={curr}
+          onChange={e => setCurr(e.target.value)}
+          className="h-[32px] w-[60px] px-1 border border-gray-500 rounded-md text-lg"
+        >
+          <option value="₪">₪</option>
+          <option value="$">$</option>
+        </select>
+      </div>
+    ))}
+    <div className="grid grid-cols-6 gap-x-3 items-center">
+      <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">סה"כ לתשלום בש"ח</label>
+      <input
+        type="text"
+        value={totalShekel.toFixed(2)}
+        readOnly
+        className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px] bg-gray-100 cursor-not-allowed"
+      />
+    </div>
+    <div className="grid grid-cols-6 gap-x-3 items-center">
+      <label className="col-span-4 text-[20px] text-gray-800 font-semibold text-left">סה"כ לתשלום בדולר</label>
+      <input
+        type="text"
+        value={totalDollar.toFixed(2)}
+        readOnly
+        className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px] bg-gray-100 cursor-not-allowed"
+      />
               </div>
               
             </div>
