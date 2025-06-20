@@ -3,8 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
+const nodemailer = require('nodemailer');
 
-// ✅ POST - הגשת הצעת מחיר על ידי עמיל מכס
 // ✅ POST - הגשת הצעת מחיר על ידי עמיל מכס
 router.post('/', async (req, res) => {
   const submission = {
@@ -23,15 +23,19 @@ router.post('/', async (req, res) => {
     // 📨 שמירת ההצעה
     const result = await db.collection('submitted-quotes').insertOne(submission);
 
-await db.collection('quotes').updateOne(
-  { quoteId: submission.quoteId },
-  {
-    $addToSet: { submittedBy: submission.brokerCode },
-    $set: { updatedAt: new Date() }
-  }
-);
+    await db.collection('quotes').updateOne(
+      { quoteId: submission.quoteId },
+      {
+        $addToSet: { submittedBy: submission.brokerCode },
+        $set: { updatedAt: new Date() }
+      }
+    );
 
-
+    // === פה מוסיפים שליחת מייל ללקוח ===
+    if (submission.clientEmail) {
+      sendMailToClient(submission.clientEmail, submission.clientName);
+      // לא מחכים לתשובה - המייל נשלח ברקע
+    }
 
     res.status(201).json({ insertedId: result.insertedId });
   } catch (err) {
@@ -73,3 +77,30 @@ router.get('/all', async (req, res) => {
 });
 
 module.exports = router;
+
+async function sendMailToClient(email, name) {
+  if (!email || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
+  let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: '"Share A Container" <noreply@shareacontainer.app>',
+    to: email,
+    subject: 'הבקשה שלך נענתה!',
+    html: `
+      <div style="direction:rtl;font-family:Arial">
+        שלום${name ? ' ' + name : ''},<br/>
+        בקשתך לקבלת הצעת מחיר נענתה.<br/>
+        <a href="https://shareacontainer.app/clientopenquotes">לחץ כאן לכניסה לאזור האישי שלך</a>
+        <br/><br/>
+        בברכה,<br/>
+        צוות Share A Container
+      </div>
+    `
+  });
+}

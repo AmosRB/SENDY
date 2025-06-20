@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { signIn } from "next-auth/react";
+
 
 export default function LinkInputPage() {
   // --- State Definitions ---
@@ -273,7 +275,7 @@ setStep('userWelcome');
         )}
       </div>
 
-      <img src="/logo-sharecontainer-black.png" alt="Logo" className="w-[280px] h-[280px] object-contain mt-10" />
+      <img src="/logo-sharecontainer-black.png" alt="Logo" className="w-[280px] h-[280px] object-contain mt-2" />
 
       <div className="w-full max-w-sm flex flex-col items-center mt-8 space-y-6">
         {loading && (
@@ -288,37 +290,64 @@ setStep('userWelcome');
         {error && <p className="text-red-600 text-center text-sm font-semibold">{error}</p>}
 
         {/* Input Code Screen */}
-        {step === 'input' && (
-          <form onSubmit={handleUniversalCodeSubmit} className="w-full space-y-4 flex flex-col items-center">
-            <h1 className="text-xl font-bold text-center text-gray-800">הכנס קוד אישי או הרשם</h1>
-            <input
-              type="text"
-              placeholder="הכנס קוד אישי או הרשם למטה"
-              className="w-4/5 mx-auto border border-gray-300 rounded-2xl px-3 py-2 text-right text-black placeholder-amber-700"
-              value={clientCode}
-              onChange={(e) => setClientCode(e.target.value)}
-            />
-            <button type="submit" className="w-4/5 mx-auto py-2 rounded-2xl text-white font-bold text-base transition shadow-md bg-blue-600 hover:bg-blue-700">
-              המשך
-            </button>
-            <p className="text-center text-[17px] font-semibold text-black mt-6">
-              הרשמה לאתר לפי סוג משתמש
-            </p>
-            <div className="text-center text-[17px] font-semibold text-blue-700 flex flex-wrap justify-center items-center gap-2 mt-1">
-              <button type="button" onClick={() => { setStep('registerUserForm'); setRole('private'); setError(''); setErrors({}); }} className="hover:underline">פרטי</button>
-              <span className="text-orange-500">●</span>
-              <button type="button" onClick={() => { setStep('registerUserForm'); setRole('store'); setError(''); setErrors({}); }} className="hover:underline">חנות / עסק</button>
-              <span className="text-orange-500">●</span>
-              <button type="button" onClick={() => { setStep('registerUserForm'); setRole('importer'); setError(''); setErrors({}); }} className="hover:underline">יבואן</button>
-              <span className="text-orange-500">●</span>
-              <button type="button" onClick={() => { router.push('/broker?action=register'); setError(''); setErrors({}); }} className="hover:underline">עמיל מכס</button>
-            </div>
-          </form>
-        )}
+   {step === 'input' && (
+  <form onSubmit={handleUniversalCodeSubmit} className="w-full flex flex-col items-center">
+    {/* כותרת ראשית */}
+    <p className="text-center text-[20px] font-semibold text-black mb-4 mt-0">
+      הרשמה לאתר לפי סוג משתמש
+    </p>
+
+    {/* כפתורי סוגי משתמש */}
+    <div className="text-center text-[20px] font-semibold text-blue-700 flex flex-wrap justify-center items-center gap-2 mb-16">
+      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('private'); setError(''); setErrors({}); }} className="hover:underline">פרטי</button>
+      <span className="text-orange-500">●</span>
+      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('store'); setError(''); setErrors({}); }} className="hover:underline">חנות / עסק</button>
+      <span className="text-orange-500">●</span>
+      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('importer'); setError(''); setErrors({}); }} className="hover:underline">יבואן</button>
+      <span className="text-orange-500">●</span>
+      <button type="button" onClick={() => { router.push('/broker?action=register'); setError(''); setErrors({}); }} className="hover:underline">עמיל מכס</button>
+    </div>
+
+    {/* כותרת שניה */}
+    <h1 className="text-xl font-bold text-center text-gray-800 mb-4">
+      הכנס   קוד אישי  
+    </h1>
+
+    {/* אינפוט קוד אישי */}
+    <div className="w-full flex flex-col items-center mb-5">
+      <input
+        type="password"
+        name="password"
+        autoComplete="current-password"
+        placeholder="הכנס קוד אישי או הרשם למעלה"
+        className="w-4/5 mx-auto border border-gray-300 rounded-2xl px-3 py-2 text-right text-black placeholder-amber-700"
+        value={clientCode}
+        onChange={(e) => setClientCode(e.target.value)}
+      />
+    </div>
+
+    {/* כפתור המשך */}
+    <button
+      type="submit"
+      className="w-4/5 mx-auto py-2 rounded-2xl text-white font-bold text-base transition shadow-md bg-blue-600 hover:bg-blue-700"
+    >
+      המשך
+    </button>
+  </form>
+)}
+
 
         {/* New User Registration Form */}
         {step === 'registerUserForm' && (
           <form onSubmit={handleRegisterSubmit} className="w-full space-y-4 flex flex-col items-center">
+            <button
+  type="button"
+  className="w-4/5 mx-auto py-2 rounded-2xl text-white font-bold text-base transition shadow-md bg-sky-500 hover:bg-sky-700 mb-4"
+  onClick={() => signIn('google')}
+>
+  הרשם/התחבר עם Google
+</button>
+
             <h1 className="text-xl font-bold text-center text-black">הרשמת {role === 'private' ? 'לקוח פרטי' : role === 'store' ? 'חנות / עסק' : 'יבואן'}</h1>
             <input type="text" placeholder="שם מלא" className="w-4/5 mx-auto border border-gray-300 rounded-2xl px-3 py-2 text-right" value={name} onChange={(e) => setName(e.target.value)} />
             {errors.name && <p className="text-red-500 text-right text-xs">**{errors.name}**</p>}

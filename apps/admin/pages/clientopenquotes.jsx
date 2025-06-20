@@ -173,7 +173,7 @@ onIgnore={(id) => {
     onClick={() => setActiveQuote(quote)}
   >
     {/* עמודה 1 - מספר בקשה */}
-    <div className="font-semibold">#{quote.quoteId}</div>
+    <div className="font-semibold">{quote.quoteId}</div>
 
     {/* עמודה 2 - מחיר בש"ח */}
     <div className="text-right">{quote.totalShekel || '0.00'}</div>

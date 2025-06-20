@@ -155,7 +155,7 @@ export default function ImporterOpenQuotesPage() {
                     className="grid grid-cols-4 items-center border border-gray-900 rounded-lg px-3 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-400 bg-sky-300/60"
                     onClick={() => setActiveQuote(quote)}
                   >
-                    <div className="font-semibold">#{quote.quoteId}</div>
+                    <div className="font-semibold">{quote.quoteId}</div>
                     <div className="text-right">₪ {quote.totalShekel || '0.00'}</div>
                     <div className="text-right">$ {quote.totalDollar || '0.00'}</div>
                     <div className="text-red-700 text-sm text-right">
