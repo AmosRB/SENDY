@@ -121,35 +121,35 @@ setOpenQuotes(visibleQuotes);
   <div className="col-span-2">שם המוצר</div>
 </div>
 
-            <div className="space-y-2">
-              {openQuotes.map((q) => (
-<QuoteCard
-  quote={q}
-  layout="row"
-  background="green"
-  modal={true}
-  submittedCount={q.submittedBy?.length || 0}
-   onShowSubmitted={quoteId => setSearchTerm(searchTerm === quoteId ? '' : quoteId)}
-  active={searchTerm === q.quoteId}
-onIgnore={(id) => {
-  fetch(`${apiBase}/api/quotes`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ quoteId: id, clientClosed: true })
-  });
-  setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
-}}
+<div className="space-y-2">
+  {openQuotes.map((q) => (
+    <div key={q.quoteId}>
+      <QuoteCard
+        quote={q}
+        layout="row"
+        background="green"
+        modal={true}
+        submittedCount={q.submittedBy?.length || 0}
+        onShowSubmitted={quoteId => setSearchTerm(searchTerm === quoteId ? '' : quoteId)}
+        active={searchTerm === q.quoteId}
+        onIgnore={(id) => {
+          fetch(`${apiBase}/api/quotes`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quoteId: id, clientClosed: true })
+          });
+          setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
+        }}
+      />
+      {submittedQuotes.filter(sq => sq.quoteId === q.quoteId).length >= 5 && (
+        <div className="bg-yellow-100 text-red-700 font-bold rounded-lg px-4 py-2 text-center my-3 shadow">
+          הגעת למקסימום ההצעות (5) לבקשה זו
+        </div>
+      )}
+    </div>
+  ))}
+</div>
 
-/>
-    {submittedQuotes.filter(sq => sq.quoteId === q.quoteId).length >= 5 && (
-      <div className="bg-yellow-100 text-red-700 font-bold rounded-lg px-4 py-2 text-center my-3 shadow">
-        הגעת למקסימום ההצעות (5) לבקשה זו
-      </div>
-    )}
-  </div>
-))}
-
-              ))}
               {draftPlaceholders.map((_, i) => (
                 <div key={`draft-placeholder-${i}`} className="grid grid-cols-3 text-gray-400 border border-dashed border-gray-300 rounded-lg px-4 py-2 text-sm">
                   <div className="font-semibold">{openQuotes.length + i + 1}</div>
@@ -197,11 +197,6 @@ onIgnore={(id) => {
       {new Date(quote.validUntil).toLocaleDateString('he-IL')}
     </div>
 
-    {numSubmittedQuotes >= 5 && (
-  <div className="bg-yellow-100 text-red-700 font-bold rounded-lg px-4 py-2 text-center my-3 shadow">
-    הגעת למקסימום ההצעות (5) לבקשה זו
-  </div>
-)}
 
   </div>
 ))
