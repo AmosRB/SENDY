@@ -10,7 +10,13 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // שליחת מייל לכל העמילים עם קישור בלבד
 async function sendMailToAllBrokers(brokers) {
-  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) return;
+  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
+    console.warn('לא מוגדרים MAIL_USER או MAIL_PASS, לא ניתן לשלוח מיילים');
+    return;
+  }
+
+  console.log('שליחת מייל לכל העמילים:', brokers.map(b => b.email));
+
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -21,22 +27,28 @@ async function sendMailToAllBrokers(brokers) {
 
   for (const broker of brokers) {
     if (!broker.email) continue;
-    await transporter.sendMail({
-      from: '"Share A Container" <noreply@shareacontainer.app>',
-      to: broker.email,
-      subject: 'ישנה בקשה חדשה להצעת מחיר',
-      html: `
-        <div style="direction:rtl;font-family:Arial">
-          שלום ${broker.name},<br/>
-          התקבלה בקשה חדשה להצעת מחיר במערכת.<br/>
-          <a href="https://shareacontainer.app/brokerstatus">
-            לחץ כאן לכניסה לאזור האישי שלך
-          </a>
-          <br/><br/>
-          לא מצליח להיכנס? היכנס מהדף הראשי עם קוד הכניסה שלך.
-        </div>
-      `
-    });
+    console.log('מנסה לשלוח ל:', broker.name, broker.email);
+    try {
+      await transporter.sendMail({
+        from: '"Share A Container" <noreply@shareacontainer.app>',
+        to: broker.email,
+        subject: 'ישנה בקשה חדשה להצעת מחיר',
+        html: `
+          <div style="direction:rtl;font-family:Arial">
+            שלום ${broker.name},<br/>
+            התקבלה בקשה חדשה להצעת מחיר במערכת.<br/>
+            <a href="https://shareacontainer.app/brokerstatus">
+              לחץ כאן לכניסה לאזור האישי שלך
+            </a>
+            <br/><br/>
+            לא מצליח להיכנס? היכנס מהדף הראשי עם קוד הכניסה שלך.
+          </div>
+        `
+      });
+      console.log('✓ נשלח ל:', broker.email);
+    } catch (e) {
+      console.warn('✗ שליחה נכשלה ל:', broker.email, e.message);
+    }
   }
 }
 
@@ -68,7 +80,21 @@ router.get('/new-id', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
-    const quotes = await db.collection('quotes').find().toArray();
+    // שלב 1: ספור כמה הצעות יש לכל quoteId
+    const submitted = await db.collection('submitted-quotes').aggregate([
+      { $group: { _id: '$quoteId', count: { $sum: 1 } } }
+    ]).toArray();
+
+    // שלב 2: quoteId שיש להם 5 ומעלה הצעות
+    const overLimit = new Set(submitted.filter(s => s.count >= 5).map(s => s._id));
+
+    // שלב 3: שלוף את הבקשות שאין להן 5 ומעלה הצעות
+    const quotes = await db.collection('quotes').find({
+      quoteId: { $nin: Array.from(overLimit) },
+      // כאן תוכל להוסיף סינונים נוספים (למשל status וכו')
+    }).toArray();
+
+    // שלב 4: החזר את התוצאה
     res.json(quotes);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch quotes' });

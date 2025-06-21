@@ -30,6 +30,10 @@ const fetchQuotesForClient = async (id) => {
     q.status === 'submitted'
 );
 
+const countSubmittedByQuote = (quoteId) => 
+  submittedQuotes.filter(q => q.quoteId === quoteId).length;
+
+
 const ignored = JSON.parse(localStorage.getItem('ignoredQuotes') || '[]');
 const visibleQuotes = myQuotes.filter(q => !ignored.includes(q.quoteId));
 setOpenQuotes(visibleQuotes);
@@ -137,6 +141,13 @@ onIgnore={(id) => {
 }}
 
 />
+    {submittedQuotes.filter(sq => sq.quoteId === q.quoteId).length >= 5 && (
+      <div className="bg-yellow-100 text-red-700 font-bold rounded-lg px-4 py-2 text-center my-3 shadow">
+        הגעת למקסימום ההצעות (5) לבקשה זו
+      </div>
+    )}
+  </div>
+))}
 
               ))}
               {draftPlaceholders.map((_, i) => (
@@ -185,6 +196,13 @@ onIgnore={(id) => {
     <div className="text-red-700 text-sm text-right">
       {new Date(quote.validUntil).toLocaleDateString('he-IL')}
     </div>
+
+    {numSubmittedQuotes >= 5 && (
+  <div className="bg-yellow-100 text-red-700 font-bold rounded-lg px-4 py-2 text-center my-3 shadow">
+    הגעת למקסימום ההצעות (5) לבקשה זו
+  </div>
+)}
+
   </div>
 ))
 }
