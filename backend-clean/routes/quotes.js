@@ -78,28 +78,40 @@ router.get('/new-id', async (req, res) => {
 
 // ===== קבלת כל ההצעות =====
 router.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
-    // שלב 1: ספור כמה הצעות יש לכל quoteId
+    const { clientId, broker } = req.query;
+
+    if (clientId) {
+      // שליפת כל הבקשות ללקוח – ללא הגבלת 5 הצעות!
+      const quotes = await db.collection('quotes').find({
+        clientId: clientId.toString(),
+        status: 'submitted'
+      }).toArray();
+      res.json(quotes);
+      return;
+    }
+
+    // אם יש broker (או קריאה עמיל מכס) – מגבילים ל־5 הצעות
+    // (אפשר לזהות לפי broker או להוסיף תנאי נוסף לפי מה שיש במערכת)
     const submitted = await db.collection('submitted-quotes').aggregate([
       { $group: { _id: '$quoteId', count: { $sum: 1 } } }
     ]).toArray();
 
-    // שלב 2: quoteId שיש להם 5 ומעלה הצעות
     const overLimit = new Set(submitted.filter(s => s.count >= 5).map(s => s._id));
 
-    // שלב 3: שלוף את הבקשות שאין להן 5 ומעלה הצעות
     const quotes = await db.collection('quotes').find({
       quoteId: { $nin: Array.from(overLimit) },
-      // כאן תוכל להוסיף סינונים נוספים (למשל status וכו')
+      status: 'submitted'
     }).toArray();
 
-    // שלב 4: החזר את התוצאה
     res.json(quotes);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch quotes' });
   }
 });
+
 
 // ===== הורדת קובץ =====
 router.get('/download/:fileId', async (req, res) => {
