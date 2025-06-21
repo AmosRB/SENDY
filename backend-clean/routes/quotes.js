@@ -78,7 +78,6 @@ router.get('/new-id', async (req, res) => {
 
 // ===== קבלת כל ההצעות =====
 router.get('/', async (req, res) => {
-router.get('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
     const { clientId, broker } = req.query;
