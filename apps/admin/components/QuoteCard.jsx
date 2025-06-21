@@ -54,6 +54,12 @@ export default function QuoteCard({
               <div><strong>כמות:</strong> {quote.quantity || '—'}</div>
               <div><strong>מוצא:</strong> {quote.origin || '—'}</div>
               <div><strong>יעד:</strong> {quote.destination || '—'}</div>
+              <div>
+  <b>סוג משלוח:</b>{" "}
+  {[quote.shippingType?.FOB && "FOB", quote.shippingType?.EXW && "EXW"]
+    .filter(Boolean)
+    .join(" / ") || "לא נבחר"}
+</div>
               <div><strong>שם המבקש:</strong> {quote.clientName || '—'}</div>
               <div><strong>טלפון ליצירת קשר:</strong> {quote.clientPhone || '—'}</div>
             </>

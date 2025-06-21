@@ -17,7 +17,8 @@ export default function ImporterOpenQuotesPage() {
   const fetchQuotesForClient = async (id) => {
     try {
       const [quotesRes, submittedRes] = await Promise.all([
-        fetch(`${apiBase}/api/quotes`, { cache: "no-store" }),
+        fetch(`${apiBase}/api/quotes?clientId=${id}`, { cache: "no-store" })
+,
         fetch(`${apiBase}/api/submitted-quotes/all`, { cache: "no-store" })
       ]);
 
