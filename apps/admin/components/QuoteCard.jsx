@@ -124,31 +124,43 @@ if (layout === 'row') {
 
         {/* ✅ פוטר בתוך הכרטיס */}
         {showFooter && (
-          <div className="flex justify-between items-center bg-emerald-200 px-4 py-[6px] text-[14px] font-semibold border-t border-emerald-600 text-right">
-            {submittedCount > 0 && (
-              <span
-                className="text-blue-800 cursor-pointer underline hover:text-blue-600 transition"
-                onClick={e => {
-                  e.stopPropagation();
-                  onShowSubmitted && onShowSubmitted(quoteId);
-                }}
-                title="הצג הצעות שהוגשו לבקשה זו"
-              >
-                צפה במספר ההצעות שהוגשו {submittedCount}
-              </span>
-            )}
-            {onIgnore && (
-              <button
-                onClick={e => {
-                  e.stopPropagation();
-                  onIgnore(quote.quoteId);
-                }}
-                className="text-red-600 hover:underline"
-              >
-                להפסיק לקבל הצעות
-              </button>
-            )}
-          </div>
+         <div className="flex justify-between items-center bg-emerald-200 px-4 py-[6px] text-[14px] font-semibold border-t border-emerald-600 text-right">
+<span
+  className={
+    `${submittedCount >= 5
+      ? "text-green-700 font-bold text-center cursor-pointer"
+      : submittedCount >= 1
+        ? "text-blue-700 font-bold text-center cursor-pointer underline"
+        : "text-orange-600 font-bold text-center cursor-pointer"
+    }`
+  }
+  onClick={e => {
+    e.stopPropagation();
+    onShowSubmitted && onShowSubmitted(quoteId);
+  }}
+  title={submittedCount >= 5 ? undefined : "הצג הצעות שהוגשו לבקשה זו"}
+>
+  {submittedCount >= 5
+    ? "הגעת למקסימום ההצעות (5) לבקשה זו"
+    : `צפה במספר ההצעות שהוגשו ${submittedCount}`
+  }
+</span>
+
+
+
+  {onIgnore && (
+    <button
+      onClick={e => {
+        e.stopPropagation();
+        onIgnore(quote.quoteId);
+      }}
+      className="text-red-600 hover:underline"
+    >
+      מחק בקשה X    
+    </button>
+  )}
+</div>
+
         )}
       </div>
       {modal && showDetails && <ClientQuoteModal />}

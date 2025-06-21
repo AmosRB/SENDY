@@ -16,10 +16,12 @@ export default function BrokerStatusPage() {
 
 const fetchQuotesForClient = async (id) => {
   try {
-    const [quotesRes, submittedRes] = await Promise.all([
-      fetch(`${apiBase}/api/quotes`, { cache: "no-store" }),
-      fetch(`${apiBase}/api/submitted-quotes/all`, { cache: "no-store" })
-    ]);
+const [quotesRes, submittedRes] = await Promise.all([
+  fetch(`${apiBase}/api/quotes?clientId=${id}`, { cache: "no-store" }),
+  fetch(`${apiBase}/api/submitted-quotes/all`, { cache: "no-store" })
+]);
+
+
 
     const allQuotes = await quotesRes.json();
     const allSubmitted = await submittedRes.json();
@@ -144,11 +146,7 @@ setOpenQuotes(visibleQuotes);
                     setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
                   }}
                 />
-                {submittedQuotes.filter(sq => sq.quoteId === q.quoteId).length >= 5 && (
-                  <div className="bg-yellow-100 text-red-700 font-bold rounded-lg px-4 py-2 text-center my-3 shadow">
-                    הגעת למקסימום ההצעות (5) לבקשה זו
-                  </div>
-                )}
+            
               </div>
             ))}
           </div>
