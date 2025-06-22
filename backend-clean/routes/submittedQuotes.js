@@ -76,31 +76,43 @@ router.get('/all', async (req, res) => {
   }
 });
 
-module.exports = router;
+
+
 
 async function sendMailToClient(email, name) {
   if (!email || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
   let transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.office365.com',
+    port: 587,
+    secure: false,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS,
     },
+    tls: {
+      ciphers:'SSLv3'
+    }
   });
 
-  await transporter.sendMail({
-    from: '"Share A Container" <noreply@shareacontainer.app>',
-    to: email,
-    subject: 'הבקשה שלך נענתה!',
-    html: `
-      <div style="direction:rtl;font-family:Arial">
-        שלום${name ? ' ' + name : ''},<br/>
-        בקשתך לקבלת הצעת מחיר נענתה.<br/>
-        <a href="https://shareacontainer.app/clientopenquotes">לחץ כאן לכניסה לאזור האישי שלך</a>
-        <br/><br/>
-        בברכה,<br/>
-        צוות Share A Container
-      </div>
-    `
-  });
+  try {
+    await transporter.sendMail({
+      from: '"Share A Container" <noreply@shareacontainer.app>',
+      to: email,
+      subject: 'הבקשה שלך נענתה!',
+      html: `
+        <div style="direction:rtl;font-family:Arial">
+          שלום${name ? ' ' + name : ''},<br/>
+          בקשתך לקבלת הצעת מחיר נענתה.<br/>
+          <a href="https://shareacontainer.app/clientopenquotes">לחץ כאן לכניסה לאזור האישי שלך</a>
+          <br/><br/>
+          בברכה,<br/>
+          צוות Share A Container
+        </div>
+      `
+    });
+  } catch (e) {
+    console.warn('✗ שליחה נכשלה ללקוח:', email, e.message);
+  }
 }
+
+module.exports = router;
