@@ -340,13 +340,13 @@ setStep('userWelcome');
         {/* New User Registration Form */}
         {step === 'registerUserForm' && (
           <form onSubmit={handleRegisterSubmit} className="w-full space-y-4 flex flex-col items-center">
-            <button
+            {/* <button
   type="button"
   className="w-4/5 mx-auto py-2 rounded-2xl text-white font-bold text-base transition shadow-md bg-sky-500 hover:bg-sky-700 mb-4"
   onClick={() => signIn('google')}
 >
   הרשם/התחבר עם Google
-</button>
+</button> */}
 
             <h1 className="text-xl font-bold text-center text-black">הרשמת {role === 'private' ? 'לקוח פרטי' : role === 'store' ? 'חנות / עסק' : 'יבואן'}</h1>
             <input type="text" placeholder="שם מלא" className="w-4/5 mx-auto border border-gray-300 rounded-2xl px-3 py-2 text-right" value={name} onChange={(e) => setName(e.target.value)} />
