@@ -81,18 +81,16 @@ router.get('/all', async (req, res) => {
 
 async function sendMailToClient(email, name) {
   if (!email || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
-  let transporter = nodemailer.createTransport({
-    host: 'smtp.office365.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    },
-    tls: {
-      ciphers:'SSLv3'
-    }
-  });
+let transporter = nodemailer.createTransport({
+  host: 'box.livecity.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  }
+});
+
 
   try {
     await transporter.sendMail({
