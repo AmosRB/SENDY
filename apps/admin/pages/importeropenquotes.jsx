@@ -10,7 +10,6 @@ export default function ImporterOpenQuotesPage() {
   const [openQuotes, setOpenQuotes] = useState([]);
   const [submittedQuotes, setSubmittedQuotes] = useState([]);
 const [code, setCode] = useState('');
-const [error, setError] = useState('');
 const [clientCodeExists, setClientCodeExists] = useState(null);
 
 useEffect(() => {
