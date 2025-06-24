@@ -11,6 +11,39 @@ export default function BrokerStatusPage() {
   const [submittedQuotes, setSubmittedQuotes] = useState([]);
   const [activeQuote, setActiveQuote] = useState(null); // שמירת הצעת המחיר הפעילה שתוצג במודאל
   const [searchTerm, setSearchTerm] = useState('');
+const [code, setCode] = useState('');
+
+
+if (!sessionStorage.getItem('clientCode')) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white">
+      <img src="/logo-sharecontainer-cropped.png" alt="Share A Container" className="w-[250px] h-auto mb-6" />
+      <h2 className="mb-4 text-lg font-bold">הזן את קוד הגישה שלך</h2>
+      <input
+        type="text"
+        className="border border-gray-400 rounded-lg px-4 py-2 mb-3 text-center text-lg"
+        placeholder="קוד גישה אישי"
+        value={code}
+        onChange={e => setCode(e.target.value)}
+        maxLength={6}
+      />
+      <button
+        className="bg-orange-500 text-white rounded-lg px-6 py-2 font-semibold"
+        onClick={() => {
+          if (code.length === 6) {
+            sessionStorage.setItem('clientCode', code);
+            window.location.reload();
+          } else {
+            setError('אנא הזן קוד בן 6 ספרות');
+          }
+        }}
+      >
+        כניסה
+      </button>
+      {error && <div className="text-red-600 mt-2">{error}</div>}
+    </div>
+  );
+}
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL;
 
