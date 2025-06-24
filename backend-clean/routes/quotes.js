@@ -17,15 +17,16 @@ async function sendMailToAllBrokers(brokers) {
 
   console.log('שליחת מייל לכל העמילים:', brokers.map(b => b.email));
 
-let transporter = nodemailer.createTransport({
-  host: 'box.livecity.com',
-  port: 587,
+let transporter = require('nodemailer').createTransport({
+  host: 'mail.smtp2go.com',
+  port: 2525, // אפשר גם 2525 — שניהם יעבדו
   secure: false,
   auth: {
     user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
+    pass: process.env.MAIL_PASS
   }
 });
+
 
 
   for (const broker of brokers) {

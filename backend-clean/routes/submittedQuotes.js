@@ -81,15 +81,16 @@ router.get('/all', async (req, res) => {
 
 async function sendMailToClient(email, name) {
   if (!email || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
-let transporter = nodemailer.createTransport({
-  host: 'box.livecity.com',
-  port: 587,
+let transporter = require('nodemailer').createTransport({
+  host: 'mail.smtp2go.com',
+  port: 2525, // אפשר גם 2525 — שניהם יעבדו
   secure: false,
   auth: {
     user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
+    pass: process.env.MAIL_PASS
   }
 });
+
 
 
   try {
