@@ -9,13 +9,19 @@ export default function ImporterOpenQuotesPage() {
   const [error, setError] = useState('');
   const [openQuotes, setOpenQuotes] = useState([]);
   const [submittedQuotes, setSubmittedQuotes] = useState([]);
-  const [activeQuote, setActiveQuote] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-const [code, setCode] = useState('')
-  const apiBase = process.env.NEXT_PUBLIC_API_URL;
-;
+const [code, setCode] = useState('');
+const [error, setError] = useState('');
+const [clientCodeExists, setClientCodeExists] = useState(null);
 
-if (!sessionStorage.getItem('clientCode')) {
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    setClientCodeExists(!!sessionStorage.getItem('clientCode'));
+  }
+}, []);
+
+if (clientCodeExists === null) return null;
+
+if (!clientCodeExists) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white">
       <img src="/logo-sharecontainer-cropped.png" alt="Share A Container" className="w-[250px] h-auto mb-6" />

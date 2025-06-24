@@ -12,9 +12,19 @@ export default function BrokerStatusPage() {
   const [activeQuote, setActiveQuote] = useState(null); // שמירת הצעת המחיר הפעילה שתוצג במודאל
   const [searchTerm, setSearchTerm] = useState('');
 const [code, setCode] = useState('');
+const [clientCodeExists, setClientCodeExists] = useState(null); // מתחיל כ־null
 
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    setClientCodeExists(!!sessionStorage.getItem('clientCode'));
+  }
+}, []);
 
-if (!sessionStorage.getItem('clientCode')) {
+if (clientCodeExists === null) {
+  return null;
+}
+
+if (!clientCodeExists) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white">
       <img src="/logo-sharecontainer-cropped.png" alt="Share A Container" className="w-[250px] h-auto mb-6" />
