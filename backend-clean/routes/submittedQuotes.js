@@ -31,10 +31,12 @@ router.post('/', async (req, res) => {
       }
     );
 
-    // === פה מוסיפים שליחת מייל ללקוח ===
-    if (submission.clientEmail) {
-      sendMailToClient(submission.clientEmail, submission.clientName);
-      // לא מחכים לתשובה - המייל נשלח ברקע
+    // === שליפת הקוד ושליחת מייל ללקוח ===
+    if (submission.clientEmail && submission.clientId) {
+      const client = await db.collection('users').findOne({ _id: submission.clientId });
+      if (client?.code) {
+        sendMailToClient(submission.clientEmail, submission.clientName, client.code);
+      }
     }
 
     res.status(201).json({ insertedId: result.insertedId });
@@ -42,6 +44,7 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to submit quote' });
   }
 });
+
 
 
 // ✅ GET - שליפת כל הצעות המחיר שעמיל הגיש לפי קוד
@@ -79,19 +82,18 @@ router.get('/all', async (req, res) => {
 
 
 
-async function sendMailToClient(email, name) {
-  if (!email || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
-let transporter = require('nodemailer').createTransport({
-  host: 'mail.smtp2go.com',
-  port: 2525, // אפשר גם 2525 — שניהם יעבדו
-  secure: false,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS
-  }
-});
+async function sendMailToClient(email, name, code) {
+  if (!email || !code || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
 
-
+  let transporter = require('nodemailer').createTransport({
+    host: 'mail.smtp2go.com',
+    port: 2525,
+    secure: false,
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS
+    }
+  });
 
   try {
     await transporter.sendMail({
@@ -102,7 +104,7 @@ let transporter = require('nodemailer').createTransport({
         <div style="direction:rtl;font-family:Arial">
           שלום${name ? ' ' + name : ''},<br/>
           בקשתך לקבלת הצעת מחיר נענתה.<br/>
-          <a href="https://shareacontainer.app/clientopenquotes">לחץ כאן לכניסה לאזור האישי שלך</a>
+          <a href="https://shareacontainer.app/?code=${code}">לחץ כאן לכניסה לאזור האישי שלך</a>
           <br/><br/>
           בברכה,<br/>
           צוות Share A Container
@@ -113,5 +115,6 @@ let transporter = require('nodemailer').createTransport({
     console.warn('✗ שליחה נכשלה ללקוח:', email, e.message);
   }
 }
+
 
 module.exports = router;
