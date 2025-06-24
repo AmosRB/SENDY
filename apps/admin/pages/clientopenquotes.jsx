@@ -65,10 +65,8 @@ if (!clientCodeExists) {
   כניסה
 </button>
 {error && <div className="text-red-600 mt-2">{error}</div>}
- className="text-red-600 mt-2">{error}</div>}
-    </div>
-  );
-}
+
+
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL;
 

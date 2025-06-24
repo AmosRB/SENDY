@@ -49,12 +49,13 @@ export default function BrokerStatusPage() {
         const res = await fetch(`/api/clients?code=${code}`);
         const data = await res.json();
 
-        if (data && data._id) {
-          sessionStorage.setItem('clientCode', code);
-          sessionStorage.setItem('clientId', data._id);
-          sessionStorage.setItem('clientName', data.name || '');
-          window.location.reload();
-        } else {
+      if (data && data._id) {
+  sessionStorage.setItem('brokerCode', code);
+  sessionStorage.setItem('brokerId', data._id);
+  sessionStorage.setItem('brokerName', data.name || '');
+  window.location.reload();
+}
+ else {
           setError('קוד לא נמצא במערכת');
         }
       } catch (e) {
