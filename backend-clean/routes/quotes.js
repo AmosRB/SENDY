@@ -156,10 +156,16 @@ if (updates.status === 'submitted' && updates.clientId) {
     if (client?.code && client?.email) {
       await sendMailToClient(client.email, client.name, client.code);
     }
+
+    // שליחת מייל לעמילי המכס
+    const brokers = await db.collection('customs-brokers').find({}).toArray();
+    await sendMailToAllBrokers(brokers);
+
   } catch (e) {
-    console.warn('✗ שליחת מייל ללקוח נכשלה:', e.message);
+    console.warn('✗ שגיאה בשליחת מיילים:', e.message);
   }
 }
+
 
 
     res.json({ success: true, modifiedCount: result.modifiedCount });

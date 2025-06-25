@@ -33,11 +33,19 @@ router.post('/', async (req, res) => {
 
     // === שליפת הקוד ושליחת מייל ללקוח ===
 if (submission.clientId) {
-  const client = await db.collection('users').findOne({ _id: submission.clientId });
-  if (client?.code && client?.email) {
-    sendMailToClient(client.email, client.name, client.code);
+  try {
+    const client = await db.collection('users').findOne({ _id: submission.clientId });
+    if (client?.code && client?.email) {
+      console.log('📨 מנסה לשלוח מייל ללקוח לאחר הגשת הצעה:', client.email);
+      await sendMailToClient(client.email, client.name, client.code);
+    } else {
+      console.warn('⚠️ חסרים נתוני לקוח לשליחת מייל');
+    }
+  } catch (e) {
+    console.warn('✗ שליחת מייל ללקוח נכשלה:', e.message);
   }
 }
+
 
     res.status(201).json({ insertedId: result.insertedId });
   } catch (err) {
