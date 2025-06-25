@@ -41,7 +41,8 @@ let transporter = require('nodemailer').createTransport({
           <div style="direction:rtl;font-family:Arial">
             שלום ${broker.name},<br/>
             התקבלה בקשה חדשה להצעת מחיר במערכת.<br/>
-            <a href="https://shareacontainer.app/?code=${broker.code}">לחץ כאן לכניסה לאזור האישי שלך
+           <a href="https://shareacontainer.app/autologin?code=${code}">לחץ כאן לצפייה בבקשות שלך</a>
+
             </a>
             <br/><br/>
             לא מצליח להיכנס? היכנס מהדף הראשי עם קוד הכניסה שלך.

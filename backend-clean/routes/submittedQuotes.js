@@ -134,7 +134,8 @@ async function sendMailToClient(email, name, code) {
         <div style="direction:rtl;font-family:Arial">
           שלום${name ? ' ' + name : ''},<br/>
           בקשתך לקבלת הצעת מחיר נענתה.<br/>
-          <a href="https://shareacontainer.app/?code=${code}">לחץ כאן לכניסה לאזור האישי שלך</a>
+          <a href="https://shareacontainer.app/autologin?code=${code}">לחץ כאן לכניסה לאזור האישי שלך</a>
+
           <br/><br/>
           בברכה,<br/>
           צוות Share A Container
