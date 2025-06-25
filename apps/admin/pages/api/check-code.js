@@ -1,4 +1,5 @@
-import connectToDatabase from '../../../lib/mongodb';
+import connectToDatabase from '../../../backend-clean/db'
+
 
 
 export default async function handler(req, res) {
