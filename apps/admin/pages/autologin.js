@@ -8,7 +8,7 @@ export default function AutoLoginPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    async function verifyAndRedirect() {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
 
@@ -18,20 +18,40 @@ export default function AutoLoginPage() {
         return;
       }
 
-      // שמור את הקוד בלוקאל סטורג'
-      localStorage.setItem('code', code);
+      try {
+        const res = await fetch(`/api/check-code?code=${code}`);
+        const data = await res.json();
 
-      // ננסה לזהות את סוג המשתמש לפי אורך הקוד או קריאת API בעתיד
-      if (code.length === 6 && /^\d+$/.test(code)) {
-        // קוד של עמיל מכס
-        localStorage.setItem('brokerCode', code);
-        router.push('/broker');
-      } else {
-        // קוד של לקוח
-        localStorage.setItem('clientId', code);
-        router.push('/clientopenquotes');
+        if (!data || !data.type) {
+          alert('הקוד לא תקף');
+          router.push('/');
+          return;
+        }
+
+        switch (data.type) {
+          case 'client':
+            localStorage.setItem('clientId', code);
+            router.push('/clientopenquotes');
+            break;
+          case 'importer':
+            localStorage.setItem('clientId', code);
+            router.push('/importeropenquotes');
+            break;
+          case 'broker':
+            localStorage.setItem('brokerCode', code);
+            router.push('/broker');
+            break;
+          default:
+            alert('סוג משתמש לא מוכר');
+            router.push('/');
+        }
+      } catch (e) {
+        console.error('שגיאה באימות הקוד:', e);
+        router.push('/');
       }
     }
+
+    verifyAndRedirect();
   }, [router]);
 
   return (
