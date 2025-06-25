@@ -12,6 +12,24 @@ router.get('/all', async (req, res) => {
   res.json(all);
 });
 
+router.get('/', async (req, res) => {
+  const db = await connectToDatabase();
+  const { brokerCode, clientId } = req.query;
+
+  if (brokerCode) {
+    const results = await db.collection('submitted-quotes').find({ brokerCode }).toArray();
+    return res.json(results);
+  }
+
+  if (clientId) {
+    const results = await db.collection('submitted-quotes').find({ clientId }).toArray();
+    return res.json(results);
+  }
+
+  res.status(400).json({ error: 'Missing brokerCode or clientId' });
+});
+
+
 // ✅ POST - הגשת הצעת מחיר על ידי עמיל מכס
 router.post('/', async (req, res) => {
   const submission = {
