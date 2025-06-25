@@ -36,7 +36,7 @@ let transporter = require('nodemailer').createTransport({
       await transporter.sendMail({
         from: '"Share A Container" <noreply@shareacontainer.app>',
         to: broker.email,
-        subject: 'ישנה בקשה חדשה להצעת מחיר',
+        subject: 'עלתה בקשה חדשה להצעת מחיר',
         html: `
           <div style="direction:rtl;font-family:Arial">
             שלום ${broker.name},<br/>
