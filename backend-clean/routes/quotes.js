@@ -51,6 +51,7 @@ let transporter = require('nodemailer').createTransport({
       console.log('✓ נשלח ל:', broker.email);
     } catch (e) {
       console.warn('✗ שליחה נכשלה ל:', broker.email, e.message);
+      console.log(`sendMailToAllBrokers Debug: ברוקר: ${broker.name}, אימייל: ${broker.email}, קוד: "${broker.code}" (סוג: ${typeof broker.code})`);
     }
   }
 }

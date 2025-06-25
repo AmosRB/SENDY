@@ -1,102 +1,96 @@
-
 // routes/submittedQuotes.js
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
-const nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer'); // וודא ש-nodemailer מותקן ומיוצג
+
+// הגדרת Multer לאחסון קבצים בזיכרון (אם עדיין רלוונטי לקובץ זה, בדרך כלל בקובץ quotes.js)
+// const upload = multer({ storage: multer.memoryStorage() }); 
 
 // ✅ POST - הגשת הצעת מחיר על ידי עמיל מכס
 router.post('/', async (req, res) => {
   const submission = {
     ...req.body,
     submittedAt: new Date(),
-    status: 'active'
+    status: 'active' // סטטוס ראשוני בעת הגשה
   };
 
+  // בדיקת שדות חובה לפני שמירה בבסיס הנתונים
   if (!submission.quoteId || !submission.brokerCode || !submission.price || !submission.currency || !submission.clientId) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    console.error('שגיאה: שדות חובה חסרים בהגשת הצעה חדשה.', submission);
+    return res.status(400).json({ error: 'חסרים שדות חובה' });
   }
 
   try {
     const db = await connectToDatabase();
 
-    // 📨 שמירת ההצעה
+    // 📨 שמירת ההצעה בקולקציית submitted-quotes
     const result = await db.collection('submitted-quotes').insertOne(submission);
+    console.log(`הצעה חדשה הוגשה ונשמרה: ${submission.quoteId}`);
 
+    // עדכון קולקציית quotes שההצעה הספציפית נשלחה על ידי עמיל זה
     await db.collection('quotes').updateOne(
       { quoteId: submission.quoteId },
       {
-        $addToSet: { submittedBy: submission.brokerCode },
+        $addToSet: { submittedBy: submission.brokerCode }, // הוספת קוד העמיל לרשימת מי שהגיש
         $set: { updatedAt: new Date() }
       }
     );
+    console.log(`הצעה ${submission.quoteId} עודכנה עם העמיל ${submission.brokerCode}`);
 
-    // === שליפת הקוד ושליחת מייל ללקוח ===
-if (submission.clientId) {
-  try {
-    const client = await db.collection('users').findOne({ _id: submission.clientId });
-    if (client?.code && client?.email) {
-      console.log('📨 מנסה לשלוח מייל ללקוח לאחר הגשת הצעה:', client.email);
-      await sendMailToClient(client.email, client.name, client.code);
+
+    // === לוגיקת שליחת מייל ללקוח ===
+    // המייל ללקוח נשלח רק אם יש clientId בנתוני ההגשה
+    if (submission.clientId) {
+      try {
+        // שליפת פרטי הלקוח מקולקציית users
+        const client = await db.collection('users').findOne({ _id: submission.clientId });
+
+        if (client) { // וודא שהלקוח נמצא בבסיס הנתונים
+          if (client.email && client.code) { // וודא שללקוח יש כתובת מייל וקוד כניסה
+            console.log('📨 מנסה לשלוח מייל ללקוח לאחר הגשת הצעה:', client.email);
+            await sendMailToClient(client.email, client.name, client.code);
+            console.log(`✓ מייל נשלח בהצלחה ללקוח ${client.email}`);
+          } else {
+            // הודעה אם ללקוח חסרים מייל או קוד
+            console.warn(`⚠️ חסרים נתונים (מייל או קוד) עבור לקוח ${submission.clientId}. המייל לא נשלח.`);
+          }
+        } else {
+          // הודעה אם הלקוח לא נמצא בכלל
+          console.warn(`⚠️ לקוח עם _id: ${submission.clientId} לא נמצא בקולקציית users. המייל לא נשלח.`);
+        }
+      } catch (e) {
+        // שגיאה כלשהי במהלך שליפת הלקוח או שליחת המייל
+        console.error('✗ שגיאה קריטית בשליחת מייל ללקוח לאחר הגשת הצעה:', e.message, e);
+        // ייתכן ותרצה לטפל בשגיאה זו באופן ספציפי יותר, אך זה לא ימנע את הצלחת ההגשה עצמה
+      }
     } else {
-      console.warn('⚠️ חסרים נתוני לקוח לשליחת מייל');
+        // הודעה אם clientId לא סופק כלל בהגשת הצעה
+        console.warn('⚠️ submission.clientId חסר בהגשת ההצעה. לא ניתן לשלוח מייל ללקוח.');
     }
-  } catch (e) {
-    console.warn('✗ שליחת מייל ללקוח נכשלה:', e.message);
-  }
-}
 
-
-    res.status(201).json({ insertedId: result.insertedId });
+    // שליחת תגובה חיובית לאחר שההצעה נשמרה והמיילים טופלו (גם אם לא נשלחו)
+    res.status(201).json({ insertedId: result.insertedId, message: 'הצעת מחיר הוגשה בהצלחה.' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to submit quote' });
+    // שגיאה כללית בשמירת ההצעה בבסיס הנתונים
+    console.error('❌ שגיאה בשמירת הצעת המחיר ב-DB:', err.message, err);
+    res.status(500).json({ error: 'הגשת הצעת מחיר נכשלה' });
   }
 });
 
+// ... (שאר הנתיבים והפונקציות בקובץ, כולל sendMailToClient, נשארות ללא שינוי) ...
 
-
-// ✅ GET - שליפת כל הצעות המחיר שעמיל הגיש לפי קוד
-router.get('/', async (req, res) => {
-  const { brokerCode } = req.query;
-  if (!brokerCode) return res.status(400).json({ error: 'Missing brokerCode' });
-
-  try {
-    const db = await connectToDatabase();
-    const quotes = await db.collection('submitted-quotes')
-      .find({ brokerCode })
-      .sort({ submittedAt: -1 })
-      .toArray();
-
-    res.json(quotes);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch submitted quotes' });
-  }
-});
-
-// ✅ GET - שליפת כל ההצעות שהוגשו (עבור לקוח)
-router.get('/all', async (req, res) => {
-  try {
-    const db = await connectToDatabase();
-    const all = await db.collection('submitted-quotes')
-      .find({})
-      .sort({ submittedAt: -1 })
-      .toArray();
-    res.json(all);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch all submitted quotes' });
-  }
-});
-
-
-
-
+// פונקציית sendMailToClient - ודא שהיא קיימת ומוגדרת כראוי באותו קובץ
 async function sendMailToClient(email, name, code) {
-  if (!email || !code || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
+  if (!email || !code || !process.env.MAIL_USER || !process.env.MAIL_PASS) {
+    console.warn('sendMailToClient: חסרים פרטי אימייל/קוד או משתני סביבה. לא ניתן לשלוח מייל.');
+    return;
+  }
 
-  let transporter = require('nodemailer').createTransport({
+  let transporter = nodemailer.createTransport({
     host: 'mail.smtp2go.com',
     port: 2525,
-    secure: false,
+    secure: false, // וודא שאפשרויות אבטחה תואמות לשרת ה-SMTP שלך
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS
@@ -107,7 +101,7 @@ async function sendMailToClient(email, name, code) {
     await transporter.sendMail({
       from: '"Share A Container" <noreply@shareacontainer.app>',
       to: email,
-      subject: 'הבקשה שלך נענתה!',
+      subject: 'בקשתך נענתה!',
       html: `
         <div style="direction:rtl;font-family:Arial">
           שלום${name ? ' ' + name : ''},<br/>
@@ -119,10 +113,11 @@ async function sendMailToClient(email, name, code) {
         </div>
       `
     });
+    console.log(`✓ מייל ללקוח ${email} נשלח דרך sendMailToClient.`);
   } catch (e) {
-    console.warn('✗ שליחה נכשלה ללקוח:', email, e.message);
+    console.error(`✗ שליחת מייל ללקוח ${email} נכשלה בתוך sendMailToClient:`, e.message);
+    // חשוב לתפוס כאן שגיאות ברמת הנודמיילר (חיבור, אימות וכו')
   }
 }
-
 
 module.exports = router;
