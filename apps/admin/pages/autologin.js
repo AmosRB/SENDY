@@ -11,7 +11,7 @@ export default function AutoLoginPage() {
       const code = urlParams.get('code')?.trim();
 
       if (!code) {
-        router.push('/'); // קוד חסר
+        router.push('/');
         return;
       }
 
@@ -20,7 +20,7 @@ export default function AutoLoginPage() {
         const data = await res.json();
 
         if (!data || !data.type || !data.id) {
-          router.push('/'); // קוד לא תקף
+          router.push('/');
           return;
         }
 
@@ -28,20 +28,24 @@ export default function AutoLoginPage() {
           case 'client':
           case 'importer':
             localStorage.setItem('clientId', data.id);
+            sessionStorage.setItem('clientId', data.id);
             localStorage.setItem('clientName', data.name || '');
+            sessionStorage.setItem('clientName', data.name || '');
             router.push(data.type === 'client' ? '/clientopenquotes' : '/importeropenquotes');
             break;
           case 'broker':
             localStorage.setItem('brokerCode', code);
+            sessionStorage.setItem('brokerCode', code);
             localStorage.setItem('brokerName', data.name || '');
+            sessionStorage.setItem('brokerName', data.name || '');
             router.push('/brokerstatus');
             break;
           default:
-            router.push('/'); // סוג לא מזוהה
+            router.push('/');
         }
       } catch (e) {
         console.error('שגיאה באימות הקוד:', e);
-        router.push('/'); // שגיאה כללית
+        router.push('/');
       }
     }
 
