@@ -80,6 +80,12 @@ router.get('/new-id', async (req, res) => {
   }
 });
 
+router.get('/all', async (req, res) => {
+  const db = await connectToDatabase();
+  const all = await db.collection('submitted-quotes').find({}).toArray();
+  res.json(all);
+});
+
 // ===== קבלת כל ההצעות =====
 router.get('/', async (req, res) => {
   try {

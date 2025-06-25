@@ -5,6 +5,13 @@ const connectToDatabase = require('../db');
 const nodemailer = require('nodemailer');
 const { ObjectId } = require('mongodb');
 
+
+router.get('/all', async (req, res) => {
+  const db = await connectToDatabase();
+  const all = await db.collection('submitted-quotes').find({}).toArray();
+  res.json(all);
+});
+
 // ✅ POST - הגשת הצעת מחיר על ידי עמיל מכס
 router.post('/', async (req, res) => {
   const submission = {
