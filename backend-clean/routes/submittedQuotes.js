@@ -2,10 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
-const nodemailer = require('nodemailer'); // וודא ש-nodemailer מותקן ומיוצג
-
-// הגדרת Multer לאחסון קבצים בזיכרון (אם עדיין רלוונטי לקובץ זה, בדרך כלל בקובץ quotes.js)
-// const upload = multer({ storage: multer.memoryStorage() }); 
+const nodemailer = require('nodemailer');
+const { ObjectId } = require('mongodb');
 
 // ✅ POST - הגשת הצעת מחיר על ידי עמיל מכס
 router.post('/', async (req, res) => {
@@ -44,7 +42,12 @@ router.post('/', async (req, res) => {
     if (submission.clientId) {
       try {
         // שליפת פרטי הלקוח מקולקציית users
-        const client = await db.collection('users').findOne({ _id: submission.clientId });
+const clientObjectId = typeof submission.clientId === 'string'
+  ? new ObjectId(submission.clientId)
+  : submission.clientId;
+
+const client = await db.collection('users').findOne({ _id: clientObjectId });
+
 
         if (client) { // וודא שהלקוח נמצא בבסיס הנתונים
           if (client.email && client.code) { // וודא שללקוח יש כתובת מייל וקוד כניסה

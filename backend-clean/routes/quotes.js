@@ -153,7 +153,14 @@ router.put('/', async (req, res) => {
  // שליחת מייל ללקוח לאחר שליחה
 if (updates.status === 'submitted' && updates.clientId) {
   try {
-    const client = await db.collection('users').findOne({ _id: updates.clientId });
+
+
+const clientObjectId = typeof updates.clientId === 'string'
+  ? new ObjectId(updates.clientId)
+  : updates.clientId;
+
+const client = await db.collection('users').findOne({ _id: clientObjectId });
+
     if (client?.code && client?.email) {
       await sendMailToClient(client.email, client.name, client.code);
     }
