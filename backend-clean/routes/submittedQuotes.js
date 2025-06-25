@@ -32,12 +32,12 @@ router.post('/', async (req, res) => {
     );
 
     // === שליפת הקוד ושליחת מייל ללקוח ===
-    if (submission.clientEmail && submission.clientId) {
-      const client = await db.collection('users').findOne({ _id: submission.clientId });
-      if (client?.code) {
-        sendMailToClient(submission.clientEmail, submission.clientName, client.code);
-      }
-    }
+if (submission.clientId) {
+  const client = await db.collection('users').findOne({ _id: submission.clientId });
+  if (client?.code && client?.email) {
+    sendMailToClient(client.email, client.name, client.code);
+  }
+}
 
     res.status(201).json({ insertedId: result.insertedId });
   } catch (err) {

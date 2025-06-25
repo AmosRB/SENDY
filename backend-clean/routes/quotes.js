@@ -149,14 +149,18 @@ router.put('/', async (req, res) => {
     if (result.matchedCount === 0) throw new Error("Quote not found");
 
     // שליחת מייל רק אם הבקשה הפכה ל־submitted (כך זה בד"כ בזרימה שלך)
-    if (updates.status === 'submitted') {
-      try {
-        const brokers = await db.collection('customs-brokers').find().toArray();
-        sendMailToAllBrokers(brokers); // לא מחכה, לא עוצר את הלקוח
-      } catch (e) {
-        console.warn('השליחה למיילים נכשלה', e.message);
-      }
+ // שליחת מייל ללקוח לאחר שליחה
+if (updates.status === 'submitted' && updates.clientId) {
+  try {
+    const client = await db.collection('users').findOne({ _id: updates.clientId });
+    if (client?.code && client?.email) {
+      await sendMailToClient(client.email, client.name, client.code);
     }
+  } catch (e) {
+    console.warn('✗ שליחת מייל ללקוח נכשלה:', e.message);
+  }
+}
+
 
     res.json({ success: true, modifiedCount: result.modifiedCount });
   } catch (err) {
@@ -219,5 +223,35 @@ router.delete('/:quoteId', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete quote' });
   }
 });
+
+async function sendMailToClient(email, name, code) {
+  if (!email || !code || !process.env.MAIL_USER || !process.env.MAIL_PASS) return;
+
+  const transporter = nodemailer.createTransport({
+    host: 'mail.smtp2go.com',
+    port: 2525,
+    secure: false,
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS
+    }
+  });
+
+  await transporter.sendMail({
+    from: '"Share A Container" <noreply@shareacontainer.app>',
+    to: email,
+    subject: 'בקשתך התקבלה!',
+    html: `
+      <div style="direction:rtl;font-family:Arial">
+        שלום${name ? ' ' + name : ''},<br/>
+        הבקשה שלך לקבלת הצעת מחיר נקלטה בהצלחה.<br/>
+        <a href="https://shareacontainer.app/?code=${code}">לחץ כאן לצפייה בבקשות שלך</a>
+        <br/><br/>
+        בברכה,<br/>
+        צוות Share A Container
+      </div>
+    `
+  });
+}
 
 module.exports = router;
