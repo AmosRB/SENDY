@@ -116,14 +116,14 @@ export default function ImporterOpenQuotesPage() {
                   background="green"
                   modal={true}
                   submittedCount={q.submittedBy?.length || 0}
-                  onIgnore={(id) => {
-                    fetch(`${apiBase}/api/quotes`, {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ quoteId: id, clientClosed: true })
-                    });
-                    setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
-                  }}
+        onIgnore={(id) => {
+  fetch(`${apiBase}/api/quotes`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quoteId: id, status: 'cancelledByClient' })
+  });
+  setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
+}}
                 />
               ))}
               {draftPlaceholders.map((_, i) => (

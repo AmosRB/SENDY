@@ -154,17 +154,24 @@ if (layout === 'row') {
 
 
 
-  {onIgnore && (
-    <button
-      onClick={e => {
-        e.stopPropagation();
-        onIgnore(quote.quoteId);
-      }}
-      className="text-red-600 hover:underline"
-    >
-      מחק בקשה X    
-    </button>
-  )}
+{onIgnore && (
+  <button
+    onClick={e => {
+      e.stopPropagation();
+      fetch('/api/quotes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteId: quote.quoteId, status: 'cancelledByClient' })
+      }).then(() => {
+        onIgnore(quote.quoteId); // הסרה מה־state המקומי
+      });
+    }}
+    className="text-red-600 hover:underline"
+  >
+    מחק בקשה X    
+  </button>
+)}
+
 </div>
 
         )}

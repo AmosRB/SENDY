@@ -119,14 +119,14 @@ const fetchQuotesForClient = async (id) => {
                     submittedCount={q.submittedBy?.length || 0}
                     onShowSubmitted={quoteId => setSearchTerm(searchTerm === quoteId ? '' : quoteId)}
                     active={searchTerm === q.quoteId}
-                    onIgnore={(id) => {
-                      fetch(`${apiBase}/api/quotes`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ quoteId: id, clientClosed: true })
-                      });
-                      setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
-                    }}
+                 onIgnore={(id) => {
+  fetch(`${apiBase}/api/quotes`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quoteId: id, status: 'cancelledByClient' })
+  });
+  setOpenQuotes(prev => prev.filter(q => q.quoteId !== id));
+}}
                   />
                 </div>
               ))}
