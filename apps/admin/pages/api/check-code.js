@@ -1,4 +1,5 @@
-import connectToDatabase from '../../../backend-clean/db'
+import connectToDatabase from '../../../../backend-clean/db';
+
 
 
 
