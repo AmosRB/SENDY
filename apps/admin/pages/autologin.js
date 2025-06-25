@@ -1,4 +1,3 @@
-// pages/autologin.js
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -20,10 +19,9 @@ export default function AutoLoginPage() {
 
       try {
         const res = await fetch(`https://sendy-2q8b.onrender.com/api/check-code?code=${code}`);
-
         const data = await res.json();
 
-        if (!data || !data.type) {
+        if (!data || !data.type || !data.id) {
           alert('הקוד לא תקף');
           router.push('/');
           return;
@@ -31,15 +29,18 @@ export default function AutoLoginPage() {
 
         switch (data.type) {
           case 'client':
-            localStorage.setItem('clientId', code);
+            localStorage.setItem('clientId', data.id);
+            localStorage.setItem('clientName', data.name || '');
             router.push('/clientopenquotes');
             break;
           case 'importer':
-            localStorage.setItem('clientId', code);
+            localStorage.setItem('clientId', data.id);
+            localStorage.setItem('clientName', data.name || '');
             router.push('/importeropenquotes');
             break;
           case 'broker':
             localStorage.setItem('brokerCode', code);
+            localStorage.setItem('brokerName', data.name || '');
             router.push('/broker');
             break;
           default:

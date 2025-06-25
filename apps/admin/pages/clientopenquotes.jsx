@@ -24,11 +24,10 @@ const fetchQuotesForClient = async (id) => {
     const allQuotes = await quotesRes.json();
     const allSubmitted = await submittedRes.json();
 
-    const myQuotes = allQuotes.filter(
-      q =>
-        q.clientId?.toString() === id &&
-        q.status === 'submitted'
-    );
+ const myQuotes = allQuotes.filter(
+  q => q.clientId?.toString() === id && (q.status === 'submitted' || q.status === 'open')
+);
+
 
     const ignored = JSON.parse(localStorage.getItem('ignoredQuotes') || '[]');
     const visibleQuotes = myQuotes.filter(q => !ignored.includes(q.quoteId));
