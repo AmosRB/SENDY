@@ -8,6 +8,7 @@
     "packages"
   ],
   "dependencies": {
+    "mongodb": "^6.17.0",
     "next-auth": "^4.24.11"
   }
 }

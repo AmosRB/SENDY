@@ -41,7 +41,7 @@ let transporter = require('nodemailer').createTransport({
           <div style="direction:rtl;font-family:Arial">
             שלום ${broker.name},<br/>
             התקבלה בקשה חדשה להצעת מחיר במערכת.<br/>
-           <a href="https://shareacontainer.app/autologin?code=${code}">לחץ כאן לצפייה בבקשות שלך</a>
+           <a href="https://shareacontainer.app/autologin?code=${broker.code}">לחץ כאן לצפייה בבקשות שלך</a>
 
             </a>
             <br/><br/>
@@ -158,21 +158,22 @@ router.put('/', async (req, res) => {
 
     // שליחת מייל רק אם הבקשה הפכה ל־submitted (כך זה בד"כ בזרימה שלך)
  // שליחת מייל ללקוח לאחר שליחה
-if (updates.status === 'submitted' && updates.clientId) {
+if (updates.status === 'submitted') {
   try {
+    // שליחת מייל ללקוח (רק אם יש clientId)
+    if (updates.clientId) {
+      const clientObjectId = typeof updates.clientId === 'string'
+        ? new ObjectId(updates.clientId)
+        : updates.clientId;
 
+      const client = await db.collection('users').findOne({ _id: clientObjectId });
 
-const clientObjectId = typeof updates.clientId === 'string'
-  ? new ObjectId(updates.clientId)
-  : updates.clientId;
-
-const client = await db.collection('users').findOne({ _id: clientObjectId });
-
-    if (client?.code && client?.email) {
-      await sendMailToClient(client.email, client.name, client.code);
+      if (client?.code && client?.email) {
+        await sendMailToClient(client.email, client.name, client.code);
+      }
     }
 
-    // שליחת מייל לעמילי המכס
+    // שליחת מייל לעמילי המכס – תמיד מתבצעת
     const brokers = await db.collection('customs-brokers').find({}).toArray();
     await sendMailToAllBrokers(brokers);
 
@@ -180,6 +181,7 @@ const client = await db.collection('users').findOne({ _id: clientObjectId });
     console.warn('✗ שגיאה בשליחת מיילים:', e.message);
   }
 }
+
 
 
 
@@ -266,7 +268,7 @@ async function sendMailToClient(email, name, code) {
       <div style="direction:rtl;font-family:Arial">
         שלום${name ? ' ' + name : ''},<br/>
         הבקשה שלך לקבלת הצעת מחיר נקלטה בהצלחה.<br/>
-        <a href="https://shareacontainer.app/?code=${code}">לחץ כאן לצפייה בבקשות שלך</a>
+        <a href="https://shareacontainer.app/autologin?code=${code}">לחץ כאן לצפייה בבקשות שלך</a>
         <br/><br/>
         בברכה,<br/>
         צוות Share A Container
