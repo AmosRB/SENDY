@@ -19,7 +19,8 @@ export default function AutoLoginPage() {
       }
 
       try {
-        const res = await fetch(`/api/check-code?code=${code}`);
+        const res = await fetch(`https://sendy-2q8b.onrender.com/api/check-code?code=${code}`);
+
         const data = await res.json();
 
         if (!data || !data.type) {

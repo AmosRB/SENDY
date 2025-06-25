@@ -14,6 +14,8 @@ const adminSummary = require('./routes/adminSummary');
 const users = require('./routes/users');
 const customsBrokers = require('./routes/customsBrokers');
 const submittedQuotes = require('./routes/submittedQuotes');
+const checkCode = require('./routes/check-code');
+
 
 
 const app = express();
@@ -34,6 +36,8 @@ app.use('/api/payments', payments);
 app.use('/api/admin', adminSummary);
 app.use('/api/users', users);
 app.use('/api/submitted-quotes', submittedQuotes);
+app.use('/api/check-code', checkCode);
+
 
 // 📦 נתיב חילוץ מוצר
 app.get('/extract', async (req, res) => {
