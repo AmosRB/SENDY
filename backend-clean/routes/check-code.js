@@ -3,14 +3,12 @@ const router = express.Router();
 const connectToDatabase = require('../db');
 
 router.get('/', async (req, res) => {
-  const raw = req.query.code;
+  const code = req.query.code;
 
-  // בדיקת תקינות הקלט (6 ספרות בדיוק)
-  if (!raw || !/^\d{6}$/.test(raw)) {
+  // בדיקה שהקוד תקני – בדיוק 6 ספרות
+  if (!code || !/^\d{6}$/.test(code)) {
     return res.status(400).json({ error: 'Missing or invalid code' });
   }
-
-  const code = Number(raw); // הפוך למספר כי במסד נשמר כ-Number
 
   try {
     const db = await connectToDatabase();
