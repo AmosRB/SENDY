@@ -238,11 +238,27 @@ setStep('userWelcome');
   // --- Render Logic ---
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-6 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative pb-20">
-      <Head>
-        <title>Share A Container</title>
-      </Head>
+ <Head>
+  {/* SEO רגיל */}
+  <title>השוואת הצעות לעמילות מכס | Share A Container</title>
+  <meta name="description" content="השווה הצעות מחיר ממגוון עמילי מכס בקלות ובמהירות. בקשה אחת → מספר הצעות. חסוך זמן, כסף ודאגות." />
+  <meta name="robots" content="index, follow" />
 
-      {/* Header - top right */}
+  {/* Open Graph (לשיתוף בפייסבוק, וואטסאפ, לינקדאין) */}
+  <meta property="og:title" content="Share A Container - השוואת הצעות לעמילות מכס" />
+  <meta property="og:description" content="מערכת חכמה ליבואנים, לקוחות פרטיים ועסקים לקבלת הצעות מחיר לשילוח בינלאומי ועמילות מכס." />
+  <meta property="og:image" content="https://shareacontainer.app/logo-sharecontainer-black.png" />
+  <meta property="og:url" content="https://shareacontainer.app/" />
+  <meta property="og:type" content="website" />
+
+  {/* Twitter Card */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Share A Container - השוואת הצעות לעמילות מכס" />
+  <meta name="twitter:description" content="בקשה אחת, מספר הצעות מחיר לעמילות מכס. שירות מקצועי ומהיר ללקוחות ויבואנים." />
+  <meta name="twitter:image" content="https://shareacontainer.app/logo-sharecontainer-black.png" />
+</Head>
+
+
       <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
         {/* Hamburger Menu */}
         <div className="relative">
@@ -263,6 +279,22 @@ setStep('userWelcome');
               <button onClick={() => handleMenuClick('broker')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
                 הרשמת עמיל מכס
               </button>
+              <button onClick={() => handleMenuClick('about')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
+                איך זה עובד?
+              </button>
+              <button onClick={() => handleMenuClick('FAQ')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
+                שאלות נפוצות
+              </button>
+            <button
+  onClick={() => {
+    setMenuOpen(false);
+    router.push('/terms');
+  }}
+  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right"
+>
+  תנאי שימוש בשירות
+</button>
+
             </div>
           )}
         </div>
@@ -293,25 +325,18 @@ setStep('userWelcome');
    {step === 'input' && (
   <form onSubmit={handleUniversalCodeSubmit} className="w-full flex flex-col items-center">
     {/* כותרת ראשית */}
-    <p className="text-center text-[20px] font-semibold text-black mb-4 mt-0">
-      הרשמה לאתר לפי סוג משתמש
-    </p>
+ <h1 className="text-3xl font-bold text-center text-black mt-8">
+השוואת הצעות לשילוח מחו"ל ועמילות מכס 
+</h1>
+<p className="text-center text-lg text-gray-700 max-w-xl mt-4 mb-8">
+המערכת מאפשרת ללקוחות פרטיים, בעלי עסקים ויבואנים לקבל בקלות הצעות מחיר ממספר עמילי מכס, ולשמור על מעקב פשוט ונוח.
+</p>
 
-    {/* כפתורי סוגי משתמש */}
-    <div className="text-center text-[20px] font-semibold text-blue-700 flex flex-wrap justify-center items-center gap-2 mb-16">
-      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('private'); setError(''); setErrors({}); }} className="hover:underline">פרטי</button>
-      <span className="text-orange-500">●</span>
-      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('store'); setError(''); setErrors({}); }} className="hover:underline">חנות / עסק</button>
-      <span className="text-orange-500">●</span>
-      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('importer'); setError(''); setErrors({}); }} className="hover:underline">יבואן</button>
-      <span className="text-orange-500">●</span>
-      <button type="button" onClick={() => { router.push('/broker?action=register'); setError(''); setErrors({}); }} className="hover:underline">עמיל מכס</button>
-    </div>
 
     {/* כותרת שניה */}
-    <h1 className="text-xl font-bold text-center text-gray-800 mb-4">
-      הכנס   קוד אישי  
-    </h1>
+    <h2 className="text-xl font-bold text-center text-gray-800 mb-4">
+      להרשם למטה ולהכנס עם קוד אישי       
+    </h2>
 
     {/* אינפוט קוד אישי */}
     <div className="w-full flex flex-col items-center mb-5">
@@ -319,7 +344,7 @@ setStep('userWelcome');
         type="password"
         name="password"
         autoComplete="current-password"
-        placeholder="הכנס קוד אישי או הרשם למעלה"
+        placeholder="הכנס קוד אישי או הרשם למטה"
         className="w-4/5 mx-auto border border-gray-300 rounded-2xl px-3 py-2 text-right text-black placeholder-amber-700"
         value={clientCode}
         onChange={(e) => setClientCode(e.target.value)}
@@ -333,6 +358,21 @@ setStep('userWelcome');
     >
       המשך
     </button>
+
+       <p className="text-center text-[20px] font-semibold text-black mb-4 mt-10">
+      הרשמה לאתר לפי סוג משתמש
+    </p>
+
+    {/* כפתורי סוגי משתמש */}
+    <div className="text-center text-[20px] font-semibold text-blue-700 flex flex-wrap justify-center items-center gap-2 mb-16">
+      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('private'); setError(''); setErrors({}); }} className="hover:underline">פרטי</button>
+      <span className="text-orange-500">●</span>
+      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('store'); setError(''); setErrors({}); }} className="hover:underline">חנות / עסק</button>
+      <span className="text-orange-500">●</span>
+      <button type="button" onClick={() => { setStep('registerUserForm'); setRole('importer'); setError(''); setErrors({}); }} className="hover:underline">יבואן</button>
+      <span className="text-orange-500">●</span>
+      <button type="button" onClick={() => { router.push('/broker?action=register'); setError(''); setErrors({}); }} className="hover:underline">עמיל מכס</button>
+    </div>
   </form>
 )}
 
