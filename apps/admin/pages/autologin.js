@@ -1,19 +1,17 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 export default function AutoLoginPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function verifyAndRedirect() {
       const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
+      const code = urlParams.get('code')?.trim();
 
       if (!code) {
-        alert('קוד חסר');
-        router.push('/');
+        router.push('/'); // קוד חסר
         return;
       }
 
@@ -22,34 +20,28 @@ export default function AutoLoginPage() {
         const data = await res.json();
 
         if (!data || !data.type || !data.id) {
-          alert('הקוד לא תקף');
-          router.push('/');
+          router.push('/'); // קוד לא תקף
           return;
         }
 
         switch (data.type) {
           case 'client':
-            localStorage.setItem('clientId', data.id);
-            localStorage.setItem('clientName', data.name || '');
-            router.push('/clientopenquotes');
-            break;
           case 'importer':
             localStorage.setItem('clientId', data.id);
             localStorage.setItem('clientName', data.name || '');
-            router.push('/importeropenquotes');
+            router.push(data.type === 'client' ? '/clientopenquotes' : '/importeropenquotes');
             break;
           case 'broker':
             localStorage.setItem('brokerCode', code);
             localStorage.setItem('brokerName', data.name || '');
-            router.push('/broker');
+            router.push('/brokerstatus');
             break;
           default:
-            alert('סוג משתמש לא מוכר');
-            router.push('/');
+            router.push('/'); // סוג לא מזוהה
         }
       } catch (e) {
         console.error('שגיאה באימות הקוד:', e);
-        router.push('/');
+        router.push('/'); // שגיאה כללית
       }
     }
 
