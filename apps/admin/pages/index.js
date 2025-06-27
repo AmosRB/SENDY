@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { signIn } from "next-auth/react";
 
 
+
 export default function LinkInputPage() {
   // --- State Definitions ---
   // General UI state
@@ -67,6 +68,10 @@ export default function LinkInputPage() {
     setError(''); // Clear errors
     setErrors({}); // Clear validation errors
 
+      if (targetRole === 'about') {
+    router.push('/About'); // ✅ מנווט לעמוד /about
+    return;
+  }
     if (targetRole === 'broker') {
       // Navigate directly to broker registration page
       router.push('/broker?action=register');
@@ -220,6 +225,21 @@ setStep('userWelcome');
 
   setRegistrationSuccessCode(receivedCode);
   setClientCode(receivedCode);
+  // שליחת מייל עם הקוד ללקוח
+try {
+  await fetch('/api/send-registration-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name,
+      email,
+      code: receivedCode,
+    }),
+  });
+} catch (err) {
+  console.warn('⚠️ שגיאה בשליחת מייל רישום:', err.message);
+}
+
   setStep('registrationSuccess');
 }
  else {
@@ -279,9 +299,10 @@ setStep('userWelcome');
               <button onClick={() => handleMenuClick('broker')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
                 הרשמת עמיל מכס
               </button>
-              <button onClick={() => handleMenuClick('about')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
-                איך זה עובד?
-              </button>
+             <button onClick={() => handleMenuClick('about')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
+  איך זה עובד?
+</button>
+
               <button onClick={() => handleMenuClick('FAQ')} className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-right">
                 שאלות נפוצות
               </button>
