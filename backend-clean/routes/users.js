@@ -3,11 +3,10 @@ const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
 const { ObjectId } = require('mongodb');
-const generateUniqueCode = require('../utils/codeGenerator'); // <-- הוספה: ייבוא הפונקציה
+const generateUniqueCode = require('../utils/codeGenerator');
+const nodemailer = require('nodemailer');
 
-// ✅ GET לפי קוד אישי (לא משתנה)
 router.get('/', async (req, res) => {
-  // ... (הקוד הקיים של GET)
   try {
     const db = await connectToDatabase();
     const { code } = req.query;
@@ -25,7 +24,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ POST - רישום משתמש חדש עם קוד אישי
 router.post('/', async (req, res) => {
   const { name, phone, email, role, business, taxIdNumber } = req.body;
 
@@ -35,17 +33,7 @@ router.post('/', async (req, res) => {
 
   try {
     const db = await connectToDatabase();
-
-    // ❌ הסר את הלוגיקה הזו מפה:
-    // let code;
-    // let exists = true;
-    // while (exists) {
-    //   code = Math.floor(100000 + Math.random() * 900000).toString();
-    //   exists = await db.collection('users').findOne({ code });
-    // }
-
     const code = await generateUniqueCode(db, 'client');
-
 
     const newUser = {
       name,
@@ -64,6 +52,38 @@ router.post('/', async (req, res) => {
       return res.status(500).json({ error: 'שגיאה בהוספה' });
     }
 
+    // ✅ שליחת מייל עם הקוד האישי לאחר רישום
+    try {
+      const transporter = nodemailer.createTransport({
+        host: 'mail.smtp2go.com',
+        port: 2525,
+        secure: false,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: '"Share A Container" <noreply@shareacontainer.app>',
+        to: email,
+        subject: 'נרשמת בהצלחה ל־Share A Container',
+        html: `
+          <div style="direction:rtl;font-family:Arial,sans-serif">
+            שלום ${name},<br/>
+            נרשמת בהצלחה למערכת <b>Share A Container</b>!<br/>
+            מהיום תוכל לייבא חכם ובזול יותר.<br/><br/>
+            <b>קוד הכניסה שלך:</b> <span style="font-size:20px;color:red">${code}</span><br/><br/>
+            שמור את הקוד – תזדקק לו לכניסה למערכת.<br/><br/>
+            בהצלחה!<br/>
+            צוות Share A Container
+          </div>
+        `
+      });
+    } catch (err) {
+      console.error('✉️ שגיאה בשליחת מייל רישום:', err.message);
+    }
+
     res.status(201).json({ _id: result.insertedId, ...newUser });
   } catch (err) {
     console.error('❌ שגיאה ברישום:', err.message);
@@ -71,7 +91,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ DELETE - מחיקת משתמש (לא משתנה)
 router.delete('/:id', async (req, res) => {
   try {
     const db = await connectToDatabase();
@@ -92,6 +111,5 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: 'Error deleting user' });
   }
 });
-
 
 module.exports = router;

@@ -2,12 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../db');
-const generateUniqueCode = require('../utils/codeGenerator'); // <-- הוספה: ייבוא הפונקציה
-
-// ❌ הסר את הפונקציה generateUniqueCode שהייתה מוגדרת פה
+const generateUniqueCode = require('../utils/codeGenerator');
+const nodemailer = require('nodemailer');
 
 router.get('/all', async (req, res) => {
-  // ... (הקוד הקיים של GET /all)
   try {
     const db = await connectToDatabase();
     const brokers = await db.collection('customs-brokers').find().sort({ name: 1 }).toArray();
@@ -17,10 +15,8 @@ router.get('/all', async (req, res) => {
   }
 });
 
-
-// ✅ רישום חדש עם לוגים ובדיקות קפדניות
 router.post('/', async (req, res) => {
-  const { name, company, taxId, phone, email } = req.body; // <-- שינוי: הסרת 'code' מה-body
+  const { name, company, taxId, phone, email } = req.body;
   console.log('📥 POST /api/customs-brokers - body:', req.body);
 
   if (!name || !company || !taxId || !phone || !email) {
@@ -30,9 +26,7 @@ router.post('/', async (req, res) => {
 
   try {
     const db = await connectToDatabase();
-
     const code = await generateUniqueCode(db, 'broker');
-
 
     const brokerData = {
       name: name.trim(),
@@ -40,12 +34,44 @@ router.post('/', async (req, res) => {
       taxId: taxId.trim(),
       phone: phone.trim(),
       email: email.trim(),
-      code: String(code), // הקוד שנוצר
+      code: String(code),
       createdAt: new Date()
     };
 
     const result = await db.collection('customs-brokers').insertOne(brokerData);
     const newBroker = await db.collection('customs-brokers').findOne({ _id: result.insertedId });
+
+    // ✅ שליחת מייל לעמיל מכס עם הקוד
+    try {
+      const transporter = nodemailer.createTransport({
+        host: 'mail.smtp2go.com',
+        port: 2525,
+        secure: false,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: '"Share A Container" <noreply@shareacontainer.app>',
+        to: email,
+        subject: 'נרשמת בהצלחה ל־Share A Container',
+        html: `
+          <div style="direction:rtl;font-family:Arial,sans-serif">
+            שלום ${name},<br/>
+            נרשמת בהצלחה למערכת <b>Share A Container</b> כעמיל מכס!<br/>
+            מעכשיו תוכל להציע הצעות מחיר ללקוחות.<br/><br/>
+            <b>קוד הכניסה שלך:</b> <span style="font-size:20px;color:red">${code}</span><br/><br/>
+            שמור את הקוד – תזדקק לו לכניסה למערכת.<br/><br/>
+            בהצלחה!<br/>
+            צוות Share A Container
+          </div>
+        `
+      });
+    } catch (err) {
+      console.error('✉️ שגיאה בשליחת מייל לעמיל מכס:', err.message);
+    }
 
     console.log('✅ עמיל חדש נוסף:', newBroker);
     res.status(201).json(newBroker);
@@ -55,9 +81,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 🔍 שליפת עמיל לפי קוד (לא משתנה)
 router.get('/', async (req, res) => {
-  // ... (הקוד הקיים של GET)
   const { code } = req.query;
   console.log('📤 GET /api/customs-brokers?code=', code);
 

@@ -54,22 +54,6 @@ export default function BrokerLoginPage() {
         throw new Error(data.error || 'שגיאה כללית ברישום');
       }
 
-      // שליחת מייל לעמיל מכס עם הקוד
-try {
-  await fetch('/api/send-registration-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: form.name,
-      email: form.email,
-      code: data.code,
-    }),
-  });
-} catch (err) {
-  console.warn('⚠️ שגיאה בשליחת מייל לעמיל מכס:', err.message);
-}
-
-
       setNewCode(data.code); // שמור את הקוד שנוצר
       setCurrentStep('success'); // עבור לשלב הצלחה
       localStorage.setItem('brokerId', data._id); // שמור את ה-ID לאחר הרישום המוצלח

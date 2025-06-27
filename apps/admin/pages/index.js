@@ -225,21 +225,6 @@ setStep('userWelcome');
 
   setRegistrationSuccessCode(receivedCode);
   setClientCode(receivedCode);
-  // שליחת מייל עם הקוד ללקוח
-try {
-  await fetch('/api/send-registration-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name,
-      email,
-      code: receivedCode,
-    }),
-  });
-} catch (err) {
-  console.warn('⚠️ שגיאה בשליחת מייל רישום:', err.message);
-}
-
   setStep('registrationSuccess');
 }
  else {
