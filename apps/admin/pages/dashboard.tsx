@@ -258,13 +258,15 @@ const handleLogin = async () => {
       markers: {
         size: 4,
       },
-      tooltip: {
-        shared: true,
-        intersect: false,
-        style: {
-          direction: 'rtl',
-        }
-      },
+  tooltip: {
+  shared: true,
+  intersect: false,
+  style: {
+    fontSize: '12px',
+    fontFamily: 'inherit',
+  },
+},
+
       legend: {
         position: 'top',
         horizontalAlign: 'center',
