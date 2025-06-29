@@ -3,12 +3,17 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dynamic from "next/dynamic";
+import classNames from "classnames";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function AdminDashboard() {
-  // סטייטים רגילים
+  const [code, setCode] = useState('');
+  const [admin, setAdmin] = useState(null);
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   const [stats, setStats] = useState<any>({});
   const [users, setUsers] = useState<any[]>([]);
   const [brokers, setBrokers] = useState<any[]>([]);
@@ -19,105 +24,68 @@ export default function AdminDashboard() {
   const [loginCounts, setLoginCounts] = useState<number[]>([]);
   const [quoteCounts, setQuoteCounts] = useState<number[]>([]);
 
-  // --- פג'ינציה לכל טבלה ---
-  // משתמשים
   const [userPage, setUserPage] = useState(1);
   const usersPerPage = 20;
   const userPageCount = Math.ceil(users.length / usersPerPage);
   const usersToShow = users.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
 
-  // עמילי מכס
   const [brokerPage, setBrokerPage] = useState(1);
   const brokersPerPage = 20;
   const brokerPageCount = Math.ceil(brokers.length / brokersPerPage);
   const brokersToShow = brokers.slice((brokerPage - 1) * brokersPerPage, brokerPage * brokersPerPage);
 
-  // הצעות מחיר
   const [quotePage, setQuotePage] = useState(1);
   const quotesPerPage = 20;
   const quotePageCount = Math.ceil(quotes.length / quotesPerPage);
   const quotesToShow = quotes.slice((quotePage - 1) * quotesPerPage, quotePage * quotesPerPage);
 
-  // הצעות שהוגשו
   const [submittedPage, setSubmittedPage] = useState(1);
   const submittedPerPage = 20;
   const submittedPageCount = Math.ceil(submittedQuotes.length / submittedPerPage);
   const submittedToShow = submittedQuotes.slice((submittedPage - 1) * submittedPerPage, submittedPage * submittedPerPage);
 
-  // מחיקת משתמש
-const handleDeleteUser = async (id: string) => {
-  if (confirm("למחוק את המשתמש?")) {
+  const handleLogin = async () => {
+    setIsLoggingIn(true);
+    setLoginError('');
     try {
-      await axios.delete(`${BASE_URL}/api/admin/user/${id}`);
-      setUsers((users) => users.filter((u) => u._id !== id));
+      const res = await axios.get(`${BASE_URL}/api/users?code=${code}`);
+      const user = res.data;
+      if (user?.role !== 'admin') {
+        setLoginError('אין הרשאה. נדרש קוד של אדמין');
+        setIsLoggingIn(false);
+        return;
+      }
+      setAdmin(user);
     } catch (err) {
-      alert("שגיאה במחיקת משתמש");
-    }
-  }
-};
-// אותו עיקרון ל־broker, quote, submittedQuote
-
-// מחיקת בקשת הצעה (quote)
-const handleDeleteQuote = async (id: string) => {
-  if (confirm("למחוק את הבקשה?")) {
-    try {
-      await axios.delete(`${BASE_URL}/api/admin/quote/${id}`);
-      setQuotes((quotes) => quotes.filter((q) => q._id !== id));
-    } catch (err) {
-      alert("שגיאה במחיקת בקשה");
-    }
-  }
-};
-
-// מחיקת הצעה שהוגשה (submittedQuote)
-const handleDeleteSubmitted = async (id: string) => {
-  if (confirm("למחוק את ההצעה שהוגשה?")) {
-    try {
-      await axios.delete(`${BASE_URL}/api/admin/submitted-quote/${id}`);
-      setSubmittedQuotes((arr) => arr.filter((q) => q._id !== id));
-    } catch (err) {
-      alert("שגיאה במחיקת הצעה שהוגשה");
-    }
-  }
-};
-
-// מחיקת עמיל מכס
-const handleDeleteBroker = async (id: string) => {
-  if (confirm("למחוק את עמיל המכס?")) {
-    try {
-      await axios.delete(`${BASE_URL}/api/admin/broker/${id}`);
-      setBrokers((brokers) => brokers.filter((b) => b._id !== id));
-    } catch (err) {
-      alert("שגיאה במחיקת עמיל מכס");
-    }
-  }
-};
-
-
-
-useEffect(() => {
-  async function fetchData() {
-    try {
-      const dashboardRes = await axios.get(`${BASE_URL}/api/admin/dashboard-data`);
-      const data: any = dashboardRes.data; // הוספת :any כאן!
-      setStats(data.summary);
-      setUsers(data.users);
-      setBrokers(data.brokers);
-      setQuotes(data.quotes);
-      setSubmittedQuotes(data.submittedQuotes);
-      generateChart(data.users, data.quotes);
-    } catch (error) {
-      console.error("Failed to load data", error);
+      setLoginError('קוד לא תקף או שגיאה בשרת');
     } finally {
-      setLoading(false);
+      setIsLoggingIn(false);
     }
-  }
-  fetchData();
-}, []);
+  };
 
+  useEffect(() => {
+    if (!admin) return;
+    async function fetchData() {
+      try {
+        const dashboardRes = await axios.get(`${BASE_URL}/api/admin/dashboard-data`);
+        const data = dashboardRes.data;
+        setStats(data.summary);
+        setUsers(data.users);
+        setBrokers(data.brokers);
+        setQuotes(data.quotes);
+        setSubmittedQuotes(data.submittedQuotes);
+        generateChart(data.users, data.quotes);
+      } catch (error) {
+        console.error("Failed to load data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [admin]);
 
   const generateChart = (users: any[], quotes: any[]) => {
-    const dateMap: Record<string, { users: number; quotes: number }> = {};
+    const dateMap: { [key: string]: { users: number; quotes: number } } = {};
     users.forEach(u => {
       if (!u.createdAt) return;
       const date = new Date(u.createdAt).toISOString().split("T")[0];
@@ -136,36 +104,144 @@ useEffect(() => {
     setQuoteCounts(sortedDates.map(date => dateMap[date]?.quotes || 0));
   };
 
-  if (loading) return <div>טוען נתונים...</div>;
+  // מחיקת משתמש
+  const handleDeleteUser = async (id: string) => {
+    if (confirm("למחוק את המשתמש?")) {
+      try {
+        await axios.delete(`${BASE_URL}/api/admin/user/${id}`);
+        setUsers((users) => users.filter((u) => u._id !== id));
+      } catch (err) {
+        alert("שגיאה במחיקת משתמש");
+      }
+    }
+  };
+
+  // מחיקת בקשת הצעה (quote)
+  const handleDeleteQuote = async (id: string) => {
+    if (confirm("למחוק את הבקשה?")) {
+      try {
+        await axios.delete(`${BASE_URL}/api/admin/quote/${id}`);
+        setQuotes((quotes) => quotes.filter((q) => q._id !== id));
+      } catch (err) {
+        alert("שגיאה במחיקת בקשה");
+      }
+    }
+  };
+
+  // מחיקת הצעה שהוגשה (submittedQuote)
+  const handleDeleteSubmitted = async (id: string) => {
+    if (confirm("למחוק את ההצעה שהוגשה?")) {
+      try {
+        await axios.delete(`${BASE_URL}/api/admin/submitted-quote/${id}`);
+        setSubmittedQuotes((arr) => arr.filter((q) => q._id !== id));
+      } catch (err) {
+        alert("שגיאה במחיקת הצעה שהוגשה");
+      }
+    }
+  };
+
+  // מחיקת עמיל מכס
+  const handleDeleteBroker = async (id: string) => {
+    if (confirm("למחוק את עמיל המכס?")) {
+      try {
+        await axios.delete(`${BASE_URL}/api/admin/broker/${id}`);
+        setBrokers((brokers) => brokers.filter((b) => b._id !== id));
+      } catch (err) {
+        alert("שגיאה במחיקת עמיל מכס");
+      }
+    }
+  };
+
+
+  if (!admin) {
+    return (
+      <div className="relative min-h-screen bg-indigo-200 flex items-center justify-center">
+        <div className="absolute inset-0 backdrop-blur-sm bg-black/30 z-10" />
+        <div className="relative z-20 bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
+          <h1 className="text-xl font-bold mb-4">🔐 כניסה למערכת ניהול</h1>
+          <input
+            type="text"
+            placeholder="הזן קוד בן 6 ספרות"
+            value={code}
+            onChange={e => setCode(e.target.value)}
+            className="w-full border border-gray-300 rounded px-3 py-2 mb-3 text-center"
+          />
+          {loginError && <div className="text-red-600 text-sm mb-2">{loginError}</div>}
+          <button
+            onClick={handleLogin}
+            disabled={isLoggingIn}
+            className={classNames(
+              "w-full py-2 rounded text-white font-semibold",
+              isLoggingIn ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            )}
+          >
+            {isLoggingIn ? "בודק קוד..." : "כניסה"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 min-h-screen bg-indigo-200">
-      <h1 className="text-2xl font-bold mb-4 text-center">לוח שליטה - אדמין</h1>
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="p-4 bg-white rounded shadow text-right">סה"כ משתמשים: {stats.totalUsers}</div>
-        <div className="p-4 bg-white rounded shadow text-right">סה"כ הצעות מחיר: {stats.totalQuotes}</div>
-        <div className="p-4 bg-white rounded shadow text-right">סה"כ תשלומים: ₪{stats.totalPaid}</div>
-        <div className="p-4 bg-white rounded shadow text-right">סה"כ חשבוניות: ₪{stats.totalInvoiced}</div>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">פאנל ניהול</h1>
+
+      {/* מדדים כלליים */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 text-right">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-gray-700">סה"כ משתמשים</h3>
+          <p className="text-3xl font-bold text-indigo-600 mt-2">{stats.totalUsers}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-gray-700">סה"כ עמילי מכס</h3>
+          <p className="text-3xl font-bold text-green-600 mt-2">{stats.totalBrokers}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-gray-700">סה"כ הצעות מחיר</h3>
+          <p className="text-3xl font-bold text-yellow-600 mt-2">{stats.totalQuotes}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-gray-700">הצעות מחיר שהוגשו</h3>
+          <p className="text-3xl font-bold text-red-600 mt-2">{stats.totalSubmittedQuotes}</p>
+        </div>
       </div>
 
-      {/* גרף */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2 text-right">📈 גרף כניסות והצעות לפי תאריך</h2>
-        {chartLabels.length > 0 && (
-          <Chart
-            type="line"
-            height={300}
-            series={[
-              { name: "כניסות", data: loginCounts },
-              { name: "הצעות מחיר", data: quoteCounts }
-            ]}
-            options={{
-              chart: { id: "activity-chart" },
-              xaxis: { categories: chartLabels },
-              colors: ["#3B82F6", "#F97316"]
-            }}
-          />
-        )}
+      {/* גרף כניסות ובקשות */}
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-right">פעילות יומיות</h2>
+        <Chart
+          options={{
+            chart: {
+              id: "daily-activity",
+              toolbar: {
+                show: false,
+              },
+            },
+            xaxis: {
+              categories: chartLabels,
+            },
+            stroke: {
+              curve: "smooth",
+            },
+            markers: {
+              size: 4,
+            },
+            colors: ['#4F46E5', '#EA580C'],
+            rtl: true, // Enable RTL for the chart
+          }}
+          series={[
+            {
+              name: "כניסות משתמשים",
+              data: loginCounts,
+            },
+            {
+              name: "בקשות הצעת מחיר",
+              data: quoteCounts,
+            },
+          ]}
+          type="line"
+          height={350}
+        />
       </div>
 
       {/* 5 תשלומים אחרונים */}
@@ -205,7 +281,7 @@ useEffect(() => {
                 <th className="p-2 border">קוד</th>
                 <th className="p-2 border">תפקיד</th>
                 <th className="p-2 border">תאריך הרשמה</th>
-                 <th className="p-2 border">מחיקה</th>
+                <th className="p-2 border">מחיקה</th>
               </tr>
             </thead>
             <tbody>
@@ -218,16 +294,16 @@ useEffect(() => {
                   <td className="p-2 border">{user.code}</td>
                   <td className="p-2 border">{user.role}</td>
                   <td className="p-2 border">{new Date(user.createdAt).toLocaleDateString()}</td>
-                   <td className="p-2 border text-center">
-        <button
-          onClick={() => handleDeleteUser(user._id)}
-          className="text-red-600 hover:underline"
-          title="מחק משתמש"
-        >🗑</button>
-      </td>
-    </tr>
-  ))}
-</tbody>
+                  <td className="p-2 border text-center">
+                    <button
+                      onClick={() => handleDeleteUser(user._id)}
+                      className="text-red-600 hover:underline"
+                      title="מחק משתמש"
+                    >🗑</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
         {/* כפתורי פג'ינציה */}
@@ -251,37 +327,36 @@ useEffect(() => {
         <h2 className="text-xl font-semibold mb-2 text-right">עמילי מכס</h2>
         <div className="overflow-x-auto max-h-[350px]">
           <table className="w-full text-sm border">
-           <thead className="bg-gray-100">
-  <tr>
-    <th className="p-2 border">שם</th>
-    <th className="p-2 border">אימייל</th>
-    <th className="p-2 border">טלפון</th>
-    <th className="p-2 border">חברה</th>
-    <th className="p-2 border">קוד</th>
-    <th className="p-2 border">תאריך הרשמה</th>
-    <th className="p-2 border">מחיקה</th>
-  </tr>
-</thead>
-<tbody>
-  {brokersToShow.map((broker) => (
-    <tr key={broker._id}>
-      <td className="p-2 border">{broker.name}</td>
-      <td className="p-2 border">{broker.email}</td>
-      <td className="p-2 border">{broker.phone}</td>
-      <td className="p-2 border">{broker.company}</td>
-      <td className="p-2 border">{broker.code}</td>
-      <td className="p-2 border">{new Date(broker.createdAt).toLocaleDateString()}</td>
-      <td className="p-2 border text-center">
-        <button
-          onClick={() => handleDeleteBroker(broker._id)}
-          className="text-red-600 hover:underline"
-          title="מחק עמיל מכס"
-        >🗑</button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-2 border">שם</th>
+                <th className="p-2 border">אימייל</th>
+                <th className="p-2 border">טלפון</th>
+                <th className="p-2 border">חברה</th>
+                <th className="p-2 border">קוד</th>
+                <th className="p-2 border">תאריך הרשמה</th>
+                <th className="p-2 border">מחיקה</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brokersToShow.map((broker) => (
+                <tr key={broker._id}>
+                  <td className="p-2 border">{broker.name}</td>
+                  <td className="p-2 border">{broker.email}</td>
+                  <td className="p-2 border">{broker.phone}</td>
+                  <td className="p-2 border">{broker.company}</td>
+                  <td className="p-2 border">{broker.code}</td>
+                  <td className="p-2 border">{new Date(broker.createdAt).toLocaleDateString()}</td>
+                  <td className="p-2 border text-center">
+                    <button
+                      onClick={() => handleDeleteBroker(broker._id)}
+                      className="text-red-600 hover:underline"
+                      title="מחק עמיל מכס"
+                    >🗑</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
         <div className="flex justify-center items-center mt-2 gap-2">
@@ -311,10 +386,10 @@ useEffect(() => {
                 <th className="p-2 border">לקוח</th>
                 <th className="p-2 border">סטטוס</th>
                 <th className="p-2 border">תאריך</th>
-               <th className="p-2 border">מחיקה</th>
-  </tr>
-</thead>
-<tbody>
+                <th className="p-2 border">מחיקה</th>
+              </tr>
+            </thead>
+            <tbody>
               {quotesToShow.map((q, i) => (
                 <tr key={q._id || i}>
                   <td className="p-2 border">{q.quoteId}</td>
@@ -322,16 +397,16 @@ useEffect(() => {
                   <td className="p-2 border">{q.clientName || q.clientId}</td>
                   <td className="p-2 border">{q.status}</td>
                   <td className="p-2 border">{q.createdAt ? new Date(q.createdAt).toLocaleDateString() : ""}</td>
-                <td className="p-2 border text-center">
-        <button
-          onClick={() => handleDeleteQuote(q._id)}
-          className="text-red-600 hover:underline"
-          title="מחק בקשה"
-        >🗑</button>
-      </td>
-    </tr>
-  ))}
-</tbody>
+                  <td className="p-2 border text-center">
+                    <button
+                      onClick={() => handleDeleteQuote(q._id)}
+                      className="text-red-600 hover:underline"
+                      title="מחק בקשה"
+                    >🗑</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
         <div className="flex justify-center items-center mt-2 gap-2">
@@ -350,42 +425,42 @@ useEffect(() => {
       </div>
 
       {/* טבלת submitted-quotes */}
-    <div className="bg-white p-4 rounded shadow mt-8">
-  <h2 className="text-xl font-semibold mb-2 text-right">כל ההצעות שהוגשו (Submitted Quotes)</h2>
-  <div className="overflow-x-auto max-h-[350px]">
-    <table className="w-full text-sm border">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="p-2 border">מספר הצעה</th>
-          <th className="p-2 border">שם מוצר</th>
-          <th className="p-2 border">עמיל מכס</th>
-          <th className="p-2 border">סה"כ ב ש"ח</th>
-          <th className="p-2 border">$  סה"כ  ב </th>
-          <th className="p-2 border">תאריך</th>
-           <th className="p-2 border">מחיקה</th>
-        </tr>
-      </thead>
-      <tbody>
-        {submittedToShow.map((q, i) => (
-          <tr key={q._id || i}>
-            <td className="p-2 border">{q.quoteId}</td>
-            <td className="p-2 border">{q.productName}</td>
-            <td className="p-2 border">{q.brokerName || q.brokerCode}</td>
-            <td className="p-2 border">{q.totalShekel ?? ''}</td>
-            <td className="p-2 border">{q.totalDollar ?? ''}</td>
-            <td className="p-2 border">{q.submittedAt ? new Date(q.submittedAt).toLocaleDateString() : ""}</td>
-           <td className="p-2 border text-center">
-        <button
-          onClick={() => handleDeleteSubmitted(q._id)}
-          className="text-red-600 hover:underline"
-          title="מחק הצעה שהוגשה"
-        >🗑</button>
-      </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
+      <div className="bg-white p-4 rounded shadow mt-8">
+        <h2 className="text-xl font-semibold mb-2 text-right">כל ההצעות שהוגשו (Submitted Quotes)</h2>
+        <div className="overflow-x-auto max-h-[350px]">
+          <table className="w-full text-sm border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-2 border">מספר הצעה</th>
+                <th className="p-2 border">שם מוצר</th>
+                <th className="p-2 border">עמיל מכס</th>
+                <th className="p-2 border">סה"כ ב ש"ח</th>
+                <th className="p-2 border">$ סה"כ ב</th>
+                <th className="p-2 border">תאריך</th>
+                <th className="p-2 border">מחיקה</th>
+              </tr>
+            </thead>
+            <tbody>
+              {submittedToShow.map((q, i) => (
+                <tr key={q._id || i}>
+                  <td className="p-2 border">{q.quoteId}</td>
+                  <td className="p-2 border">{q.productName}</td>
+                  <td className="p-2 border">{q.brokerName || q.brokerCode}</td>
+                  <td className="p-2 border">{q.totalShekel ?? ''}</td>
+                  <td className="p-2 border">{q.totalDollar ?? ''}</td>
+                  <td className="p-2 border">{q.submittedAt ? new Date(q.submittedAt).toLocaleDateString() : ""}</td>
+                  <td className="p-2 border text-center">
+                    <button
+                      onClick={() => handleDeleteSubmitted(q._id)}
+                      className="text-red-600 hover:underline"
+                      title="מחק הצעה שהוגשה"
+                    >🗑</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <div className="flex justify-center items-center mt-2 gap-2">
           <button
             onClick={() => setSubmittedPage((p) => Math.max(1, p - 1))}

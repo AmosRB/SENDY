@@ -59,6 +59,11 @@ export default function BrokerLoginPage() {
       localStorage.setItem('brokerId', data._id); // שמור את ה-ID לאחר הרישום המוצלח
       localStorage.setItem('brokerName', data.name);
       localStorage.setItem('brokerCode', data.code);
+      
+      sessionStorage.setItem('brokerId', data._id);
+sessionStorage.setItem('brokerName', data.name);
+sessionStorage.setItem('brokerCode', data.code);
+
 
     } catch (err) {
       console.error('❌ שגיאה ברישום עמיל מכס:', err);

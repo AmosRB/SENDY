@@ -15,8 +15,9 @@ export default function BrokerStatusPage() {
   const apiBase = process.env.NEXT_PUBLIC_API_URL;
 
 useEffect(() => {
-  const code = sessionStorage.getItem('brokerCode');
-  const cachedBroker = sessionStorage.getItem('brokerData');
+  const code = sessionStorage.getItem('brokerCode') || localStorage.getItem('brokerCode');
+
+  const cachedBroker = sessionStorage.getItem('brokerData') || localStorage.getItem('brokerData');
 
   if (!code) {
     setError('אין קוד גישה');
