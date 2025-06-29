@@ -44,24 +44,33 @@ export default function AdminDashboard() {
   const submittedPageCount = Math.ceil(submittedQuotes.length / submittedPerPage);
   const submittedToShow = submittedQuotes.slice((submittedPage - 1) * submittedPerPage, submittedPage * submittedPerPage);
 
-  const handleLogin = async () => {
-    setIsLoggingIn(true);
-    setLoginError('');
-    try {
-      const res = await axios.get(`${BASE_URL}/api/users?code=${code}`);
-      const user = res.data;
-      if (user?.role !== 'admin') {
-        setLoginError('אין הרשאה. נדרש קוד של אדמין');
-        setIsLoggingIn(false);
-        return;
-      }
-      setAdmin(user);
-    } catch (err) {
-      setLoginError('קוד לא תקף או שגיאה בשרת');
-    } finally {
+type AdminUser = {
+  _id: string;
+  name: string;
+  role: string;
+  [key: string]: any;
+};
+
+const handleLogin = async () => {
+  setIsLoggingIn(true);
+  setLoginError('');
+  try {
+    const res = await axios.get(`${BASE_URL}/api/users?code=${code}`);
+    const user = res.data as AdminUser;
+    if (user.role !== 'admin') {
+      setLoginError('אין הרשאה. נדרש קוד של אדמין');
       setIsLoggingIn(false);
+      return;
     }
-  };
+    setAdmin(user);
+  } catch (err) {
+    setLoginError('קוד לא תקף או שגיאה בשרת');
+  } finally {
+    setIsLoggingIn(false);
+  }
+};
+
+
 
   useEffect(() => {
     if (!admin) return;
