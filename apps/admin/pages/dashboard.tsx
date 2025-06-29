@@ -77,7 +77,7 @@ const handleLogin = async () => {
     async function fetchData() {
       try {
         const dashboardRes = await axios.get(`${BASE_URL}/api/admin/dashboard-data`);
-        const data = dashboardRes.data;
+        const data = dashboardRes.data as any;
         setStats(data.summary);
         setUsers(data.users);
         setBrokers(data.brokers);
