@@ -216,42 +216,78 @@ const handleLogin = async () => {
       </div>
 
       {/* גרף כניסות ובקשות */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-right">פעילות יומיות</h2>
-        <Chart
-          options={{
-            chart: {
-              id: "daily-activity",
-              toolbar: {
-                show: false,
-              },
-            },
-            xaxis: {
-              categories: chartLabels,
-            },
-            stroke: {
-              curve: "smooth",
-            },
-            markers: {
-              size: 4,
-            },
-            colors: ['#4F46E5', '#EA580C'],
-            rtl: true, // Enable RTL for the chart
-          }}
-          series={[
-            {
-              name: "כניסות משתמשים",
-              data: loginCounts,
-            },
-            {
-              name: "בקשות הצעת מחיר",
-              data: quoteCounts,
-            },
-          ]}
-          type="line"
-          height={350}
-        />
-      </div>
+<div className="bg-white p-6 rounded-lg shadow-md mb-8" dir="rtl">
+  <h2 className="text-xl font-semibold mb-4 text-right">📊 פעילות יומית</h2>
+  <Chart
+    options={{
+      chart: {
+        id: "daily-activity",
+        toolbar: {
+          show: true,
+          tools: {
+            download: true, // מאפשר הורדה
+            selection: false,
+            zoom: false,
+            zoomin: false,
+            zoomout: false,
+            pan: false,
+            reset: false,
+          },
+        },
+      },
+      xaxis: {
+        categories: chartLabels,
+        labels: {
+          style: {
+            fontSize: '12px',
+            colors: '#374151',
+          }
+        }
+      },
+      yaxis: {
+        labels: {
+          style: {
+            fontSize: '12px',
+            colors: '#374151',
+          }
+        }
+      },
+      stroke: {
+        curve: "smooth",
+      },
+      markers: {
+        size: 4,
+      },
+      tooltip: {
+        shared: true,
+        intersect: false,
+        style: {
+          direction: 'rtl',
+        }
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'center',
+        fontFamily: 'inherit',
+      },
+      colors: ['#4F46E5', '#EA580C'],
+    }}
+    series={[
+      {
+        name: "כניסות משתמשים",
+        data: loginCounts,
+      },
+      {
+        name: "בקשות הצעת מחיר",
+        data: quoteCounts,
+      },
+    ]}
+    type="line"
+    height={350}
+  />
+</div>
+
+
 
       {/* 5 תשלומים אחרונים */}
       <div className="mb-6 bg-white p-4 rounded shadow">
