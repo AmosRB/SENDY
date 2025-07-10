@@ -1,7 +1,24 @@
 import React from 'react';
+import { useRouter } from 'next/router';
+
 
 export default function About() {
+
+  const router = useRouter();
+
   return (
+  <div className="relative">
+    <div className="absolute top-4 right-4 z-50">
+  <button
+    onClick={() => router.push('/')}
+    className="text-gray-800 text-3xl p-2 rounded-full hover:bg-gray-200"
+    title="חזרה"
+  >
+    →
+  </button>
+</div>
+
+    
       <div className="max-w-4xl mx-auto p-6 text-right text-gray-800 leading-relaxed text-xl">
       <h1 className="text-3xl font-bold mb-4 text-indigo-800">מייבא מחו"ל? אנחנו הכתובת למשלוחים חכמים</h1>
       <p className="mb-6">
@@ -37,5 +54,6 @@ export default function About() {
       <p className="text-xl font-bold text-green-800">ייבוא חכם מתחיל כאן.</p>
       <p className="mt-2">הצטרף לאלפי לקוחות שכבר משתמשים באפליקציה שלנו לניהול יעיל, בטוח ומשתלם של תהליכי שילוח מחו"ל.</p>
     </div>
+  </div>
   );
 }

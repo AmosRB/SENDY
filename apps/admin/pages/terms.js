@@ -1,7 +1,20 @@
 // pages/terms.js
+import { useRouter } from 'next/router';
+
 export default function TermsPage() {
+  const router = useRouter();
   return (
-    <div className="p-10 text-right max-w-4xl mx-auto" dir="rtl" lang="he">
+    <div className="relative">
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={() => router.push('/')}
+          className="text-gray-800 text-3xl p-2 rounded-full hover:bg-gray-200"
+          title="חזרה"
+        >
+          →
+        </button>
+      </div>
+      <div className="p-10 text-right max-w-4xl mx-auto" dir="rtl" lang="he">
       <h1 className="text-3xl font-bold mb-6">תקנון, תנאי שימוש ומדיניות פרטיות – Share Container</h1>
       <p className="text-gray-600 mb-4">עודכן לאחרונה: יוני 2025</p>
       <div className="text-gray-700 leading-relaxed space-y-4">
@@ -109,6 +122,7 @@ export default function TermsPage() {
         <p>אימייל: <a href="mailto:Info@shareacontainer.co.il" className="text-blue-700 underline">Info@shareacontainer.co.il</a></p>
         <p className="text-gray-500 text-sm mt-4">כל הזכויות בתקנון זה שמורות לדניאל בחרי עורכי דין ואין להעתיק, לשכפל או להפיץ אותו.</p>
       </div>
+    </div>
     </div>
   );
 }
