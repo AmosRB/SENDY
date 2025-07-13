@@ -9,7 +9,9 @@ export default function NewProduct() {
   const router = useRouter();
 
   const [link, setLink] = useState('');
-  const [data, setData] = useState({ name: '', manufacturer: '', weight: '', dimensions: '', cbm: '', origin: '' });
+  const [data, setData] = useState({
+  originCountry: '',
+  originCity: '', name: '', manufacturer: '', weight: '', dimensions: '', cbm: '', origin: '' });
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [notes, setNotes] = useState('');
@@ -198,7 +200,8 @@ useEffect(() => {
   clientTaxIdNumber,
   productName: data.name,
   manufacturer: data.manufacturer,
-  origin: data.origin,
+  originCountry: data.originCountry,
+      originCity: data.originCity,
   productUrl: link,
   totalWeight: data.weight,
   totalVolume: data.dimensions,

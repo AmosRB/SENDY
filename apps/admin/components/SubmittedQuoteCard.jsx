@@ -143,7 +143,8 @@ export default function SubmittedQuoteCard({ quote, broker, onClose }) {
       <div><strong>שם המוצר:</strong> {productName}</div>
       <div className="flex flex-wrap gap-x-5 gap-y-2 items-center text-[16px] mt-2 mb-2">
         <span><strong>יצרן:</strong> {manufacturer}</span>
-        <span><strong>מקור:</strong> {origin}</span>
+        <span><strong>ארץ מוצא:</strong> {quote.originCountry || '—'}</span>
+<span><strong>עיר מוצא:</strong> {quote.originCity || '—'}</span>
         <span><strong>נפח:</strong> {totalVolume}</span>
         <span><strong>משקל:</strong> {totalWeight}</span>
         <span>

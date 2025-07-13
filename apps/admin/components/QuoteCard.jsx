@@ -67,7 +67,10 @@ export default function QuoteCard({
             <>
               <div><strong>שם המוצר:</strong> {productName}</div>
               <div><strong>יצרן:</strong> {quote.manufacturer || '—'}</div>
-              <div><strong>מקור:</strong> {quote.origin || '—'}</div>
+              <div>
+  <strong>ארץ מוצא:</strong> {quote.originCountry || '—'}<br />
+  <strong>עיר מוצא:</strong> {quote.originCity || '—'}
+</div>
               <div><strong>נפח:</strong> {quote.totalVolume || '—'}</div>
               <div><strong>משקל:</strong> {quote.totalWeight || '—'}</div>
               <div><strong>סוג משלוח:</strong> {[quote.shippingType?.FOB && 'FOB', quote.shippingType?.EXW && 'EXW'].filter(Boolean).join(', ') || '—'}</div>
