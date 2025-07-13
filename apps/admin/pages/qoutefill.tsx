@@ -53,7 +53,6 @@ const [client, setClient] = useState<{
   weight: string;
   dimensions: string;
   cbm: string;
-  origin: string;
   originCountry: string;
   originCity: string;
 };
