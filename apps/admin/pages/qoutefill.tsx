@@ -63,7 +63,6 @@ const defaultData: ProductData = {
   weight: '',
   dimensions: '',
   cbm: '',
-  origin: '',
   originCountry: '',
   originCity: '',
 };
