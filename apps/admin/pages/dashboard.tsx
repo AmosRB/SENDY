@@ -36,9 +36,9 @@ export default function AdminDashboard() {
 
   const [quotePage, setQuotePage] = useState(1);
   const quotesPerPage = 20;
-  const quotePageCount = Math.ceil(quotes.length / quotesPerPage);
-  const quotesToShow = quotes.slice((quotePage - 1) * quotesPerPage, quotePage * quotesPerPage);
-
+ const filteredQuotes = quotes.filter(q => q.status !== 'draft');
+const quotePageCount = Math.ceil(filteredQuotes.length / quotesPerPage);
+const quotesToShow = filteredQuotes.slice((quotePage - 1) * quotesPerPage, quotePage * quotesPerPage);
   const [submittedPage, setSubmittedPage] = useState(1);
   const submittedPerPage = 20;
   const submittedPageCount = Math.ceil(submittedQuotes.length / submittedPerPage);
