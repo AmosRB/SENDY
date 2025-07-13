@@ -94,7 +94,17 @@ const goNext = () => {
         setLoading(false);
       })
       .catch(() => {
-        setData({ name: 'N/A', manufacturer: 'N/A', weight: 'N/A', dimensions: 'N/A', cbm: 'N/A', origin: 'N/A' });
+        setData({
+  name: 'N/A',
+  manufacturer: 'N/A',
+  weight: 'N/A',
+  dimensions: 'N/A',
+  cbm: 'N/A',
+  origin: 'N/A',
+  originCountry: 'N/A',
+  originCity: 'N/A'
+});
+
         setReady(true);
         setLoading(false);
       });
