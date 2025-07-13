@@ -3,7 +3,27 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useState, useEffect, useRef } from 'react';
 
-export default function NewProduct() {
+type ProductData = {
+  name: string;
+  manufacturer: string;
+  weight: string;
+  dimensions: string;
+  cbm: string;
+  originCountry: string;
+  originCity: string;
+};
+
+const defaultData: ProductData = {
+  name: '',
+  manufacturer: '',
+  weight: '',
+  dimensions: '',
+  cbm: '',
+  originCountry: '',
+  originCity: '',
+};
+
+export default function QuoteFill() {
   const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
   const [currency, setCurrency] = useState('₪');
@@ -27,7 +47,29 @@ const [client, setClient] = useState<{
 
 
   const [link, setLink] = useState('');
-  const [data, setData] = useState({ name: '', manufacturer: '', weight: '', dimensions: '', cbm: '', origin: '' });
+  type ProductData = {
+  name: string;
+  manufacturer: string;
+  weight: string;
+  dimensions: string;
+  cbm: string;
+  origin: string;
+  originCountry: string;
+  originCity: string;
+};
+
+const defaultData: ProductData = {
+  name: '',
+  manufacturer: '',
+  weight: '',
+  dimensions: '',
+  cbm: '',
+  origin: '',
+  originCountry: '',
+  originCity: '',
+};
+
+const [data, setData] = useState<ProductData>(defaultData);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -241,7 +283,22 @@ const totalDollar =
   (services.insurance && currencyInsurance === '$' ? parseAmount(insurance) : 0) +
   (services.inLandDelivery && currencyDelivery === '$' ? parseAmount(inLandDelivery) : 0);
 
-
+  const fetchData = (url: string) => {
+    setReady(false);
+    setLoading(true);
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/extract?url=${encodeURIComponent(url)}`)
+      .then(res => res.json())
+      .then(data => {
+        setData(data);
+        setReady(true);
+        setLoading(false);
+      })
+      .catch(() => {
+        setData(defaultData);
+        setReady(true);
+        setLoading(false);
+      });
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start px-4 pt-6 pb-32 bg-gradient-to-t from-[#6c9fcf] via-white via-[75%] to-white relative" dir="rtl">
@@ -317,26 +374,41 @@ const totalDollar =
 />
 
 
+    {/* שורה חדשה לשלושת השדות: יצרן, ארץ מוצא, עיר מוצא */}
+{/* שורה חדשה מאוחדת לשלושה שדות: יצרן, ארץ מוצא, עיר מוצא */}
+<div className="col-span-6 grid grid-cols-6 gap-x-3 gap-y-2">
   {/* יצרן */}
   <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">יצרן</label>
   <input
-  type="text"
-  value={data.manufacturer}
-  onChange={(e) => setData({ ...data, manufacturer: e.target.value })}
-  className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-  placeholder="לדוגמה: LG"
-/>
+    type="text"
+    value={data.manufacturer}
+    onChange={(e) => setData({ ...data, manufacturer: e.target.value })}
+    className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px] w-[200px]"
+    placeholder="לדוגמה: LG"
+  />
 
-
-  {/* נקודת מוצא */}
-  <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">נקודת מוצא</label>
+  {/* ארץ מוצא */}
+  <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">ארץ מוצא</label>
   <input
-  type="text"
-  value={data.origin}
-  onChange={(e) => setData({ ...data, origin: e.target.value })}
-  className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-  placeholder="לדוגמה: שנחאי"
-/>
+    type="text"
+    value={data.originCountry}
+    onChange={(e) => setData({ ...data, originCountry: e.target.value })}
+    className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px] w-[180px]"
+    placeholder="מדינה"
+  />
+
+  {/* עיר מוצא */}
+  <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">עיר מוצא</label>
+  <input
+    type="text"
+    value={data.originCity}
+    onChange={(e) => setData({ ...data, originCity: e.target.value })}
+    className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
+    placeholder="עיר"
+  />
+</div>
+
+
 
 
   {/* דף המוצר */}

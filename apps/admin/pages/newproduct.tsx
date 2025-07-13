@@ -4,14 +4,44 @@ import Head from 'next/head';
 import { useState, useEffect, useRef } from 'react';
 import ProductInfoWindow from '../components/ProductInfoWindow';
 
+type ProductData = {
+  name: string;
+  manufacturer: string;
+  weight: string;
+  dimensions: string;
+  cbm: string;
+  origin: string;
+  originCountry: string;
+  originCity: string;
+};
+
+const defaultData: ProductData = {
+  name: '',
+  manufacturer: '',
+  weight: '',
+  dimensions: '',
+  cbm: '',
+  origin: '',
+  originCountry: '',
+  originCity: '',
+};
+
+const errorData: ProductData = {
+  name: 'N/A',
+  manufacturer: 'N/A',
+  weight: 'N/A',
+  dimensions: 'N/A',
+  cbm: 'N/A',
+  origin: 'N/A',
+  originCountry: 'N/A',
+  originCity: 'N/A',
+};
 
 export default function NewProduct() {
   const router = useRouter();
 
   const [link, setLink] = useState('');
-  const [data, setData] = useState({
-  originCountry: '',
-  originCity: '', name: '', manufacturer: '', weight: '', dimensions: '', cbm: '', origin: '' });
+  const [data, setData] = useState<ProductData>(defaultData);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [notes, setNotes] = useState('');
@@ -22,12 +52,9 @@ export default function NewProduct() {
   const [clientPhone, setClientPhone] = useState('');
 
   const [clientRole, setClientRole] = useState('private');
-const [clientBusiness, setClientBusiness] = useState('');
-const [clientTaxIdNumber, setClientTaxIdNumber] = useState('');
-const [clientEmail, setClientEmail] = useState('');
-
-
-
+  const [clientBusiness, setClientBusiness] = useState('');
+  const [clientTaxIdNumber, setClientTaxIdNumber] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
 
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [quoteId, setQuoteId] = useState('');
@@ -43,7 +70,6 @@ const [clientEmail, setClientEmail] = useState('');
 
   const [clientId, setClientId] = useState<string | null>(null);
   const [clientName, setClientName] = useState('');
-
 
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,8 +111,7 @@ const goNext = () => {
   const fetchData = (url: string) => {
     setReady(false);
     setLoading(true);
-   fetch(`${process.env.NEXT_PUBLIC_API_URL}/extract?url=${encodeURIComponent(url)}`)
-
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/extract?url=${encodeURIComponent(url)}`)
       .then(res => res.json())
       .then(data => {
         setData(data);
@@ -94,17 +119,7 @@ const goNext = () => {
         setLoading(false);
       })
       .catch(() => {
-        setData({
-  name: 'N/A',
-  manufacturer: 'N/A',
-  weight: 'N/A',
-  dimensions: 'N/A',
-  cbm: 'N/A',
-  origin: 'N/A',
-  originCountry: 'N/A',
-  originCity: 'N/A'
-});
-
+        setData(errorData); // ✅ שימוש במידע שגיאה ברור
         setReady(true);
         setLoading(false);
       });
@@ -180,7 +195,8 @@ useEffect(() => {
     if (!termsAccepted || isSubmitting) return;
 
     const missing: string[] = [];
-    if (!data.origin.trim()) missing.push('origin');
+    if (!data.originCountry.trim()) missing.push('originCountry');
+if (!data.originCity.trim()) missing.push('originCity');
     if (!data.weight.trim()) missing.push('weight');
     if (!data.dimensions.trim()) missing.push('dimensions');
     if (!shippingType.FOB && !shippingType.EXW) missing.push('shippingType');
@@ -349,28 +365,44 @@ useEffect(() => {
             />
 
 
-            {/* יצרן */}
-            <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">יצרן</label>
-            <input
-              type="text"
-              value={data.manufacturer}
-              onChange={(e) => setData({ ...data, manufacturer: e.target.value })}
-              className="col-span-2 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px]"
-              placeholder="לדוגמה: LG"
-            />
+{/* שורה חדשה מאוחדת לשלושה שדות: יצרן, ארץ מוצא, עיר מוצא */}
+<div className="col-span-6 grid grid-cols-6 gap-x-3 gap-y-2">
+  {/* יצרן */}
+  <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">יצרן</label>
+  <input
+    type="text"
+    value={data.manufacturer}
+    onChange={(e) => setData({ ...data, manufacturer: e.target.value })}
+    className="col-span-1 h-[36px] px-4 rounded-lg border border-gray-400 text-[15px] w-[200px]"
+    placeholder="לדוגמה: LG"
+  />
 
-
-            {/* נקודת מוצא */}
-            <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">ארץ ועיר  מוצא</label>
-          <input
+  {/* ארץ מוצא */}
+  <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">ארץ מוצא</label>
+ <input
   type="text"
-  value={data.origin}
-  onChange={(e) => setData({ ...data, origin: e.target.value })}
-  className={`col-span-2 h-[36px] px-4 rounded-lg border text-[15px] ${
-    invalidFields.includes('origin') ? 'border-red-500' : 'border-gray-400'
+  value={data.originCountry}
+  onChange={(e) => setData({ ...data, originCountry: e.target.value })}
+  className={`h-[36px] px-4 rounded-lg border text-[15px] w-[180px] ${
+    invalidFields.includes('originCountry') ? 'border-red-500' : 'border-gray-400'
   }`}
-  placeholder="חובה - ארץ  ועיר יציאת המשלוח"
+  placeholder="מדינה"
 />
+
+
+  {/* עיר מוצא */}
+  <label className="col-span-1 text-[20px] text-gray-800 font-semibold text-left">עיר מוצא</label>
+  <input
+    type="text"
+    value={data.originCity}
+    onChange={(e) => setData({ ...data, originCity: e.target.value })}
+    className={`col-span-1 h-[36px] px-4 rounded-lg border text-[15px]  ${
+      invalidFields.includes('originCity') ? 'border-red-500' : 'border-gray-400'
+    }`}
+    placeholder="עיר"
+  />
+</div>
+
 
 
             {/* דף המוצר */}
