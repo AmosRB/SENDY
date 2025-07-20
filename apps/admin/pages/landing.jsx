@@ -13,7 +13,14 @@ export default function LandingPage() {
       </Head>
 
       {/* לוגו */}
-      <img src="/logo-sharecontainer-black.png" alt="Logo" className="w-[280px] h-[280px] object-contain mt-4" />
+      <img src="/logo-sharecontainer-black.png" alt="Logo" className="w-[300px] h-[300px] object-contain mt-4" />
+
+<img
+  src="/images/contaierphoto.jpeg"
+  alt="Container"
+  className="w-full max-w-3xl object-cover mt-0 rounded-xl shadow-md"
+/>
+
 
 {/* כותרות שיווקיות בחלק העליון */}
 {/* כותרות שיווקיות בולטות בראש הדף */}
